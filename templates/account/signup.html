@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load allauth account %}
+
+{% block title %}Create account - Mesa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5 col-xl-4">
+    <div class="card shadow-sm mt-5">
+      <div class="card-body p-4">
+        <h1 class="h3 mb-1 text-center">Create your account</h1>
+        <p class="text-muted text-center mb-4">Start tracking your restaurant's numbers</p>
+
+        <form method="post" action="{% url 'account_signup' %}">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              <input type="{{ field.field.widget.input_type|default:'text' }}"
+                     name="{{ field.name }}" id="{{ field.id_for_label }}"
+                     class="form-control {% if field.errors %}is-invalid{% endif %}"
+                     value="{{ field.value|default:'' }}" required>
+              {% if field.errors %}
+                <div class="invalid-feedback">{{ field.errors|join:' ' }}</div>
+              {% elif field.help_text %}
+                <div class="form-text">{{ field.help_text|safe }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+          {% endif %}
+
+          <button type="submit" class="btn btn-primary w-100">Create account</button>
+        </form>
+
+        <p class="text-center text-muted mt-4 mb-0 small">
+          Already have an account?
+          <a href="{% url 'account_login' %}" class="text-decoration-none">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
