@@ -12,6 +12,18 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "sku", "category", "sale_price", "cost_price", "is_active")
+    list_display = (
+        "name",
+        "sku",
+        "category",
+        "cost_price",
+        "sale_price",
+        "margin_display",
+        "is_active",
+    )
     list_filter = ("category", "is_active")
     search_fields = ("name", "sku")
+
+    @admin.display(description="Margin %")
+    def margin_display(self, obj: Product) -> str:
+        return f"{obj.margin_pct:.1f}%"
