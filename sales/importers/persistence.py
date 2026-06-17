@@ -10,6 +10,7 @@ from .canonical import CanonicalSale
 def persist(canonical_sales: list[CanonicalSale]) -> dict:
     """Insert canonical sales into the database, idempotent by external_id."""
     new_count = 0
+    item_count = 0
     skipped_count = 0
     products_by_sku = {p.sku: p for p in Product.objects.all()}
 
@@ -36,6 +37,7 @@ def persist(canonical_sales: list[CanonicalSale]) -> dict:
                 unit_price=item.unit_price,
                 unit_cost=item.unit_cost,
             )
+            item_count += 1
         new_count += 1
 
-    return {"new": new_count, "skipped_duplicate": skipped_count}
+    return {"new": new_count, "items": item_count, "skipped_duplicate": skipped_count}

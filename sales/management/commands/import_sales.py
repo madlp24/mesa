@@ -23,9 +23,16 @@ class Command(BaseCommand):
 
         canonical = importer.normalize(path)
         result = persist(canonical)
+        skipped_rows = getattr(importer, "skipped_rows", 0)
         self.stdout.write(
             self.style.SUCCESS(
-                f"Imported {result['new']} new sales, "
-                f"skipped {result['skipped_duplicate']} duplicates."
+                f"{result['new']} sales imported, "
+                f"{result['items']} items, "
+                f"{skipped_rows} rows skipped"
             )
         )
+        if result["skipped_duplicate"]:
+            self.stdout.write(
+                f"{result['skipped_duplicate']} duplicate sales already "
+                f"present were ignored"
+            )
