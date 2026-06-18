@@ -15,4 +15,9 @@ urlpatterns = [
         views.top_products,
         name="top_products",
     ),
+    path(
+        "api/revenue-by-category/",
+        views.revenue_by_category_api,
+        name="revenue_by_category",
+    ),
 ]
