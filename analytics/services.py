@@ -116,3 +116,24 @@ def top_products_by_revenue(
         .order_by("-revenue")[:limit]
     )
     return [{"name": row["product__name"], "revenue": row["revenue"]} for row in rows]
+
+
+def revenue_by_category(
+    start: datetime.date | None = None,
+    end: datetime.date | None = None,
+) -> list[dict]:
+    """Revenue grouped by product category within the window, highest first.
+
+    Returns a list of ``{"name": str, "revenue": Decimal}`` rows, one per
+    category that had sales.
+    """
+    rows = (
+        sale_items_in_range(start, end)
+        .values("product__category__id", "product__category__name")
+        .annotate(revenue=Sum(_REVENUE))
+        .order_by("-revenue")
+    )
+    return [
+        {"name": row["product__category__name"], "revenue": row["revenue"]}
+        for row in rows
+    ]

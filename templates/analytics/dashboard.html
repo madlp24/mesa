@@ -57,6 +57,23 @@
     <canvas id="topProductsChart" height="100"></canvas>
 </div></div>
 
+<div class="card mt-4"><div class="card-body">
+    <h2 class="h6 text-muted">Revenue by category</h2>
+    <canvas id="categoryChart" height="100"></canvas>
+</div></div>
+
+<script>
+const MESA_PALETTE = [
+    "#0d6efd", "#6610f2", "#d63384", "#fd7e14", "#198754",
+    "#20c997", "#0dcaf0", "#ffc107", "#dc3545", "#6c757d",
+];
+
+function mesaPct(value, data) {
+    const total = data.reduce(function (a, b) { return a + b; }, 0);
+    return total ? (value / total * 100).toFixed(1) : "0.0";
+}
+</script>
+
 <script>
 (function () {
     const params = window.location.search;
@@ -95,6 +112,50 @@
                     }],
                 },
                 options: {indexAxis: "y", scales: {x: {beginAtZero: true}}},
+            });
+        });
+
+    fetch("{% url 'analytics:revenue_by_category' %}" + params, {headers: {"X-Requested-With": "XMLHttpRequest"}})
+        .then(function (r) { return r.json(); })
+        .then(function (series) {
+            new Chart(document.getElementById("categoryChart"), {
+                type: "doughnut",
+                data: {
+                    labels: series.labels,
+                    datasets: [{
+                        label: "Revenue (COP)",
+                        data: series.data,
+                        backgroundColor: MESA_PALETTE,
+                    }],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: "right",
+                            labels: {
+                                generateLabels: function (chart) {
+                                    const data = chart.data.datasets[0].data;
+                                    return chart.data.labels.map(function (label, i) {
+                                        return {
+                                            text: label + " (" + mesaPct(data[i], data) + "%)",
+                                            fillStyle: MESA_PALETTE[i % MESA_PALETTE.length],
+                                            index: i,
+                                        };
+                                    });
+                                },
+                            },
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    const data = ctx.dataset.data;
+                                    return ctx.label + ": " + ctx.parsed
+                                        + " (" + mesaPct(ctx.parsed, data) + "%)";
+                                },
+                            },
+                        },
+                    },
+                },
             });
         });
 })();
