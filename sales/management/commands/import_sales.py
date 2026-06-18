@@ -31,8 +31,7 @@ class Command(BaseCommand):
                 f"{skipped_rows} rows skipped"
             )
         )
-        if result["skipped_duplicate"]:
-            self.stdout.write(
-                f"{result['skipped_duplicate']} duplicate sales already "
-                f"present were ignored"
-            )
+        self.stdout.write(
+            f"{result['new']} new sales, "
+            f"{result['skipped_duplicate']} skipped as duplicate"
+        )
