@@ -52,11 +52,16 @@
     <canvas id="revenueChart" height="100"></canvas>
 </div></div>
 
+<div class="card mt-4"><div class="card-body">
+    <h2 class="h6 text-muted">Top 10 products by revenue</h2>
+    <canvas id="topProductsChart" height="100"></canvas>
+</div></div>
+
 <script>
 (function () {
     const params = window.location.search;
-    const url = "{% url 'analytics:revenue_over_time' %}" + params;
-    fetch(url, {headers: {"X-Requested-With": "XMLHttpRequest"}})
+
+    fetch("{% url 'analytics:revenue_over_time' %}" + params, {headers: {"X-Requested-With": "XMLHttpRequest"}})
         .then(function (r) { return r.json(); })
         .then(function (series) {
             new Chart(document.getElementById("revenueChart"), {
@@ -73,6 +78,23 @@
                     }],
                 },
                 options: {scales: {y: {beginAtZero: true}}},
+            });
+        });
+
+    fetch("{% url 'analytics:top_products' %}" + params, {headers: {"X-Requested-With": "XMLHttpRequest"}})
+        .then(function (r) { return r.json(); })
+        .then(function (series) {
+            new Chart(document.getElementById("topProductsChart"), {
+                type: "bar",
+                data: {
+                    labels: series.labels,
+                    datasets: [{
+                        label: "Revenue (COP)",
+                        data: series.data,
+                        backgroundColor: "rgba(13,110,253,0.6)",
+                    }],
+                },
+                options: {indexAxis: "y", scales: {x: {beginAtZero: true}}},
             });
         });
 })();
