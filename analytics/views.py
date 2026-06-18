@@ -1,12 +1,12 @@
 import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 
-from .services import compute_kpis
+from .services import compute_kpis, revenue_by_day
 
 # Default dashboard window when the user has not picked a range: the last 30
 # days, inclusive of today.
@@ -37,3 +37,16 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         "end": end,
     }
     return render(request, "analytics/dashboard.html", context)
+
+
+@login_required
+def revenue_over_time(request: HttpRequest) -> JsonResponse:
+    """Daily revenue (COP) for the active range, as JSON for the line chart."""
+    start, end = _resolve_range(request)
+    rows = revenue_by_day(start, end)
+    return JsonResponse(
+        {
+            "labels": [row["day"].isoformat() for row in rows],
+            "data": [float(row["revenue"]) for row in rows],
+        }
+    )

@@ -17,6 +17,7 @@ from django.db.models import (
     QuerySet,
     Sum,
 )
+from django.db.models.functions import TruncDate
 
 from sales.models import SaleItem
 
@@ -77,3 +78,22 @@ def compute_kpis(
         "average_ticket": average_ticket,
         "gross_margin_pct": gross_margin_pct,
     }
+
+
+def revenue_by_day(
+    start: datetime.date | None = None,
+    end: datetime.date | None = None,
+) -> list[dict]:
+    """Daily revenue within the window, ordered by date.
+
+    Returns a list of ``{"day": date, "revenue": Decimal}`` rows with one entry
+    per day that actually had sales (gaps are not back-filled).
+    """
+    rows = (
+        sale_items_in_range(start, end)
+        .annotate(day=TruncDate("sale__occurred_at"))
+        .values("day")
+        .annotate(revenue=Sum(_REVENUE))
+        .order_by("day")
+    )
+    return list(rows)
