@@ -86,4 +86,4 @@ def test_reimporting_same_pdf_is_idempotent(tmp_path):
 
     assert Sale.objects.count() == 3
     assert "0 sales imported" in out.getvalue()
-    assert "duplicate sales already" in out.getvalue()
+    assert "3 skipped as duplicate" in out.getvalue()
