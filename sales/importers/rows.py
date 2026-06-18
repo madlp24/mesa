@@ -35,10 +35,17 @@ def canonical_from_record(record: dict) -> CanonicalSale:
         raise RowError(f"missing {', '.join(missing)}")
 
     try:
-        quantity = int(record["quantity"])
+        quantity = int(Decimal(str(record["quantity"])))
         unit_price = Decimal(str(record["unit_price"]))
         unit_cost = Decimal(str(record["unit_cost"]))
         occurred_at = _as_aware_datetime(record["occurred_at"])
+        # Importers may supply an authoritative line total (e.g. the PDF report's
+        # VENTA TOTAL); otherwise fall back to price * quantity.
+        total = (
+            Decimal(str(record["total"]))
+            if record.get("total") not in (None, "")
+            else unit_price * quantity
+        )
     except (ValueError, InvalidOperation, TypeError) as exc:
         raise RowError("invalid number or date") from exc
 
@@ -47,11 +54,13 @@ def canonical_from_record(record: dict) -> CanonicalSale:
         quantity=quantity,
         unit_price=unit_price,
         unit_cost=unit_cost,
+        product_name=str(record.get("product_name") or "").strip(),
+        category_name=str(record.get("category_name") or "").strip(),
     )
     return CanonicalSale(
         external_id=str(record["external_id"]).strip(),
         occurred_at=occurred_at,
-        total=unit_price * quantity,
+        total=total,
         payment_method=str(record.get("payment_method") or ""),
         server_name=str(record.get("server_name") or ""),
         table_number=str(record.get("table_number") or ""),
