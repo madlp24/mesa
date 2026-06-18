@@ -1,11 +1,11 @@
 from .base import BaseImporter
 from .canonical import CanonicalSale, CanonicalSaleItem
 from .persistence import persist
-from .registry import get_importer_for, register
+from .registry import autodiscover, get_importer_for, register
 
-# Import concrete importers for their registration side effects.
-from . import excel_historical  # noqa: E402,F401
-from . import pdf_daily  # noqa: E402,F401
+# Import every importer module so its @register decorator runs. Adding a new
+# format needs no edit here: just drop a new module in this package.
+autodiscover(__name__, __path__)
 
 __all__ = [
     "BaseImporter",
