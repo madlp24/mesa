@@ -104,7 +104,11 @@ def logged_client(client, db):
 
 @pytest.mark.django_db
 def test_dashboard_renders_four_kpis(logged_client, sales):
-    response = logged_client.get(reverse("analytics:dashboard"))
+    # Pass an explicit range covering the fixture data; the default window is
+    # the last 30 days (see US13), which would exclude these January sales.
+    response = logged_client.get(
+        reverse("analytics:dashboard"), {"start": "2026-01-01", "end": "2026-01-31"}
+    )
 
     assert response.status_code == 200
     content = response.content.decode()
