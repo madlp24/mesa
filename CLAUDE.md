@@ -32,19 +32,40 @@ python manage.py migrate
 - Open a PR with `Closes #N` in the body so the issue auto-closes on merge.
 - Merge to `main` via PR (do not push to main directly).
 - Python 3.11+ syntax, type hints where natural, PEP 8, no emojis. Run `ruff check .`
-  before committing. Do not add importer deps (openpyxl/pdfplumber/pandas) until their
-  stories.
+  before committing. Importer deps are added per-story as needed (already present:
+  `openpyxl`, `pdfplumber` runtime; `reportlab` dev, only for PDF test fixtures).
 
 ## Status (update as work lands)
-- US1 Scaffold (#1) - DONE
-- US3 Sign up / log in (#2) - DONE (merged, PR #22)
-- US4 Log out (#3) - DONE, PR #23 open (awaiting merge)
-- NEXT: US5 Manage product categories (#4) - Sprint 1, "must".
-  Note: the `Category` model already exists from the scaffold; US5 is mainly a model
-  test for ordering plus verifying admin CRUD. Confirm against `gh issue view 4`.
+DONE + merged: US1 Scaffold (#1), US3 auth (#2/PR22), US4 logout (#3/PR23),
+US5 categories (#4/PR25), US6 products (#5/PR26), US7 product detail (#6/PR27),
+US8 Excel import (#7/PR28), US9 PDF import (#8/PR29), US10 skip-duplicates (#9/PR30),
+US11 pluggable arch (#10/PR31). Epics catalog + ingestion are COMPLETE.
+
+NEXT: US12 Dashboard with four headline KPIs (#11) - epic dashboard, "must".
+First dashboard story; now has real data to render. Confirm with `gh issue view 11`.
+
+### Ingestion architecture (built across US8-US11, in `sales/importers/`)
+- `BaseImporter.normalize(path) -> list[CanonicalSale]` is the contract; concrete
+  importers register with `@register(".ext")`; `autodiscover()` imports all
+  submodules so a new format = one new file, no core edits. `get_importer_for(path)`
+  dispatches by extension. Shared `rows.canonical_from_record()` does row->canonical;
+  `persist()` is idempotent by `Sale.external_id` and auto-creates Product/Category
+  from item catalog hints. Command: `python manage.py import_sales --file <path>`.
+- DATA MODEL DECISION (Option A, agreed with user): the real POS PDF is an aggregated
+  "PRODUCTOS VENDIDOS" report (per product per period, grouped by GRUPO), NOT a
+  transaction list. It is mapped onto the existing Sale/SaleItem as one synthetic
+  Sale+SaleItem per product per day: `external_id="<YYYY-MM-DD>:<CLAVE>"`,
+  occurred_at = report period start date, CLAVE->Product.sku, GRUPO->Category,
+  CANTIDAD->quantity, PRECIO VENTA PROMEDIO->unit_price, COSTO PROMEDIO->unit_cost,
+  VENTA TOTAL->Sale.total. Dashboard granularity = import granularity (use DAILY PDFs).
+  Real sample PDFs live on the user's Desktop (VENTA-COSTO ABRIL/JUNIO 2025), not in
+  the repo; the PDF test uses a synthetic reportlab fixture that mimics the real layout.
 
 ## Known follow-ups (not blocking)
 - #24 Navbar lacks a Bootstrap toggler -> logout/login hidden below 992px (mobile).
+- Meat products report CANTIDAD in GRAMS (e.g. 2656), not units. Fine for revenue/margin
+  but a "top products by units" view (US14/#14) would rank them oddly - rank by revenue
+  or flag weight-based products when that story lands.
 
 ## Token efficiency (the user cares about this)
 - Start a NEW session per user story to avoid dragging context.
