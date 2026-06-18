@@ -9,6 +9,10 @@ class CanonicalSaleItem:
     quantity: int
     unit_price: Decimal
     unit_cost: Decimal
+    # Optional catalog hints; importers that read them (e.g. the PDF report,
+    # which embeds the catalog) let persist() auto-create missing products.
+    product_name: str = ""
+    category_name: str = ""
 
 
 @dataclass
