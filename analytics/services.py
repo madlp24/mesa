@@ -97,3 +97,22 @@ def revenue_by_day(
         .order_by("day")
     )
     return list(rows)
+
+
+def top_products_by_revenue(
+    start: datetime.date | None = None,
+    end: datetime.date | None = None,
+    limit: int = 10,
+) -> list[dict]:
+    """Top ``limit`` products by revenue within the window, highest first.
+
+    Returns a list of ``{"name": str, "revenue": Decimal}`` rows. Ranking is by
+    revenue (not units) because weight-based products report quantity in grams.
+    """
+    rows = (
+        sale_items_in_range(start, end)
+        .values("product__id", "product__name")
+        .annotate(revenue=Sum(_REVENUE))
+        .order_by("-revenue")[:limit]
+    )
+    return [{"name": row["product__name"], "revenue": row["revenue"]} for row in rows]

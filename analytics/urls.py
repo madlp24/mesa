@@ -10,4 +10,9 @@ urlpatterns = [
         views.revenue_over_time,
         name="revenue_over_time",
     ),
+    path(
+        "api/top-products/",
+        views.top_products,
+        name="top_products",
+    ),
 ]

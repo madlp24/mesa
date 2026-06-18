@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 
-from .services import compute_kpis, revenue_by_day
+from .services import compute_kpis, revenue_by_day, top_products_by_revenue
 
 # Default dashboard window when the user has not picked a range: the last 30
 # days, inclusive of today.
@@ -47,6 +47,19 @@ def revenue_over_time(request: HttpRequest) -> JsonResponse:
     return JsonResponse(
         {
             "labels": [row["day"].isoformat() for row in rows],
+            "data": [float(row["revenue"]) for row in rows],
+        }
+    )
+
+
+@login_required
+def top_products(request: HttpRequest) -> JsonResponse:
+    """Top 10 products by revenue for the active range, as JSON for the chart."""
+    start, end = _resolve_range(request)
+    rows = top_products_by_revenue(start, end)
+    return JsonResponse(
+        {
+            "labels": [row["name"] for row in rows],
             "data": [float(row["revenue"]) for row in rows],
         }
     )
