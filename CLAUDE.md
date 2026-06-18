@@ -39,10 +39,14 @@ python manage.py migrate
 DONE + merged: US1 Scaffold (#1), US3 auth (#2/PR22), US4 logout (#3/PR23),
 US5 categories (#4/PR25), US6 products (#5/PR26), US7 product detail (#6/PR27),
 US8 Excel import (#7/PR28), US9 PDF import (#8/PR29), US10 skip-duplicates (#9/PR30),
-US11 pluggable arch (#10/PR31). Epics catalog + ingestion are COMPLETE.
+US11 pluggable arch (#10/PR31), US12 dashboard KPIs (#11/PR32). Epics catalog +
+ingestion are COMPLETE; epic dashboard is IN PROGRESS.
 
-NEXT: US12 Dashboard with four headline KPIs (#11) - epic dashboard, "must".
-First dashboard story; now has real data to render. Confirm with `gh issue view 11`.
+NEXT: US13 Filter dashboard by date range (#12) - epic dashboard, "must".
+US12 already added a ?start=&end= GET filter to the dashboard reusing the
+product-detail convention (`analytics/services.compute_kpis` does the math); US13
+adds the missing piece: default the range to the last 30 days. Confirm with
+`gh issue view 12`.
 
 ### Ingestion architecture (built across US8-US11, in `sales/importers/`)
 - `BaseImporter.normalize(path) -> list[CanonicalSale]` is the contract; concrete
