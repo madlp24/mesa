@@ -1,0 +1,262 @@
+# Spanish (es) translation catalog for Mesa.
+# Copyright (C) 2026 Mesa.
+# This file is distributed under the same license as the Mesa package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Mesa\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-19 15:12-0500\n"
+"PO-Revision-Date: 2026-06-19 15:30-0500\n"
+"Last-Translator: madlp24\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: analytics/views.py:24
+msgid "Name"
+msgstr "Nombre"
+
+#: analytics/views.py:25
+msgid "Category"
+msgstr "Categoría"
+
+#: analytics/views.py:26
+msgid "Cost"
+msgstr "Costo"
+
+#: analytics/views.py:27
+msgid "Sale price"
+msgstr "Precio de venta"
+
+#: analytics/views.py:28
+msgid "Margin $"
+msgstr "Margen $"
+
+#: analytics/views.py:29
+msgid "Margin %"
+msgstr "Margen %"
+
+#: analytics/views.py:30 templates/catalog/product_detail.html:34
+#: templates/catalog/product_detail.html:69
+msgid "Units sold"
+msgstr "Unidades vendidas"
+
+#: analytics/views.py:31 templates/catalog/product_detail.html:46
+msgid "Total margin"
+msgstr "Margen total"
+
+#: config/settings/base.py:77
+msgid "English"
+msgstr "Inglés"
+
+#: config/settings/base.py:78
+msgid "Spanish"
+msgstr "Español"
+
+#: templates/account/login.html:5 templates/account/login.html:53
+#: templates/account/signup.html:48
+msgid "Sign in"
+msgstr "Iniciar sesión"
+
+#: templates/account/login.html:12
+msgid "Welcome back"
+msgstr "Bienvenido de nuevo"
+
+#: templates/account/login.html:13
+msgid "Sign in to your Mesa account"
+msgstr "Inicia sesión en tu cuenta de Mesa"
+
+#: templates/account/login.html:25
+msgid "Username or email"
+msgstr "Usuario o correo electrónico"
+
+#: templates/account/login.html:35
+msgid "Password"
+msgstr "Contraseña"
+
+#: templates/account/login.html:46
+msgid "Remember me"
+msgstr "Recuérdame"
+
+#: templates/account/login.html:57
+msgid "Don't have an account?"
+msgstr "¿No tienes una cuenta?"
+
+#: templates/account/login.html:58
+msgid "Sign up"
+msgstr "Regístrate"
+
+#: templates/account/signup.html:5 templates/account/signup.html:43
+msgid "Create account"
+msgstr "Crear cuenta"
+
+#: templates/account/signup.html:12
+msgid "Create your account"
+msgstr "Crea tu cuenta"
+
+#: templates/account/signup.html:13
+msgid "Start tracking your restaurant's numbers"
+msgstr "Empieza a controlar los números de tu restaurante"
+
+#: templates/account/signup.html:47
+msgid "Already have an account?"
+msgstr "¿Ya tienes una cuenta?"
+
+#: templates/analytics/dashboard.html:4 templates/analytics/dashboard.html:8
+#: templates/base.html:30
+msgid "Dashboard"
+msgstr "Panel"
+
+#: templates/analytics/dashboard.html:9
+msgid "Sales performance at a glance for the selected period."
+msgstr "Rendimiento de ventas de un vistazo para el período seleccionado."
+
+#: templates/analytics/dashboard.html:14
+#: templates/analytics/margin_analysis.html:14
+#: templates/catalog/product_detail.html:19
+msgid "From"
+msgstr "Desde"
+
+#: templates/analytics/dashboard.html:18
+#: templates/analytics/margin_analysis.html:18
+#: templates/catalog/product_detail.html:23
+msgid "To"
+msgstr "Hasta"
+
+#: templates/analytics/dashboard.html:22
+#: templates/analytics/margin_analysis.html:24 templates/analytics/pnl.html:23
+#: templates/catalog/product_detail.html:27
+msgid "Apply"
+msgstr "Aplicar"
+
+#: templates/analytics/dashboard.html:29
+#: templates/catalog/product_detail.html:40
+msgid "Total revenue"
+msgstr "Ingresos totales"
+
+#: templates/analytics/dashboard.html:35
+msgid "Items sold"
+msgstr "Artículos vendidos"
+
+#: templates/analytics/dashboard.html:41
+msgid "Average ticket"
+msgstr "Ticket promedio"
+
+#: templates/analytics/dashboard.html:47
+msgid "Gross margin"
+msgstr "Margen bruto"
+
+#: templates/analytics/dashboard.html:54
+msgid "Revenue over time"
+msgstr "Ingresos a lo largo del tiempo"
+
+#: templates/analytics/dashboard.html:59
+msgid "Top 10 products by revenue"
+msgstr "Top 10 productos por ingresos"
+
+#: templates/analytics/dashboard.html:64
+msgid "Revenue by category"
+msgstr "Ingresos por categoría"
+
+#: templates/analytics/dashboard.html:92 templates/analytics/dashboard.html:113
+#: templates/analytics/dashboard.html:131
+msgid "Revenue (COP)"
+msgstr "Ingresos (COP)"
+
+#: templates/analytics/margin_analysis.html:4
+#: templates/analytics/margin_analysis.html:8
+msgid "Margin analysis"
+msgstr "Análisis de márgenes"
+
+#: templates/analytics/margin_analysis.html:9
+msgid "Active products ranked by gross margin. Click a column to sort."
+msgstr "Productos activos ordenados por margen bruto. Haz clic en una columna para ordenar."
+
+#: templates/analytics/margin_analysis.html:70
+msgid "No active products."
+msgstr "No hay productos activos."
+
+#: templates/analytics/pnl.html:4
+msgid "Profit & Loss"
+msgstr "Pérdidas y ganancias"
+
+#: templates/analytics/pnl.html:8
+msgid "Monthly profit & loss"
+msgstr "Pérdidas y ganancias mensuales"
+
+#: templates/analytics/pnl.html:9
+msgid "Revenue, cost of goods sold and gross margin, month by month."
+msgstr "Ingresos, costo de ventas y margen bruto, mes a mes."
+
+#: templates/analytics/pnl.html:14
+msgid "Period"
+msgstr "Período"
+
+#: templates/analytics/pnl.html:16
+msgid "Last 12 months"
+msgstr "Últimos 12 meses"
+
+#: templates/analytics/pnl.html:32
+msgid "Month"
+msgstr "Mes"
+
+#: templates/analytics/pnl.html:33
+msgid "Revenue"
+msgstr "Ingresos"
+
+#: templates/analytics/pnl.html:34
+msgid "COGS"
+msgstr "Costo de ventas"
+
+#: templates/analytics/pnl.html:35
+msgid "Gross Margin"
+msgstr "Margen bruto"
+
+#: templates/analytics/pnl.html:36
+#, python-format
+msgid "Gross Margin %%"
+msgstr "Margen bruto %%"
+
+#: templates/base.html:33
+msgid "Margins"
+msgstr "Márgenes"
+
+#: templates/base.html:36
+msgid "P&L"
+msgstr "PyG"
+
+#: templates/base.html:48 templates/base.html:50
+msgid "Language"
+msgstr "Idioma"
+
+#: templates/base.html:64
+msgid "Logout"
+msgstr "Cerrar sesión"
+
+#: templates/base.html:69
+msgid "Login"
+msgstr "Iniciar sesión"
+
+#: templates/base.html:83
+msgid "Mesa &middot; Business intelligence for Tres Cuatro Cinco steakhouse"
+msgstr "Mesa &middot; Inteligencia de negocio para el asadero Tres Cuatro Cinco"
+
+#: templates/base.html:84
+msgid "Bogot&aacute;, Colombia"
+msgstr "Bogot&aacute;, Colombia"
+
+#: templates/catalog/product_detail.html:11
+msgid "SKU"
+msgstr "SKU"
+
+#: templates/catalog/product_detail.html:12
+msgid "inactive"
+msgstr "inactivo"
+
+#: templates/catalog/product_detail.html:53
+msgid "Units sold per day"
+msgstr "Unidades vendidas por día"

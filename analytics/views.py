@@ -5,6 +5,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.dateparse import parse_date
+from django.utils.translation import gettext_lazy as _
 
 from sales.models import Sale
 
@@ -20,14 +21,14 @@ from .services import (
 
 # (key, label) pairs driving the margin table header, in display order.
 MARGIN_COLUMNS = (
-    ("name", "Name"),
-    ("category", "Category"),
-    ("cost", "Cost"),
-    ("sale_price", "Sale price"),
-    ("margin_amount", "Margin $"),
-    ("margin_pct", "Margin %"),
-    ("units_sold", "Units sold"),
-    ("total_margin", "Total margin"),
+    ("name", _("Name")),
+    ("category", _("Category")),
+    ("cost", _("Cost")),
+    ("sale_price", _("Sale price")),
+    ("margin_amount", _("Margin $")),
+    ("margin_pct", _("Margin %")),
+    ("units_sold", _("Units sold")),
+    ("total_margin", _("Total margin")),
 )
 
 # Default dashboard window when the user has not picked a range: the last 30
