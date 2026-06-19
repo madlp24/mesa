@@ -6,9 +6,12 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 
+from sales.models import Sale
+
 from .services import (
     MARGIN_SORT_KEYS,
     compute_kpis,
+    monthly_pnl,
     product_margins,
     revenue_by_category,
     revenue_by_day,
@@ -106,6 +109,22 @@ def margin_analysis(request: HttpRequest) -> HttpResponse:
         "end": end,
     }
     return render(request, "analytics/margin_analysis.html", context)
+
+
+@login_required
+def pnl_summary(request: HttpRequest) -> HttpResponse:
+    """Monthly P&L table: trailing 12 months, or a selected year."""
+    year_param = request.GET.get("year", "")
+    year = int(year_param) if year_param.isdigit() else None
+
+    rows = monthly_pnl(year=year)
+    years = [d.year for d in Sale.objects.dates("occurred_at", "year", order="DESC")]
+    context = {
+        "rows": rows,
+        "selected_year": year,
+        "years": years,
+    }
+    return render(request, "analytics/pnl.html", context)
 
 
 @login_required

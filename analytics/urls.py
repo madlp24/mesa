@@ -6,6 +6,7 @@ app_name = "analytics"
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("margin/", views.margin_analysis, name="margin_analysis"),
+    path("pnl/", views.pnl_summary, name="pnl_summary"),
     path(
         "api/revenue-over-time/",
         views.revenue_over_time,

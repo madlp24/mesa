@@ -17,7 +17,8 @@ from django.db.models import (
     QuerySet,
     Sum,
 )
-from django.db.models.functions import TruncDate
+from django.db.models.functions import TruncDate, TruncMonth
+from django.utils import timezone
 
 from catalog.models import Product
 from sales.models import SaleItem
@@ -28,6 +29,10 @@ _REVENUE = ExpressionWrapper(
 )
 _MARGIN = ExpressionWrapper(
     (F("unit_price") - F("unit_cost")) * F("quantity"),
+    output_field=DecimalField(max_digits=14, decimal_places=2),
+)
+_COGS = ExpressionWrapper(
+    F("unit_cost") * F("quantity"),
     output_field=DecimalField(max_digits=14, decimal_places=2),
 )
 
@@ -193,4 +198,63 @@ def product_margins(
         )
 
     rows.sort(key=lambda row: row[sort], reverse=descending)
+    return rows
+
+
+def _months_back(anchor: datetime.date, count: int) -> list[datetime.date]:
+    """``count`` month-start dates ending at ``anchor``'s month, ascending."""
+    months = []
+    year, month = anchor.year, anchor.month
+    for _ in range(count):
+        months.append(datetime.date(year, month, 1))
+        month -= 1
+        if month == 0:
+            month, year = 12, year - 1
+    months.reverse()
+    return months
+
+
+def monthly_pnl(
+    year: int | None = None,
+    today: datetime.date | None = None,
+) -> list[dict]:
+    """Monthly profit-and-loss rows, ascending by month.
+
+    With ``year`` set, returns the 12 calendar months of that year; otherwise
+    the trailing 12 months ending this month. Months without sales are included
+    with zero values. Each row has ``month`` (a date), ``revenue``, ``cogs``,
+    ``gross_margin`` and ``gross_margin_pct``.
+    """
+    if today is None:
+        today = timezone.localdate()
+    if year:
+        periods = [datetime.date(year, month, 1) for month in range(1, 13)]
+    else:
+        periods = _months_back(today, 12)
+
+    aggregated = (
+        SaleItem.objects.annotate(month=TruncMonth("sale__occurred_at"))
+        .values("month")
+        .annotate(revenue=Sum(_REVENUE), cogs=Sum(_COGS))
+    )
+    by_month = {
+        (row["month"].year, row["month"].month): row for row in aggregated
+    }
+
+    rows = []
+    for period in periods:
+        stats = by_month.get((period.year, period.month))
+        revenue = stats["revenue"] if stats else Decimal("0")
+        cogs = stats["cogs"] if stats else Decimal("0")
+        margin = revenue - cogs
+        pct = (margin / revenue * 100) if revenue else Decimal("0")
+        rows.append(
+            {
+                "month": period,
+                "revenue": revenue,
+                "cogs": cogs,
+                "gross_margin": margin,
+                "gross_margin_pct": pct,
+            }
+        )
     return rows
