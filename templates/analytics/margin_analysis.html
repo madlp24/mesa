@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Margin analysis - Mesa{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Margin analysis</h1>
+
+<form method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-auto">
+        <label for="start" class="form-label mb-0">From</label>
+        <input type="date" id="start" name="start" value="{{ start|date:'Y-m-d' }}" class="form-control">
+    </div>
+    <div class="col-auto">
+        <label for="end" class="form-label mb-0">To</label>
+        <input type="date" id="end" name="end" value="{{ end|date:'Y-m-d' }}" class="form-control">
+    </div>
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <input type="hidden" name="dir" value="{{ direction }}">
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Apply</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                {% for key, label in columns %}
+                {% if sort == key and direction == 'desc' %}
+                    {% with next_dir='asc' arrow=' ▼' %}
+                    <th>
+                        <a class="text-decoration-none text-reset"
+                           href="?sort={{ key }}&dir={{ next_dir }}{% if start %}&start={{ start|date:'Y-m-d' }}{% endif %}{% if end %}&end={{ end|date:'Y-m-d' }}{% endif %}">{{ label }}{{ arrow }}</a>
+                    </th>
+                    {% endwith %}
+                {% elif sort == key %}
+                    {% with next_dir='desc' arrow=' ▲' %}
+                    <th>
+                        <a class="text-decoration-none text-reset"
+                           href="?sort={{ key }}&dir={{ next_dir }}{% if start %}&start={{ start|date:'Y-m-d' }}{% endif %}{% if end %}&end={{ end|date:'Y-m-d' }}{% endif %}">{{ label }}{{ arrow }}</a>
+                    </th>
+                    {% endwith %}
+                {% else %}
+                    <th>
+                        <a class="text-decoration-none text-reset"
+                           href="?sort={{ key }}&dir=desc{% if start %}&start={{ start|date:'Y-m-d' }}{% endif %}{% if end %}&end={{ end|date:'Y-m-d' }}{% endif %}">{{ label }}</a>
+                    </th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.category }}</td>
+                <td>${{ row.cost }}</td>
+                <td>${{ row.sale_price }}</td>
+                <td>${{ row.margin_amount }}</td>
+                <td>{{ row.margin_pct|floatformat:1 }}%</td>
+                <td>{{ row.units_sold }}</td>
+                <td>${{ row.total_margin }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="{{ columns|length }}" class="text-muted">No active products.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

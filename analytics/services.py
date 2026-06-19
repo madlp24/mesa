@@ -19,6 +19,7 @@ from django.db.models import (
 )
 from django.db.models.functions import TruncDate
 
+from catalog.models import Product
 from sales.models import SaleItem
 
 _REVENUE = ExpressionWrapper(
@@ -137,3 +138,59 @@ def revenue_by_category(
         {"name": row["product__category__name"], "revenue": row["revenue"]}
         for row in rows
     ]
+
+
+# Columns the margin table can be sorted by, mapped to the row key.
+MARGIN_SORT_KEYS = (
+    "name",
+    "category",
+    "cost",
+    "sale_price",
+    "margin_amount",
+    "margin_pct",
+    "units_sold",
+    "total_margin",
+)
+
+
+def product_margins(
+    start: datetime.date | None = None,
+    end: datetime.date | None = None,
+    sort: str = "margin_pct",
+    descending: bool = True,
+) -> list[dict]:
+    """One row per active product with its margins and in-range sales totals.
+
+    Static product economics (cost, sale price, unit margin) come straight from
+    the catalog; ``units_sold`` and ``total_margin`` are summed from SaleItems
+    in the window (0 when the product had no sales). Sorted by ``sort`` (one of
+    ``MARGIN_SORT_KEYS``), defaulting to margin % descending.
+    """
+    if sort not in MARGIN_SORT_KEYS:
+        sort = "margin_pct"
+
+    totals = (
+        sale_items_in_range(start, end)
+        .values("product_id")
+        .annotate(units=Sum("quantity"), total_margin=Sum(_MARGIN))
+    )
+    by_product = {row["product_id"]: row for row in totals}
+
+    rows = []
+    for product in Product.objects.filter(is_active=True).select_related("category"):
+        stats = by_product.get(product.id)
+        rows.append(
+            {
+                "name": product.name,
+                "category": product.category.name,
+                "cost": product.cost_price,
+                "sale_price": product.sale_price,
+                "margin_amount": product.margin_amount,
+                "margin_pct": product.margin_pct,
+                "units_sold": stats["units"] if stats else 0,
+                "total_margin": stats["total_margin"] if stats else Decimal("0"),
+            }
+        )
+
+    rows.sort(key=lambda row: row[sort], reverse=descending)
+    return rows

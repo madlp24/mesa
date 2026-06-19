@@ -7,10 +7,24 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date
 
 from .services import (
+    MARGIN_SORT_KEYS,
     compute_kpis,
+    product_margins,
     revenue_by_category,
     revenue_by_day,
     top_products_by_revenue,
+)
+
+# (key, label) pairs driving the margin table header, in display order.
+MARGIN_COLUMNS = (
+    ("name", "Name"),
+    ("category", "Category"),
+    ("cost", "Cost"),
+    ("sale_price", "Sale price"),
+    ("margin_amount", "Margin $"),
+    ("margin_pct", "Margin %"),
+    ("units_sold", "Units sold"),
+    ("total_margin", "Total margin"),
 )
 
 # Default dashboard window when the user has not picked a range: the last 30
@@ -68,6 +82,30 @@ def top_products(request: HttpRequest) -> JsonResponse:
             "data": [float(row["revenue"]) for row in rows],
         }
     )
+
+
+@login_required
+def margin_analysis(request: HttpRequest) -> HttpResponse:
+    """Sortable table ranking active products by gross margin for the range."""
+    start, end = _resolve_range(request)
+
+    sort = request.GET.get("sort", "margin_pct")
+    if sort not in MARGIN_SORT_KEYS:
+        sort = "margin_pct"
+    direction = request.GET.get("dir", "desc")
+    if direction not in ("asc", "desc"):
+        direction = "desc"
+
+    rows = product_margins(start, end, sort=sort, descending=direction == "desc")
+    context = {
+        "columns": MARGIN_COLUMNS,
+        "rows": rows,
+        "sort": sort,
+        "direction": direction,
+        "start": start,
+        "end": end,
+    }
+    return render(request, "analytics/margin_analysis.html", context)
 
 
 @login_required

@@ -14,6 +14,16 @@
         <div class="container">
             <a class="navbar-brand" href="{% url 'analytics:dashboard' %}">Mesa</a>
             <div class="collapse navbar-collapse">
+                {% if request.user.is_authenticated %}
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:margin_analysis' %}">Margins</a>
+                    </li>
+                </ul>
+                {% endif %}
                 <ul class="navbar-nav ms-auto">
                     {% if request.user.is_authenticated %}
                         <li class="nav-item">
