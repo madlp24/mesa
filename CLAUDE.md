@@ -55,10 +55,10 @@ JSON for Chart.js. Pages: `/` dashboard, `/margin/`, `/pnl/`. Theme lives in
 `static/css/site.css` (warm steakhouse: charcoal + terracotta + gold, Inter).
 Coverage gate: `pytest --cov-fail-under=70` enforced in `.github/workflows/ci.yml`.
 
-NEXT: US19 Polished README for recruiters (#20) - epic quality, "must". Needs
-inputs from the user (live demo URL, business story, board link) - see issue.
-Then US2 onboarding (#19) and US21 bilingual EN/ES (#41, backlog) remain.
-Confirm with `gh issue view 20`.
+NEXT: US2 onboarding (#19, "must") and/or US21 bilingual EN/ES (#41, "should").
+US19 Polished README (#20) is DEFERRED TO LAST by user decision (do it after the
+other stories). US19 will need user inputs (live demo URL - not yet deployed,
+business story, screenshots, board link). Confirm open work with `gh issue list`.
 
 ### Ingestion architecture (built across US8-US11, in `sales/importers/`)
 - `BaseImporter.normalize(path) -> list[CanonicalSale]` is the contract; concrete
