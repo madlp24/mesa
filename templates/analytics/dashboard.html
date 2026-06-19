@@ -4,7 +4,10 @@
 {% block title %}Dashboard - Mesa{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-4">Dashboard</h1>
+<div class="mb-4">
+    <h1 class="h3 mb-1">Dashboard</h1>
+    <p class="text-muted mb-0">Sales performance at a glance for the selected period.</p>
+</div>
 
 <form method="get" class="row g-2 align-items-end mb-4">
     <div class="col-auto">
@@ -22,27 +25,27 @@
 
 <div class="row g-3">
     <div class="col-md-6 col-xl-3">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6 text-muted">Total revenue</h2>
-            <p class="h3 mb-0">${{ kpis.total_revenue|floatformat:2|intcomma }}</p>
+        <div class="card kpi-card h-100"><div class="card-body">
+            <p class="kpi-label mb-1">Total revenue</p>
+            <p class="kpi-value mb-0">${{ kpis.total_revenue|floatformat:2|intcomma }}</p>
         </div></div>
     </div>
     <div class="col-md-6 col-xl-3">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6 text-muted">Items sold</h2>
-            <p class="h3 mb-0">{{ kpis.items_sold|intcomma }}</p>
+        <div class="card kpi-card h-100"><div class="card-body">
+            <p class="kpi-label mb-1">Items sold</p>
+            <p class="kpi-value mb-0">{{ kpis.items_sold|intcomma }}</p>
         </div></div>
     </div>
     <div class="col-md-6 col-xl-3">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6 text-muted">Average ticket</h2>
-            <p class="h3 mb-0">${{ kpis.average_ticket|floatformat:2|intcomma }}</p>
+        <div class="card kpi-card h-100"><div class="card-body">
+            <p class="kpi-label mb-1">Average ticket</p>
+            <p class="kpi-value mb-0">${{ kpis.average_ticket|floatformat:2|intcomma }}</p>
         </div></div>
     </div>
     <div class="col-md-6 col-xl-3">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6 text-muted">Gross margin</h2>
-            <p class="h3 mb-0">{{ kpis.gross_margin_pct|floatformat:1 }}%</p>
+        <div class="card kpi-card h-100"><div class="card-body">
+            <p class="kpi-label mb-1">Gross margin</p>
+            <p class="kpi-value mb-0">{{ kpis.gross_margin_pct|floatformat:1 }}%</p>
         </div></div>
     </div>
 </div>
@@ -64,8 +67,8 @@
 
 <script>
 const MESA_PALETTE = [
-    "#0d6efd", "#6610f2", "#d63384", "#fd7e14", "#198754",
-    "#20c997", "#0dcaf0", "#ffc107", "#dc3545", "#6c757d",
+    "#c0492b", "#d6a23e", "#7a8b3f", "#4a6670", "#9d3920",
+    "#caa05a", "#8a6d4f", "#6b8e9e", "#a8553f", "#b9863c",
 ];
 
 function mesaPct(value, data) {
@@ -88,9 +91,10 @@ function mesaPct(value, data) {
                     datasets: [{
                         label: "Revenue (COP)",
                         data: series.data,
-                        borderColor: "#0d6efd",
-                        backgroundColor: "rgba(13,110,253,0.1)",
-                        tension: 0.2,
+                        borderColor: "#c0492b",
+                        backgroundColor: "rgba(192,73,43,0.12)",
+                        pointBackgroundColor: "#c0492b",
+                        tension: 0.3,
                         fill: true,
                     }],
                 },
@@ -108,7 +112,8 @@ function mesaPct(value, data) {
                     datasets: [{
                         label: "Revenue (COP)",
                         data: series.data,
-                        backgroundColor: "rgba(13,110,253,0.6)",
+                        backgroundColor: "rgba(192,73,43,0.78)",
+                        borderRadius: 4,
                     }],
                 },
                 options: {indexAxis: "y", scales: {x: {beginAtZero: true}}},
