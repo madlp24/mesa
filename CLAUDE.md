@@ -39,14 +39,26 @@ python manage.py migrate
 DONE + merged: US1 Scaffold (#1), US3 auth (#2/PR22), US4 logout (#3/PR23),
 US5 categories (#4/PR25), US6 products (#5/PR26), US7 product detail (#6/PR27),
 US8 Excel import (#7/PR28), US9 PDF import (#8/PR29), US10 skip-duplicates (#9/PR30),
-US11 pluggable arch (#10/PR31), US12 dashboard KPIs (#11/PR32). Epics catalog +
-ingestion are COMPLETE; epic dashboard is IN PROGRESS.
+US11 pluggable arch (#10/PR31), US12 dashboard KPIs (#11/PR32),
+US13 date-range default (#12/PR33), US14 revenue line chart (#13/PR34),
+US15 top-products bar (#14/PR35), US16 revenue-by-category doughnut (#15/PR36),
+US17 margin analysis page (#16/PR37), US18 monthly P&L (#17/PR38),
+US20 test coverage + CI (#18/PR40), navbar toggler fix (#24/PR39),
+UI visual refresh (PR42). Epics catalog, ingestion, dashboard and analysis are
+COMPLETE.
 
-NEXT: US13 Filter dashboard by date range (#12) - epic dashboard, "must".
-US12 already added a ?start=&end= GET filter to the dashboard reusing the
-product-detail convention (`analytics/services.compute_kpis` does the math); US13
-adds the missing piece: default the range to the last 30 days. Confirm with
-`gh issue view 12`.
+Analytics layer recap (all in `analytics/`): `services.py` holds the math
+(`compute_kpis`, `revenue_by_day`, `top_products_by_revenue`, `revenue_by_category`,
+`product_margins`, `monthly_pnl`), views stay thin and reuse `_resolve_range`
+(defaults to last 30 days). Chart endpoints under `/api/...` return `{labels,data}`
+JSON for Chart.js. Pages: `/` dashboard, `/margin/`, `/pnl/`. Theme lives in
+`static/css/site.css` (warm steakhouse: charcoal + terracotta + gold, Inter).
+Coverage gate: `pytest --cov-fail-under=70` enforced in `.github/workflows/ci.yml`.
+
+NEXT: US19 Polished README for recruiters (#20) - epic quality, "must". Needs
+inputs from the user (live demo URL, business story, board link) - see issue.
+Then US2 onboarding (#19) and US21 bilingual EN/ES (#41, backlog) remain.
+Confirm with `gh issue view 20`.
 
 ### Ingestion architecture (built across US8-US11, in `sales/importers/`)
 - `BaseImporter.normalize(path) -> list[CanonicalSale]` is the contract; concrete
@@ -66,10 +78,13 @@ adds the missing piece: default the range to the last 30 days. Confirm with
   the repo; the PDF test uses a synthetic reportlab fixture that mimics the real layout.
 
 ## Known follow-ups (not blocking)
-- #24 Navbar lacks a Bootstrap toggler -> logout/login hidden below 992px (mobile).
-- Meat products report CANTIDAD in GRAMS (e.g. 2656), not units. Fine for revenue/margin
-  but a "top products by units" view (US14/#14) would rank them oddly - rank by revenue
-  or flag weight-based products when that story lands.
+- Meat products report CANTIDAD in GRAMS (e.g. 2656), not units. Fine for revenue/margin;
+  US15 top-products ranks by revenue (not units) for this reason.
+- `analytics/api.py` and `analytics/serializers.py` are empty placeholders ("Filled in by
+  US12") - chart endpoints ended up as plain JsonResponse views in `analytics/views.py`
+  (catalog precedent), so DRF stays unused. Remove the placeholders or adopt DRF later.
+- Local dev DB only: the `tomas` user password was reset to `preview123` during the UI
+  refresh preview. Reset with `python manage.py changepassword tomas` if needed.
 
 ## Token efficiency (the user cares about this)
 - Start a NEW session per user story to avoid dragging context.
