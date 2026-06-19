@@ -5,6 +5,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
+from analytics.services import product_margins
 from catalog.models import Category, Product
 from sales.models import Sale, SaleItem
 
@@ -104,6 +105,25 @@ def test_sort_by_name_ascending(logged_client, catalog):
 
     rows = response.context["rows"]
     assert [row["name"] for row in rows] == ["Burger", "Water", "Wine"]
+
+
+@pytest.mark.django_db
+def test_invalid_sort_and_dir_fall_back_to_defaults(logged_client, catalog):
+    response = logged_client.get(
+        reverse("analytics:margin_analysis"),
+        {**JAN, "sort": "bogus", "dir": "sideways"},
+    )
+
+    assert response.context["sort"] == "margin_pct"
+    assert response.context["direction"] == "desc"
+
+
+@pytest.mark.django_db
+def test_product_margins_rejects_unknown_sort_key(catalog):
+    # Calling the service directly with a bad key falls back to margin %.
+    rows = product_margins(sort="not-a-column")
+
+    assert [row["name"] for row in rows] == ["Wine", "Burger", "Water"]
 
 
 @pytest.mark.django_db
