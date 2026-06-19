@@ -5,18 +5,95 @@ real POS data from Tres Cuatro Cinco steakhouse in Bogota, Colombia.
 
 ## Local Setup
 
+Get the app running locally in under 5 minutes.
+
+### Prerequisites
+
+- **Python 3.12** (the project pins `python-3.12.7`; 3.11+ works for development)
+- **git**
+
+Check your version with `python3 --version`.
+
+### macOS / Linux
+
+```bash
+git clone https://github.com/madlp24/mesa.git
+cd mesa
+
+# 1. Create and activate a virtualenv
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2. Install dependencies (dev set includes tests + linters)
+pip install -r requirements-dev.txt
+
+# 3. Create your local .env from the template
+cp .env.example .env
+
+# 4. Generate a SECRET_KEY and paste it into .env
+python -c "import secrets; print(secrets.token_urlsafe(50))"
+
+# 5. Set up the database (creates a local db.sqlite3)
+python manage.py migrate
+
+# 6. Create an admin user to log in with
+python manage.py createsuperuser
+
+# 7. Run the dev server
+python manage.py runserver
+```
+
+### Windows (PowerShell)
+
 ```powershell
 git clone https://github.com/madlp24/mesa.git
 cd mesa
+
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+
 pip install -r requirements-dev.txt
+
 Copy-Item .env.example .env
-# edit .env and set a SECRET_KEY
+python -c "import secrets; print(secrets.token_urlsafe(50))"
+# paste the printed value as SECRET_KEY in .env
+
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Project status: scaffold phase. See the [Project Index](../../issues/21) for user
-stories and sprint plan.
+The app is now at <http://127.0.0.1:8000/>. Log in with the superuser you created.
+The Django admin lives at <http://127.0.0.1:8000/admin/>.
+
+### Environment variables
+
+`.env` is gitignored and read via `python-decouple`. Copy `.env.example` and adjust:
+
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `SECRET_KEY` | — | Required. Generate with the command above. |
+| `DEBUG` | `True` | Keep `True` for local development. |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated. |
+| `DATABASE_URL` | empty | Leave empty to use the local SQLite database. |
+| `DJANGO_SETTINGS_MODULE` | `config.settings.dev` | Dev settings use SQLite. |
+
+### Loading sample data
+
+The dashboard needs sales data to render charts. Import a POS file with:
+
+```bash
+python manage.py import_sales --file <path-to-excel-or-pdf>
+```
+
+### Running tests and linting
+
+```bash
+python -m pytest -q        # test suite (coverage gate: 70%)
+ruff check .               # lint
+```
+
+## Project status
+
+Catalog, ingestion, dashboard, and analysis epics are complete. See the
+[Project Index](../../issues/21) for user stories and the sprint plan.
