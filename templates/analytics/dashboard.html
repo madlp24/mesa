@@ -1,67 +1,67 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load humanize i18n %}
 
-{% block title %}Dashboard - Mesa{% endblock %}
+{% block title %}{% trans "Dashboard" %} - Mesa{% endblock %}
 
 {% block content %}
 <div class="mb-4">
-    <h1 class="h3 mb-1">Dashboard</h1>
-    <p class="text-muted mb-0">Sales performance at a glance for the selected period.</p>
+    <h1 class="h3 mb-1">{% trans "Dashboard" %}</h1>
+    <p class="text-muted mb-0">{% trans "Sales performance at a glance for the selected period." %}</p>
 </div>
 
 <form method="get" class="row g-2 align-items-end mb-4">
     <div class="col-auto">
-        <label for="start" class="form-label mb-0">From</label>
+        <label for="start" class="form-label mb-0">{% trans "From" %}</label>
         <input type="date" id="start" name="start" value="{{ start|date:'Y-m-d' }}" class="form-control">
     </div>
     <div class="col-auto">
-        <label for="end" class="form-label mb-0">To</label>
+        <label for="end" class="form-label mb-0">{% trans "To" %}</label>
         <input type="date" id="end" name="end" value="{{ end|date:'Y-m-d' }}" class="form-control">
     </div>
     <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Apply</button>
+        <button type="submit" class="btn btn-primary">{% trans "Apply" %}</button>
     </div>
 </form>
 
 <div class="row g-3">
     <div class="col-md-6 col-xl-3">
         <div class="card kpi-card h-100"><div class="card-body">
-            <p class="kpi-label mb-1">Total revenue</p>
+            <p class="kpi-label mb-1">{% trans "Total revenue" %}</p>
             <p class="kpi-value mb-0">${{ kpis.total_revenue|floatformat:2|intcomma }}</p>
         </div></div>
     </div>
     <div class="col-md-6 col-xl-3">
         <div class="card kpi-card h-100"><div class="card-body">
-            <p class="kpi-label mb-1">Items sold</p>
+            <p class="kpi-label mb-1">{% trans "Items sold" %}</p>
             <p class="kpi-value mb-0">{{ kpis.items_sold|intcomma }}</p>
         </div></div>
     </div>
     <div class="col-md-6 col-xl-3">
         <div class="card kpi-card h-100"><div class="card-body">
-            <p class="kpi-label mb-1">Average ticket</p>
+            <p class="kpi-label mb-1">{% trans "Average ticket" %}</p>
             <p class="kpi-value mb-0">${{ kpis.average_ticket|floatformat:2|intcomma }}</p>
         </div></div>
     </div>
     <div class="col-md-6 col-xl-3">
         <div class="card kpi-card h-100"><div class="card-body">
-            <p class="kpi-label mb-1">Gross margin</p>
+            <p class="kpi-label mb-1">{% trans "Gross margin" %}</p>
             <p class="kpi-value mb-0">{{ kpis.gross_margin_pct|floatformat:1 }}%</p>
         </div></div>
     </div>
 </div>
 
 <div class="card mt-4"><div class="card-body">
-    <h2 class="h6 text-muted">Revenue over time</h2>
+    <h2 class="h6 text-muted">{% trans "Revenue over time" %}</h2>
     <canvas id="revenueChart" height="100"></canvas>
 </div></div>
 
 <div class="card mt-4"><div class="card-body">
-    <h2 class="h6 text-muted">Top 10 products by revenue</h2>
+    <h2 class="h6 text-muted">{% trans "Top 10 products by revenue" %}</h2>
     <canvas id="topProductsChart" height="100"></canvas>
 </div></div>
 
 <div class="card mt-4"><div class="card-body">
-    <h2 class="h6 text-muted">Revenue by category</h2>
+    <h2 class="h6 text-muted">{% trans "Revenue by category" %}</h2>
     <canvas id="categoryChart" height="100"></canvas>
 </div></div>
 
@@ -89,7 +89,7 @@ function mesaPct(value, data) {
                 data: {
                     labels: series.labels,
                     datasets: [{
-                        label: "Revenue (COP)",
+                        label: "{% trans 'Revenue (COP)' %}",
                         data: series.data,
                         borderColor: "#c0492b",
                         backgroundColor: "rgba(192,73,43,0.12)",
@@ -110,7 +110,7 @@ function mesaPct(value, data) {
                 data: {
                     labels: series.labels,
                     datasets: [{
-                        label: "Revenue (COP)",
+                        label: "{% trans 'Revenue (COP)' %}",
                         data: series.data,
                         backgroundColor: "rgba(192,73,43,0.78)",
                         borderRadius: 4,
@@ -128,7 +128,7 @@ function mesaPct(value, data) {
                 data: {
                     labels: series.labels,
                     datasets: [{
-                        label: "Revenue (COP)",
+                        label: "{% trans 'Revenue (COP)' %}",
                         data: series.data,
                         backgroundColor: MESA_PALETTE,
                     }],

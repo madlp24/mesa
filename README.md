@@ -93,6 +93,34 @@ python -m pytest -q        # test suite (coverage gate: 70%)
 ruff check .               # lint
 ```
 
+## Languages (English / Spanish)
+
+The UI is fully bilingual. Use the **language selector in the navbar** to switch
+between English and Spanish; the choice is stored in a cookie and persists across
+requests. English is the source language; Spanish lives in
+`locale/es/LC_MESSAGES/django.po`.
+
+Compiled catalogs (`.mo`) are not committed — build them once after cloning:
+
+```bash
+python manage.py compilemessages
+```
+
+> This needs the GNU `gettext` tools. On macOS: `brew install gettext`.
+> On Debian/Ubuntu: `sudo apt-get install gettext`.
+
+### Adding or updating translations
+
+1. Mark new strings for translation in templates (`{% trans %}` / `{% blocktrans %}`)
+   or in Python (`gettext` / `gettext_lazy`).
+2. Regenerate the catalog and translate the new `msgstr` entries:
+
+   ```bash
+   python manage.py makemessages -l es --ignore=.venv --ignore=staticfiles
+   # edit locale/es/LC_MESSAGES/django.po
+   python manage.py compilemessages
+   ```
+
 ## Project status
 
 Catalog, ingestion, dashboard, and analysis epics are complete. See the

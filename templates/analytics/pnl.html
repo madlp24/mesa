@@ -1,25 +1,26 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Profit &amp; Loss - Mesa{% endblock %}
+{% block title %}{% trans "Profit & Loss" %} - Mesa{% endblock %}
 
 {% block content %}
 <div class="mb-4">
-    <h1 class="h3 mb-1">Monthly profit &amp; loss</h1>
-    <p class="text-muted mb-0">Revenue, cost of goods sold and gross margin, month by month.</p>
+    <h1 class="h3 mb-1">{% trans "Monthly profit & loss" %}</h1>
+    <p class="text-muted mb-0">{% trans "Revenue, cost of goods sold and gross margin, month by month." %}</p>
 </div>
 
 <form method="get" class="row g-2 align-items-end mb-4">
     <div class="col-auto">
-        <label for="year" class="form-label mb-0">Period</label>
+        <label for="year" class="form-label mb-0">{% trans "Period" %}</label>
         <select id="year" name="year" class="form-select" onchange="this.form.submit()">
-            <option value="">Last 12 months</option>
+            <option value="">{% trans "Last 12 months" %}</option>
             {% for y in years %}
             <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
             {% endfor %}
         </select>
     </div>
     <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Apply</button>
+        <button type="submit" class="btn btn-primary">{% trans "Apply" %}</button>
     </div>
 </form>
 
@@ -28,11 +29,11 @@
     <table class="table table-striped table-hover align-middle mb-0">
         <thead>
             <tr>
-                <th>Month</th>
-                <th class="text-end">Revenue</th>
-                <th class="text-end">COGS</th>
-                <th class="text-end">Gross Margin</th>
-                <th class="text-end">Gross Margin %</th>
+                <th>{% trans "Month" %}</th>
+                <th class="text-end">{% trans "Revenue" %}</th>
+                <th class="text-end">{% trans "COGS" %}</th>
+                <th class="text-end">{% trans "Gross Margin" %}</th>
+                <th class="text-end">{% trans "Gross Margin %" %}</th>
             </tr>
         </thead>
         <tbody>

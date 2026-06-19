@@ -17,11 +17,17 @@ jobs:
           python-version: "3.12"
           cache: pip
 
+      - name: Install gettext (for translation catalogs)
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
 
       - name: Lint
         run: ruff check .
+
+      - name: Compile translation catalogs
+        run: python manage.py compilemessages
 
       - name: Run tests with coverage
         run: pytest --cov-fail-under=70

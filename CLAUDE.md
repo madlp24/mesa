@@ -44,8 +44,10 @@ US13 date-range default (#12/PR33), US14 revenue line chart (#13/PR34),
 US15 top-products bar (#14/PR35), US16 revenue-by-category doughnut (#15/PR36),
 US17 margin analysis page (#16/PR37), US18 monthly P&L (#17/PR38),
 US20 test coverage + CI (#18/PR40), navbar toggler fix (#24/PR39),
-UI visual refresh (PR42). Epics catalog, ingestion, dashboard and analysis are
-COMPLETE.
+UI visual refresh (PR42), US2 onboarding (#19/PR43). Epics catalog, ingestion,
+dashboard and analysis are COMPLETE.
+
+IN PROGRESS: US21 bilingual EN/ES (#41) on branch `feat/us21-bilingual`.
 
 Analytics layer recap (all in `analytics/`): `services.py` holds the math
 (`compute_kpis`, `revenue_by_day`, `top_products_by_revenue`, `revenue_by_category`,
@@ -55,7 +57,14 @@ JSON for Chart.js. Pages: `/` dashboard, `/margin/`, `/pnl/`. Theme lives in
 `static/css/site.css` (warm steakhouse: charcoal + terracotta + gold, Inter).
 Coverage gate: `pytest --cov-fail-under=70` enforced in `.github/workflows/ci.yml`.
 
-NEXT: US2 onboarding (#19, "must") and/or US21 bilingual EN/ES (#41, "should").
+i18n (US21): Django built-in i18n with `LocaleMiddleware`, `LANGUAGES=[en,es]`,
+`LOCALE_PATHS=[locale/]`. Navbar has an EN/ES selector posting to `set_language`
+(`/i18n/`), choice persisted via cookie. Source language EN; Spanish catalog in
+`locale/es/LC_MESSAGES/django.po`. Chart.js labels are wrapped in `{% trans %}`
+inside the templates (server-rendered). `.mo` files are gitignored and built by
+`python manage.py compilemessages` (CI installs `gettext` and compiles before tests).
+
+NEXT: finish/merge US21 bilingual EN/ES (#41, "should").
 US19 Polished README (#20) is DEFERRED TO LAST by user decision (do it after the
 other stories). US19 will need user inputs (live demo URL - not yet deployed,
 business story, screenshots, board link). Confirm open work with `gh issue list`.

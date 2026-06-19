@@ -97,6 +97,23 @@ a:hover {
     color: #fff;
 }
 
+.mesa-lang-select {
+    width: auto;
+    background-color: rgba(255, 255, 255, .08);
+    border-color: rgba(255, 255, 255, .22);
+    color: #fff;
+    font-size: .85rem;
+}
+
+.mesa-lang-select option {
+    color: var(--mesa-ink);
+}
+
+.mesa-lang-select:focus {
+    border-color: var(--mesa-accent);
+    box-shadow: 0 0 0 .2rem rgba(214, 162, 62, .25);
+}
+
 /* ---- Cards --------------------------------------------------------------- */
 .card {
     background-color: var(--mesa-surface);

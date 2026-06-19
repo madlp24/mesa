@@ -2,15 +2,15 @@
 {% load i18n %}
 {% load allauth account %}
 
-{% block title %}Create account - Mesa{% endblock %}
+{% block title %}{% trans "Create account" %} - Mesa{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6 col-lg-5 col-xl-4">
     <div class="card shadow-sm mt-5">
       <div class="card-body p-4">
-        <h1 class="h3 mb-1 text-center">Create your account</h1>
-        <p class="text-muted text-center mb-4">Start tracking your restaurant's numbers</p>
+        <h1 class="h3 mb-1 text-center">{% trans "Create your account" %}</h1>
+        <p class="text-muted text-center mb-4">{% trans "Start tracking your restaurant's numbers" %}</p>
 
         <form method="post" action="{% url 'account_signup' %}">
           {% csrf_token %}
@@ -40,12 +40,12 @@
             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
           {% endif %}
 
-          <button type="submit" class="btn btn-primary w-100">Create account</button>
+          <button type="submit" class="btn btn-primary w-100">{% trans "Create account" %}</button>
         </form>
 
         <p class="text-center text-muted mt-4 mb-0 small">
-          Already have an account?
-          <a href="{% url 'account_login' %}" class="text-decoration-none">Sign in</a>
+          {% trans "Already have an account?" %}
+          <a href="{% url 'account_login' %}" class="text-decoration-none">{% trans "Sign in" %}</a>
         </p>
       </div>
     </div>

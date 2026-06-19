@@ -1,6 +1,7 @@
-{% load static %}
+{% load static i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,18 +27,33 @@
                 {% with url_name=request.resolver_match.url_name %}
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'dashboard' %}active{% endif %}" href="{% url 'analytics:dashboard' %}">Dashboard</a>
+                        <a class="nav-link {% if url_name == 'dashboard' %}active{% endif %}" href="{% url 'analytics:dashboard' %}">{% trans "Dashboard" %}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'margin_analysis' %}active{% endif %}" href="{% url 'analytics:margin_analysis' %}">Margins</a>
+                        <a class="nav-link {% if url_name == 'margin_analysis' %}active{% endif %}" href="{% url 'analytics:margin_analysis' %}">{% trans "Margins" %}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'pnl_summary' %}active{% endif %}" href="{% url 'analytics:pnl_summary' %}">P&amp;L</a>
+                        <a class="nav-link {% if url_name == 'pnl_summary' %}active{% endif %}" href="{% url 'analytics:pnl_summary' %}">{% trans "P&L" %}</a>
                     </li>
                 </ul>
                 {% endwith %}
                 {% endif %}
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-lg-2">
+                        {% get_current_language as CURRENT_LANGUAGE %}
+                        {% get_available_languages as LANGUAGES %}
+                        <form action="{% url 'set_language' %}" method="post" class="d-flex align-items-center">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <label for="languageSelect" class="visually-hidden">{% trans "Language" %}</label>
+                            <select id="languageSelect" name="language" class="form-select form-select-sm mesa-lang-select"
+                                    onchange="this.form.submit()" aria-label="{% trans 'Language' %}">
+                                {% for code, name in LANGUAGES %}
+                                <option value="{{ code }}" {% if code == CURRENT_LANGUAGE %}selected{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </li>
                     {% if request.user.is_authenticated %}
                         <li class="nav-item">
                             <span class="navbar-text me-3">{{ request.user.email }}</span>
@@ -45,12 +61,12 @@
                         <li class="nav-item">
                             <form method="post" action="{% url 'account_logout' %}" class="d-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="nav-link btn btn-link">Logout</button>
+                                <button type="submit" class="nav-link btn btn-link">{% trans "Logout" %}</button>
                             </form>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'account_login' %}">Login</a>
+                            <a class="nav-link" href="{% url 'account_login' %}">{% trans "Login" %}</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -64,8 +80,8 @@
 
     <footer class="mesa-footer">
         <div class="container py-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <span>Mesa &middot; Business intelligence for Tres Cuatro Cinco steakhouse</span>
-            <span class="text-muted">Bogot&aacute;, Colombia</span>
+            <span>{% trans "Mesa &middot; Business intelligence for Tres Cuatro Cinco steakhouse" %}</span>
+            <span class="text-muted">{% trans "Bogot&aacute;, Colombia" %}</span>
         </div>
     </footer>
 
