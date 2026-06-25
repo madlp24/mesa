@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product
+from .models import Category, Product, ProductAlias
 
 
 @admin.register(Category)
@@ -27,3 +27,10 @@ class ProductAdmin(admin.ModelAdmin):
     @admin.display(description="Margin %")
     def margin_display(self, obj: Product) -> str:
         return f"{obj.margin_pct:.1f}%"
+
+
+@admin.register(ProductAlias)
+class ProductAliasAdmin(admin.ModelAdmin):
+    list_display = ("pos_clave", "raw_name", "product", "created_at")
+    search_fields = ("pos_clave", "raw_name", "normalized_name", "product__name")
+    list_select_related = ("product",)

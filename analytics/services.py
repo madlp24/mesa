@@ -145,6 +145,84 @@ def revenue_by_category(
     ]
 
 
+def _money_expressions() -> dict:
+    """Fresh revenue/cost/margin expressions.
+
+    New instances per call avoid reusing the shared module-level wrappers across
+    several annotations in one query, which Django can misread as aggregates.
+    """
+    field = DecimalField(max_digits=14, decimal_places=2)
+    return {
+        "revenue": Sum(
+            ExpressionWrapper(F("unit_price") * F("quantity"), output_field=field)
+        ),
+        "cost": Sum(
+            ExpressionWrapper(F("unit_cost") * F("quantity"), output_field=field)
+        ),
+        "margin": Sum(
+            ExpressionWrapper(
+                (F("unit_price") - F("unit_cost")) * F("quantity"), output_field=field
+            )
+        ),
+    }
+
+
+def _summarize(row: dict) -> dict:
+    """Add gross-margin % to an aggregate row of qty/revenue/cost/margin."""
+    revenue = row["revenue"] or Decimal("0")
+    cost = row["cost"] or Decimal("0")
+    margin = row["margin"] or Decimal("0")
+    return {
+        "quantity": row["qty"] or 0,
+        "revenue": revenue,
+        "cost": cost,
+        "margin": margin,
+        "margin_pct": (margin / revenue * 100) if revenue else Decimal("0"),
+    }
+
+
+def product_report(
+    start: datetime.date | None = None,
+    end: datetime.date | None = None,
+) -> list[dict]:
+    """Per-product totals for the window: quantity, revenue, cost, margin, %.
+
+    One row per product that had sales, highest revenue first. Used by the Excel
+    analysis export. Quantity is summed as reported (gram-based products report
+    grams), so ranking elsewhere is by revenue, not units.
+    """
+    rows = (
+        sale_items_in_range(start, end)
+        .values("product__name", "product__category__name")
+        .annotate(qty=Sum("quantity"), **_money_expressions())
+        .order_by("-revenue")
+    )
+    return [
+        {
+            "name": row["product__name"],
+            "category": row["product__category__name"],
+            **_summarize(row),
+        }
+        for row in rows
+    ]
+
+
+def category_report(
+    start: datetime.date | None = None,
+    end: datetime.date | None = None,
+) -> list[dict]:
+    """Per-category totals for the window: quantity, revenue, cost, margin, %."""
+    rows = (
+        sale_items_in_range(start, end)
+        .values("product__category__name")
+        .annotate(qty=Sum("quantity"), **_money_expressions())
+        .order_by("-revenue")
+    )
+    return [
+        {"name": row["product__category__name"], **_summarize(row)} for row in rows
+    ]
+
+
 # Columns the margin table can be sorted by, mapped to the row key.
 MARGIN_SORT_KEYS = (
     "name",

@@ -1,19 +1,24 @@
 from django.db import transaction
 
-from catalog.models import Category, Product
+from catalog.identity import ProductResolver
+from catalog.models import Product
 from sales.models import Sale, SaleItem
 
 from .canonical import CanonicalSale, CanonicalSaleItem
 
-_DEFAULT_CATEGORY = "Sin categoría"
-
 
 @transaction.atomic
 def persist(canonical_sales: list[CanonicalSale]) -> dict:
-    """Insert canonical sales into the database, idempotent by external_id."""
+    """Insert canonical sales into the database, idempotent by external_id.
+
+    Product identity is resolved by name through :class:`ProductResolver` for
+    items that embed catalog hints (e.g. the PDF report); importers that carry
+    only a SKU (e.g. the Excel importer) fall back to a direct SKU lookup.
+    """
     new_count = 0
     item_count = 0
     skipped_count = 0
+    resolver = ProductResolver()
     products_by_sku = {p.sku: p for p in Product.objects.all()}
 
     for cs in canonical_sales:
@@ -29,12 +34,9 @@ def persist(canonical_sales: list[CanonicalSale]) -> dict:
             table_number=cs.table_number,
         )
         for item in cs.items:
-            product = products_by_sku.get(item.product_sku)
+            product = _resolve_product(item, resolver, products_by_sku)
             if product is None:
-                product = _get_or_create_product(item)
-                if product is None:
-                    continue
-                products_by_sku[item.product_sku] = product
+                continue
             SaleItem.objects.create(
                 sale=sale,
                 product=product,
@@ -48,22 +50,24 @@ def persist(canonical_sales: list[CanonicalSale]) -> dict:
     return {"new": new_count, "items": item_count, "skipped_duplicate": skipped_count}
 
 
-def _get_or_create_product(item: CanonicalSaleItem) -> Product | None:
-    """Create a Product (and its Category) from an item's catalog hints.
+def _resolve_product(
+    item: CanonicalSaleItem,
+    resolver: ProductResolver,
+    products_by_sku: dict,
+) -> Product | None:
+    """Resolve an item to a canonical product.
 
-    Returns None when the item carries no product name, in which case the row
-    references an unknown SKU and is skipped, preserving the prior behavior for
-    importers that do not embed the catalog (e.g. the Excel importer).
+    With a product name (catalog-embedded report) identity is resolved by name
+    via the resolver; otherwise the item only references a SKU and is matched
+    directly, preserving prior behavior for importers that do not embed a
+    catalog (the row is skipped when the SKU is unknown).
     """
-    if not item.product_name:
-        return None
-    category, _ = Category.objects.get_or_create(
-        name=item.category_name or _DEFAULT_CATEGORY
-    )
-    return Product.objects.create(
-        sku=item.product_sku,
-        name=item.product_name,
-        category=category,
-        cost_price=item.unit_cost,
-        sale_price=item.unit_price,
-    )
+    if item.product_name:
+        return resolver.resolve(
+            clave=item.product_sku,
+            raw_name=item.product_name,
+            group_name=item.category_name,
+            unit_price=item.unit_price,
+            unit_cost=item.unit_cost,
+        )
+    return products_by_sku.get(item.product_sku)

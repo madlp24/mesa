@@ -22,4 +22,14 @@ urlpatterns = [
         views.revenue_by_category_api,
         name="revenue_by_category",
     ),
+    path(
+        "export/productos-vendidos.xlsx",
+        views.export_productos_vendidos,
+        name="export_productos_vendidos",
+    ),
+    path(
+        "export/analisis.xlsx",
+        views.export_analysis,
+        name="export_analysis",
+    ),
 ]
