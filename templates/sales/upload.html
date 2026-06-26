@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Upload report" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-xl-7">
+    <div class="mb-4">
+      <h1 class="h3 mb-1">{% trans "Upload a report" %}</h1>
+      <p class="text-muted mb-0">
+        {% trans "Upload your Soft Restaurant Productos-Vendidos export (.pdf or .xlsx). It is imported into your restaurant and your dashboards update automatically." %}
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="{{ form.report.id_for_label }}" class="form-label">{{ form.report.label }}</label>
+            <input type="file" name="{{ form.report.html_name }}" id="{{ form.report.id_for_label }}"
+                   class="form-control {% if form.report.errors %}is-invalid{% endif %}"
+                   accept=".pdf,.xlsx" required>
+            {% for error in form.report.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn btn-primary">{% trans "Upload and import" %}</button>
+        </form>
+      </div>
+    </div>
+
+    {% if summary %}
+    <div class="card mt-4">
+      <div class="card-body">
+        <h2 class="h5 mb-3">{% trans "Import summary" %}</h2>
+        <p class="text-muted small">{{ summary.filename }}</p>
+        <ul class="list-group list-group-flush mb-3">
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{% trans "Sales imported" %}</span><strong>{{ summary.new }}</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{% trans "Product lines" %}</span><strong>{{ summary.items }}</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{% trans "Skipped as duplicate" %}</span><strong>{{ summary.skipped_duplicate }}</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{% trans "Rows skipped (unreadable)" %}</span><strong>{{ summary.skipped_rows }}</strong>
+          </li>
+        </ul>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:dashboard' %}">{% trans "View dashboard" %}</a>
+          <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:export_productos_vendidos' %}">{% trans "Download Products-Sold matrix (Excel)" %}</a>
+          <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:export_analysis' %}">{% trans "Download analysis report (Excel)" %}</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

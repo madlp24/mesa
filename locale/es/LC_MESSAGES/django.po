@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-26 12:25-0500\n"
+"POT-Creation-Date: 2026-06-26 15:03-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -49,13 +49,39 @@ msgstr "Unidades vendidas"
 msgid "Total margin"
 msgstr "Margen total"
 
-#: config/settings/base.py:79
+#: config/settings/base.py:83
 msgid "English"
 msgstr "Inglés"
 
-#: config/settings/base.py:80
+#: config/settings/base.py:84
 msgid "Spanish"
 msgstr "Español"
+
+#: sales/forms.py:14
+msgid "Soft Restaurant report (.pdf or .xlsx)"
+msgstr "Reporte de Soft Restaurant (.pdf o .xlsx)"
+
+#: sales/forms.py:23
+#, python-format
+msgid "Unsupported file type '%(ext)s'. Upload a .pdf or .xlsx report."
+msgstr "Tipo de archivo no soportado '%(ext)s'. Sube un reporte .pdf o .xlsx."
+
+#: sales/forms.py:28
+#, python-format
+msgid "File is too large (%(size)s). The limit is %(limit)s."
+msgstr "El archivo es demasiado grande (%(size)s). El límite es %(limit)s."
+
+#: sales/views.py:50
+msgid ""
+"We couldn't read that report. Make sure it is a Soft Restaurant 'Productos "
+"Vendidos' export and try again."
+msgstr ""
+"No pudimos leer ese reporte. Asegúrate de que sea una exportación 'Productos "
+"Vendidos' de Soft Restaurant e inténtalo de nuevo."
+
+#: sales/views.py:58
+msgid "Report imported successfully."
+msgstr "Reporte importado correctamente."
 
 #: templates/account/login.html:5 templates/account/login.html:53
 #: templates/account/signup.html:48
@@ -115,11 +141,11 @@ msgstr "Panel"
 msgid "Sales performance at a glance for the selected period."
 msgstr "Rendimiento de ventas de un vistazo para el período seleccionado."
 
-#: templates/analytics/dashboard.html:14
+#: templates/analytics/dashboard.html:14 templates/sales/upload.html:55
 msgid "Download Products-Sold matrix (Excel)"
 msgstr "Descargar matriz de Productos Vendidos (Excel)"
 
-#: templates/analytics/dashboard.html:17
+#: templates/analytics/dashboard.html:17 templates/sales/upload.html:56
 msgid "Download analysis report (Excel)"
 msgstr "Descargar reporte de análisis (Excel)"
 
@@ -240,23 +266,27 @@ msgstr "Márgenes"
 msgid "P&L"
 msgstr "PyG"
 
-#: templates/base.html:48 templates/base.html:50
+#: templates/base.html:39
+msgid "Upload"
+msgstr "Subir"
+
+#: templates/base.html:51 templates/base.html:53
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:60
+#: templates/base.html:63
 msgid "Current restaurant"
 msgstr "Restaurante actual"
 
-#: templates/base.html:69
+#: templates/base.html:72
 msgid "Logout"
 msgstr "Cerrar sesión"
 
-#: templates/base.html:74
+#: templates/base.html:77
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/base.html:88
+#: templates/base.html:99
 msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
 msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
@@ -271,6 +301,50 @@ msgstr "inactivo"
 #: templates/catalog/product_detail.html:53
 msgid "Units sold per day"
 msgstr "Unidades vendidas por día"
+
+#: templates/sales/upload.html:4
+msgid "Upload report"
+msgstr "Subir reporte"
+
+#: templates/sales/upload.html:10
+msgid "Upload a report"
+msgstr "Sube un reporte"
+
+#: templates/sales/upload.html:12
+msgid ""
+"Upload your Soft Restaurant Productos-Vendidos export (.pdf or .xlsx). It is "
+"imported into your restaurant and your dashboards update automatically."
+msgstr ""
+"Sube tu exportación Productos-Vendidos de Soft Restaurant (.pdf o .xlsx). Se "
+"importa en tu restaurante y tus tableros se actualizan automáticamente."
+
+#: templates/sales/upload.html:29
+msgid "Upload and import"
+msgstr "Subir e importar"
+
+#: templates/sales/upload.html:37
+msgid "Import summary"
+msgstr "Resumen de importación"
+
+#: templates/sales/upload.html:41
+msgid "Sales imported"
+msgstr "Ventas importadas"
+
+#: templates/sales/upload.html:44
+msgid "Product lines"
+msgstr "Líneas de producto"
+
+#: templates/sales/upload.html:47
+msgid "Skipped as duplicate"
+msgstr "Omitidas por duplicado"
+
+#: templates/sales/upload.html:50
+msgid "Rows skipped (unreadable)"
+msgstr "Filas omitidas (ilegibles)"
+
+#: templates/sales/upload.html:54
+msgid "View dashboard"
+msgstr "Ver tablero"
 
 #~ msgid "Bogot&aacute;, Colombia"
 #~ msgstr "Bogot&aacute;, Colombia"
