@@ -52,8 +52,13 @@ PRODUCT PIVOT (agreed with user): Mesa is now a generic, **multi-tenant SaaS** f
 restaurant using the Soft Restaurant POS (not just Tres Cuatro Cinco). Each user gets
 their own restaurant and sees only their data; report upload moves to the web.
 
-IN PROGRESS: US24 multi-tenant foundation (#50) on branch `feat/us24-multitenant`.
-NEXT: US25 self-service web upload of reports (#51, depends on US24).
+DONE (US24 merged, PR52). IN PROGRESS: US25 self-service web upload (#51) on branch
+`feat/us25-web-upload`. US25 adds `sales/forms.py` (ReportUploadForm: .pdf/.xlsx, size
+limit), `sales/views.py` `upload_report` (writes the upload to a temp file, runs the
+importer + `persist()` into `request.restaurant`, friendly error on parse failure,
+summary on success), `sales/urls.py` at `/upload/`, template `templates/sales/upload.html`,
+a navbar "Upload" link, and Django messages rendered in `base.html` (MESSAGE_TAGS maps
+ERROR->danger). Deploy of US24+US25 to Heroku pending (decided: deploy at end of milestone).
 Also pending: US19 polished README (#20), deferred to last; the app is deployed (see
 [[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the Heroku release config
 + demo seed fixture, not yet merged — NOTE: that seed fixture predates US24 and now

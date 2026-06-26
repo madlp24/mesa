@@ -2,6 +2,7 @@
 from pathlib import Path
 
 from decouple import Csv, config
+from django.contrib.messages import constants as message_constants
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -73,6 +74,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+# Map Django's ERROR level to the Bootstrap "danger" alert class.
+MESSAGE_TAGS = {message_constants.ERROR: "danger"}
 
 LANGUAGE_CODE = "en"
 LANGUAGES = [

@@ -82,8 +82,11 @@ The Django admin lives at <http://127.0.0.1:8000/admin/>.
 
 ### Loading sample data
 
-The dashboard needs sales data to render charts. Import a POS file into a restaurant
-with:
+The dashboard needs sales data to render charts. The primary way is the **Upload**
+page in the navbar: pick your Soft Restaurant "Productos Vendidos" export (`.pdf` or
+`.xlsx`) and it is imported into your restaurant, with a summary of what was added.
+
+The same import is available from the command line:
 
 ```bash
 python manage.py import_sales --file <path-to-excel-or-pdf> --restaurant <slug>
