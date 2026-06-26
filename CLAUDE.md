@@ -44,10 +44,28 @@ US13 date-range default (#12/PR33), US14 revenue line chart (#13/PR34),
 US15 top-products bar (#14/PR35), US16 revenue-by-category doughnut (#15/PR36),
 US17 margin analysis page (#16/PR37), US18 monthly P&L (#17/PR38),
 US20 test coverage + CI (#18/PR40), navbar toggler fix (#24/PR39),
-UI visual refresh (PR42), US2 onboarding (#19/PR43). Epics catalog, ingestion,
-dashboard and analysis are COMPLETE.
+UI visual refresh (PR42), US2 onboarding (#19/PR43), US21 bilingual EN/ES (#41/PR44).
+Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
-IN PROGRESS: US21 bilingual EN/ES (#41) on branch `feat/us21-bilingual`.
+IN PROGRESS: US22 product identity + Excel export (#45) on branch
+`feat/us22-identity-export`; US23 update existing Excel in place (#46) is next.
+Also pending: US19 polished README (#20), deferred to last; the app is now
+deployed (see [[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the
+Heroku release config + demo seed fixture, not yet merged).
+
+Identity + export (US22): POS clave is unreliable (reassigned/duplicated), so
+products are identified by NAME. `catalog/identity.py` normalizes names (accents,
+case, `*`, GR/ML/UND markers stripped) and a `ProductResolver` fuses obvious
+variants (word order, typos, `*GR`, omitted "X Trago", and same-clave prefix like
+"Negroni"->"Negroni Tanqueray") while keeping distinct ones separate (different
+number/age/size; bottle-vs-glass by serving group). Each `(clave, raw_name)` is
+recorded as a `catalog.ProductAlias` so identity is resolved once. `persist()`
+uses the resolver for catalog-embedded importers (PDF); the Excel importer keeps
+its SKU-based path. Excel export lives in `analytics/exports.py` (openpyxl):
+`build_productos_vendidos_workbook` (units matrix) and `build_analysis_workbook`
+(per-product/per-category + rankings, reusing `product_report`/`category_report`
+in services). Command `export_excel --type matrix|report`; dashboard download
+buttons hit `/export/...xlsx` views.
 
 Analytics layer recap (all in `analytics/`): `services.py` holds the math
 (`compute_kpis`, `revenue_by_day`, `top_products_by_revenue`, `revenue_by_category`,

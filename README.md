@@ -86,6 +86,24 @@ The dashboard needs sales data to render charts. Import a POS file with:
 python manage.py import_sales --file <path-to-excel-or-pdf>
 ```
 
+Products are identified by **name** (not the unreliable POS code): the importer
+resolves each `(code, name)` to one canonical product and records the decision as
+a `ProductAlias`, fusing obvious variants while keeping genuinely different items
+(different age/size/serving) apart.
+
+### Exporting to Excel
+
+Generate `.xlsx` files from the real data (also available as download buttons on
+the dashboard):
+
+```bash
+python manage.py export_excel --type matrix --output productos_vendidos.xlsx
+python manage.py export_excel --type report --output analisis.xlsx --start 2026-01-01 --end 2026-12-31
+```
+
+`matrix` is the Productos-Vendidos units-per-month matrix; `report` is the analysis
+report (per product and per category, plus top-N rankings).
+
 ### Running tests and linting
 
 ```bash

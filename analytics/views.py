@@ -1,4 +1,5 @@
 import datetime
+import io
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -9,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from sales.models import Sale
 
+from .exports import build_analysis_workbook, build_productos_vendidos_workbook
 from .services import (
     MARGIN_SORT_KEYS,
     compute_kpis,
@@ -126,6 +128,35 @@ def pnl_summary(request: HttpRequest) -> HttpResponse:
         "years": years,
     }
     return render(request, "analytics/pnl.html", context)
+
+
+_XLSX_CONTENT_TYPE = (
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
+
+
+def _xlsx_response(workbook, filename: str) -> HttpResponse:
+    """Serialize an openpyxl workbook into a downloadable .xlsx response."""
+    buffer = io.BytesIO()
+    workbook.save(buffer)
+    response = HttpResponse(buffer.getvalue(), content_type=_XLSX_CONTENT_TYPE)
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
+def export_productos_vendidos(request: HttpRequest) -> HttpResponse:
+    """Download the Productos-Vendidos units-per-month matrix as .xlsx."""
+    return _xlsx_response(
+        build_productos_vendidos_workbook(), "productos_vendidos.xlsx"
+    )
+
+
+@login_required
+def export_analysis(request: HttpRequest) -> HttpResponse:
+    """Download the analysis report for the active range as .xlsx."""
+    start, end = _resolve_range(request)
+    return _xlsx_response(build_analysis_workbook(start, end), "analisis_mesa.xlsx")
 
 
 @login_required
