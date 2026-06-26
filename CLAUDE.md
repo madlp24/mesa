@@ -47,8 +47,12 @@ US20 test coverage + CI (#18/PR40), navbar toggler fix (#24/PR39),
 UI visual refresh (PR42), US2 onboarding (#19/PR43), US21 bilingual EN/ES (#41/PR44).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
-IN PROGRESS: US22 product identity + Excel export (#45) on branch
-`feat/us22-identity-export`; US23 update existing Excel in place (#46) is next.
+IN PROGRESS: US22 product identity + Excel export (#45/PR47) and US23 update
+existing Excel in place (#46) on branch `feat/us23-update-excel` (stacked on
+US22). US23 adds `analytics/excel_update.py` + `update_excel` command: opens an
+existing "Productos vendidos" matrix, writes only the missing months (matching
+rows by name with US22's fusion, appending new products), preserves historical
+codes, writes a `… (actualizado).xlsx` copy, and warns on lock files / charts.
 Also pending: US19 polished README (#20), deferred to last; the app is now
 deployed (see [[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the
 Heroku release config + demo seed fixture, not yet merged).
