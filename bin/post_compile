@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Heroku build hook (Python buildpack): compile translation catalogs into the
+# slug so the Spanish UI works at runtime. gettext is provided by the apt
+# buildpack (Aptfile). Runs at build time because release-phase filesystem
+# changes are not carried to the web dyno.
+set -e
+python manage.py compilemessages || echo "compilemessages skipped (gettext missing)"
