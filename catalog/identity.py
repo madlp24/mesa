@@ -136,9 +136,10 @@ class ProductResolver:
     so a batch import stays consistent without re-querying per line.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, restaurant) -> None:
+        self.restaurant = restaurant
         self._products: list[Product] = list(
-            Product.objects.select_related("category").all()
+            Product.objects.filter(restaurant=restaurant).select_related("category")
         )
         self._norm: dict[int, str] = {
             p.id: normalize_name(p.name) for p in self._products
@@ -147,7 +148,7 @@ class ProductResolver:
         for product in self._products:
             self._claves[product.id].add(product.sku)
         self._alias_index: dict[tuple[str, str], int] = {}
-        for alias in ProductAlias.objects.all():
+        for alias in ProductAlias.objects.filter(restaurant=restaurant):
             self._alias_index[(alias.pos_clave, alias.raw_name)] = alias.product_id
             self._claves[alias.product_id].add(alias.pos_clave)
         self._by_id: dict[int, Product] = {p.id: p for p in self._products}
@@ -208,6 +209,7 @@ class ProductResolver:
     ) -> Product:
         category = self._get_or_create_category(group_name)
         product = Product.objects.create(
+            restaurant=self.restaurant,
             sku=self._unique_sku(clave),
             name=raw_name,
             category=category,
@@ -224,6 +226,7 @@ class ProductResolver:
 
     def _record_alias(self, product: Product, clave, raw_name, norm) -> None:
         ProductAlias.objects.get_or_create(
+            restaurant=self.restaurant,
             pos_clave=clave,
             raw_name=raw_name,
             defaults={"product": product, "normalized_name": norm},
@@ -248,5 +251,7 @@ class ProductResolver:
 
     def _get_or_create_category(self, group_name: str) -> Category:
         name = (group_name or "").strip() or "Sin categoría"
-        category, _ = Category.objects.get_or_create(name=name)
+        category, _ = Category.objects.get_or_create(
+            restaurant=self.restaurant, name=name
+        )
         return category

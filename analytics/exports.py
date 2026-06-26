@@ -53,15 +53,16 @@ def _write_header(ws: Worksheet, headers: list) -> None:
         cell.font = _HEADER_FONT
 
 
-def _matrix_data() -> tuple[list[tuple[int, int]], dict]:
-    """Aggregate units sold per product per month.
+def _matrix_data(restaurant) -> tuple[list[tuple[int, int]], dict]:
+    """Aggregate units sold per product per month for one restaurant.
 
     Returns ``(months, products)`` where ``months`` is a sorted list of
     ``(year, month)`` and ``products`` maps a product sku to its group, name and
     per-month quantities.
     """
     rows = (
-        SaleItem.objects.annotate(month=TruncMonth("sale__occurred_at"))
+        SaleItem.objects.filter(sale__restaurant=restaurant)
+        .annotate(month=TruncMonth("sale__occurred_at"))
         .values(
             "product__sku", "product__name", "product__category__name", "month"
         )
@@ -86,9 +87,9 @@ def _matrix_data() -> tuple[list[tuple[int, int]], dict]:
     return sorted(months), products
 
 
-def build_productos_vendidos_workbook() -> Workbook:
-    """Build the Productos-Vendidos matrix workbook from the database."""
-    months, products = _matrix_data()
+def build_productos_vendidos_workbook(restaurant) -> Workbook:
+    """Build the Productos-Vendidos matrix workbook for one restaurant."""
+    months, products = _matrix_data(restaurant)
     workbook = Workbook()
     ws = workbook.active
     ws.title = PRODUCTOS_VENDIDOS_SHEET
@@ -116,13 +117,14 @@ def _pct(value) -> float:
 
 
 def build_analysis_workbook(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
     top_n: int = 10,
 ) -> Workbook:
-    """Build the analysis report workbook for the date window."""
-    products = product_report(start, end)
-    categories = category_report(start, end)
+    """Build the analysis report workbook for one restaurant and date window."""
+    products = product_report(restaurant, start, end)
+    categories = category_report(restaurant, start, end)
 
     workbook = Workbook()
     _fill_product_sheet(workbook.active, products)

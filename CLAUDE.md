@@ -44,18 +44,30 @@ US13 date-range default (#12/PR33), US14 revenue line chart (#13/PR34),
 US15 top-products bar (#14/PR35), US16 revenue-by-category doughnut (#15/PR36),
 US17 margin analysis page (#16/PR37), US18 monthly P&L (#17/PR38),
 US20 test coverage + CI (#18/PR40), navbar toggler fix (#24/PR39),
-UI visual refresh (PR42), US2 onboarding (#19/PR43), US21 bilingual EN/ES (#41/PR44).
+UI visual refresh (PR42), US2 onboarding (#19/PR43), US21 bilingual EN/ES (#41/PR44),
+US22 product identity + Excel export (#45/PR47), US23 update existing Excel (#46/PR49).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
-IN PROGRESS: US22 product identity + Excel export (#45/PR47) and US23 update
-existing Excel in place (#46) on branch `feat/us23-update-excel` (stacked on
-US22). US23 adds `analytics/excel_update.py` + `update_excel` command: opens an
-existing "Productos vendidos" matrix, writes only the missing months (matching
-rows by name with US22's fusion, appending new products), preserves historical
-codes, writes a `… (actualizado).xlsx` copy, and warns on lock files / charts.
-Also pending: US19 polished README (#20), deferred to last; the app is now
-deployed (see [[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the
-Heroku release config + demo seed fixture, not yet merged).
+PRODUCT PIVOT (agreed with user): Mesa is now a generic, **multi-tenant SaaS** for any
+restaurant using the Soft Restaurant POS (not just Tres Cuatro Cinco). Each user gets
+their own restaurant and sees only their data; report upload moves to the web.
+
+IN PROGRESS: US24 multi-tenant foundation (#50) on branch `feat/us24-multitenant`.
+NEXT: US25 self-service web upload of reports (#51, depends on US24).
+Also pending: US19 polished README (#20), deferred to last; the app is deployed (see
+[[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the Heroku release config
++ demo seed fixture, not yet merged — NOTE: that seed fixture predates US24 and now
+needs a restaurant FK before it can be reloaded).
+
+Multi-tenancy (US24): shared-DB, row-level scoping. New `tenants` app: `Restaurant` +
+`Membership` (one restaurant per user). A `post_save` on User auto-creates a
+restaurant+membership (`tenants/signals.py`); `CurrentRestaurantMiddleware` sets
+`request.restaurant`. `Category`/`Product`/`ProductAlias`/`Sale` got a `restaurant` FK
+with per-restaurant uniqueness. Data migration assigned existing rows to a "Demo"
+restaurant. ALL analytics services/exports/excel_update, the importer
+`persist()`/`ProductResolver`, and catalog views scope by restaurant (services take
+`restaurant` as the first positional arg). Commands take `--restaurant <slug>` via
+`tenants.utils.resolve_restaurant`. Isolation covered in `tenants/tests.py`.
 
 Identity + export (US22): POS clave is unreliable (reassigned/duplicated), so
 products are identified by NAME. `catalog/identity.py` normalizes names (accents,

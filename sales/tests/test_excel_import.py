@@ -29,9 +29,10 @@ def _write_workbook(path, rows):
 
 
 @pytest.fixture
-def product(db):
-    category = Category.objects.create(name="Mains")
+def product(restaurant):
+    category = Category.objects.create(restaurant=restaurant, name="Mains")
     return Product.objects.create(
+        restaurant=restaurant,
         name="Burger",
         sku="BUR-01",
         category=category,
@@ -41,7 +42,9 @@ def product(db):
 
 
 @pytest.mark.django_db
-def test_import_creates_sales_and_items_and_skips_invalid_rows(tmp_path, product):
+def test_import_creates_sales_and_items_and_skips_invalid_rows(
+    tmp_path, restaurant, product
+):
     path = tmp_path / "sales.xlsx"
     _write_workbook(
         path,
@@ -53,11 +56,13 @@ def test_import_creates_sales_and_items_and_skips_invalid_rows(tmp_path, product
     )
     out = StringIO()
 
-    call_command("import_sales", "--file", str(path), stdout=out)
+    call_command(
+        "import_sales", "--file", str(path), "--restaurant", restaurant.slug, stdout=out
+    )
 
     assert Sale.objects.count() == 1
     assert SaleItem.objects.count() == 1
-    sale = Sale.objects.get()
+    sale = Sale.objects.get(restaurant=restaurant)
     assert sale.external_id == "S1"
     assert sale.total == Decimal("30.00")
     item = sale.items.get()
@@ -71,7 +76,7 @@ def test_import_creates_sales_and_items_and_skips_invalid_rows(tmp_path, product
 
 
 @pytest.mark.django_db
-def test_invalid_row_is_logged_with_row_number(tmp_path, product, caplog):
+def test_invalid_row_is_logged_with_row_number(tmp_path, restaurant, product, caplog):
     path = tmp_path / "sales.xlsx"
     _write_workbook(
         path,
@@ -82,7 +87,14 @@ def test_invalid_row_is_logged_with_row_number(tmp_path, product, caplog):
     )
 
     with caplog.at_level("WARNING"):
-        call_command("import_sales", "--file", str(path), stdout=StringIO())
+        call_command(
+            "import_sales",
+            "--file",
+            str(path),
+            "--restaurant",
+            restaurant.slug,
+            stdout=StringIO(),
+        )
 
     assert "Row 3" in caplog.text
     assert "external_id" in caplog.text

@@ -2,7 +2,10 @@ from django.db import models
 
 
 class Sale(models.Model):
-    external_id = models.CharField(max_length=100, unique=True)
+    restaurant = models.ForeignKey(
+        "tenants.Restaurant", on_delete=models.CASCADE, related_name="sales"
+    )
+    external_id = models.CharField(max_length=100)
     occurred_at = models.DateTimeField(db_index=True)
     total = models.DecimalField(max_digits=12, decimal_places=2)
     payment_method = models.CharField(max_length=50, blank=True)
@@ -12,6 +15,12 @@ class Sale(models.Model):
     class Meta:
         ordering = ["-occurred_at"]
         indexes = [models.Index(fields=["occurred_at"])]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["restaurant", "external_id"],
+                name="unique_external_id_per_restaurant",
+            )
+        ]
 
     def __str__(self):
         return f"Sale {self.external_id} @ {self.occurred_at:%Y-%m-%d %H:%M}"

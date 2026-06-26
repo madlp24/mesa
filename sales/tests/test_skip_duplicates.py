@@ -28,9 +28,10 @@ def _write_workbook(path, rows):
 
 
 @pytest.fixture
-def product(db):
-    category = Category.objects.create(name="Mains")
+def product(restaurant):
+    category = Category.objects.create(restaurant=restaurant, name="Mains")
     return Product.objects.create(
+        restaurant=restaurant,
         name="Burger",
         sku="BUR-01",
         category=category,
@@ -53,23 +54,32 @@ def workbook(tmp_path, product):
 
 
 @pytest.mark.django_db
-def test_first_import_reports_new_sales(workbook):
+def test_first_import_reports_new_sales(restaurant, workbook):
     out = StringIO()
 
-    call_command("import_sales", "--file", str(workbook), stdout=out)
+    call_command(
+        "import_sales", "--file", str(workbook), "--restaurant", restaurant.slug,
+        stdout=out,
+    )
 
     assert Sale.objects.count() == 2
     assert "2 new sales, 0 skipped as duplicate" in out.getvalue()
 
 
 @pytest.mark.django_db
-def test_reimporting_same_file_is_a_no_op(workbook):
-    call_command("import_sales", "--file", str(workbook), stdout=StringIO())
+def test_reimporting_same_file_is_a_no_op(restaurant, workbook):
+    call_command(
+        "import_sales", "--file", str(workbook), "--restaurant", restaurant.slug,
+        stdout=StringIO(),
+    )
     sale_ids = set(Sale.objects.values_list("id", flat=True))
     item_count = SaleItem.objects.count()
 
     out = StringIO()
-    call_command("import_sales", "--file", str(workbook), stdout=out)
+    call_command(
+        "import_sales", "--file", str(workbook), "--restaurant", restaurant.slug,
+        stdout=out,
+    )
 
     # No new rows, and existing rows are untouched.
     assert Sale.objects.count() == 2

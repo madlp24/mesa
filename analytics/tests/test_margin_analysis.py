@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 import pytest
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from analytics.services import product_margins
@@ -11,27 +10,21 @@ from sales.models import Sale, SaleItem
 
 
 @pytest.fixture
-def logged_client(client, db):
-    user = get_user_model().objects.create_user(
-        username="owner", email="owner@example.com", password="secret123"
-    )
-    client.force_login(user)
-    return client
-
-
-@pytest.fixture
-def catalog(db):
-    category = Category.objects.create(name="Mains")
+def catalog(restaurant):
+    category = Category.objects.create(restaurant=restaurant, name="Mains")
     # margin %: burger 60, wine 75, water 50
     burger = Product.objects.create(
+        restaurant=restaurant,
         name="Burger", sku="BUR-01", category=category,
         cost_price=Decimal("4.00"), sale_price=Decimal("10.00"),
     )
     wine = Product.objects.create(
+        restaurant=restaurant,
         name="Wine", sku="WIN-01", category=category,
         cost_price=Decimal("5.00"), sale_price=Decimal("20.00"),
     )
     water = Product.objects.create(
+        restaurant=restaurant,
         name="Water", sku="WAT-01", category=category,
         cost_price=Decimal("1.00"), sale_price=Decimal("2.00"),
     )
@@ -40,6 +33,7 @@ def catalog(db):
 
 def _sell(product, external_id, day, quantity):
     sale = Sale.objects.create(
+        restaurant=product.restaurant,
         external_id=external_id,
         occurred_at=datetime(2026, 1, day, 12, 0, tzinfo=timezone.utc),
         total=product.sale_price * quantity,
@@ -119,9 +113,9 @@ def test_invalid_sort_and_dir_fall_back_to_defaults(logged_client, catalog):
 
 
 @pytest.mark.django_db
-def test_product_margins_rejects_unknown_sort_key(catalog):
+def test_product_margins_rejects_unknown_sort_key(restaurant, catalog):
     # Calling the service directly with a bad key falls back to margin %.
-    rows = product_margins(sort="not-a-column")
+    rows = product_margins(restaurant, sort="not-a-column")
 
     assert [row["name"] for row in rows] == ["Wine", "Burger", "Water"]
 

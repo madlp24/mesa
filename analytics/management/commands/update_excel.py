@@ -4,6 +4,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from analytics.excel_update import ExcelUpdateError, update_productos_vendidos
+from tenants.utils import resolve_restaurant
 
 
 class Command(BaseCommand):
@@ -14,10 +15,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--file", required=True, help="Path to the existing .xlsx")
+        parser.add_argument(
+            "--restaurant", help="Restaurant slug (optional if there is only one)."
+        )
 
     def handle(self, *args, **options):
+        restaurant = resolve_restaurant(options.get("restaurant"))
         try:
-            summary = update_productos_vendidos(Path(options["file"]))
+            summary = update_productos_vendidos(Path(options["file"]), restaurant)
         except ExcelUpdateError as exc:
             raise CommandError(str(exc)) from exc
 

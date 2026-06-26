@@ -68,13 +68,13 @@ def test_typo_match():
 
 
 @pytest.fixture
-def resolver(db):
-    return ProductResolver()
+def resolver(restaurant):
+    return ProductResolver(restaurant)
 
 
 @pytest.mark.django_db
-def test_resolver_creates_product_and_alias():
-    product = ProductResolver().resolve(
+def test_resolver_creates_product_and_alias(restaurant):
+    product = ProductResolver(restaurant).resolve(
         "03028", "Arepa de Choclo", "ACOMPAÑAMIENTOS", Decimal("10"), Decimal("3")
     )
     assert product.pk is not None
@@ -85,8 +85,8 @@ def test_resolver_creates_product_and_alias():
 
 
 @pytest.mark.django_db
-def test_resolver_fuses_prefix_with_same_clave():
-    r = ProductResolver()
+def test_resolver_fuses_prefix_with_same_clave(restaurant):
+    r = ProductResolver(restaurant)
     first = r.resolve("8100", "Negroni", "COCTELES", Decimal("20"), Decimal("6"))
     second = r.resolve("8100", "Negroni Tanqueray", "COCTELES", Decimal("22"), Decimal("7"))
     assert first == second
@@ -94,8 +94,8 @@ def test_resolver_fuses_prefix_with_same_clave():
 
 
 @pytest.mark.django_db
-def test_resolver_matches_by_name_despite_reassigned_clave():
-    r = ProductResolver()
+def test_resolver_matches_by_name_despite_reassigned_clave(restaurant):
+    r = ProductResolver(restaurant)
     first = r.resolve("8007", "Glenfiddich 12", "WHISKY", Decimal("30"), Decimal("10"))
     # Same product re-appears under a different (reassigned) clave: still one row.
     second = r.resolve("9001", "Glenfiddich 12", "WHISKY", Decimal("31"), Decimal("11"))
@@ -104,24 +104,24 @@ def test_resolver_matches_by_name_despite_reassigned_clave():
 
 
 @pytest.mark.django_db
-def test_resolver_keeps_distinct_ages_separate():
-    r = ProductResolver()
+def test_resolver_keeps_distinct_ages_separate(restaurant):
+    r = ProductResolver(restaurant)
     r.resolve("5001", "Glenlivet 18", "WHISKY", Decimal("40"), Decimal("15"))
     r.resolve("5002", "Glenlivet 12", "WHISKY", Decimal("30"), Decimal("10"))
     assert Product.objects.count() == 2
 
 
 @pytest.mark.django_db
-def test_resolver_keeps_bottle_and_glass_separate():
-    r = ProductResolver()
+def test_resolver_keeps_bottle_and_glass_separate(restaurant):
+    r = ProductResolver(restaurant)
     r.resolve("7001", "Macallan 12", "WHISKY BOTELLA", Decimal("300"), Decimal("100"))
     r.resolve("7002", "Macallan 12", "WHISKY COPA", Decimal("30"), Decimal("10"))
     assert Product.objects.count() == 2
 
 
 @pytest.mark.django_db
-def test_resolver_updates_group_on_match():
-    r = ProductResolver()
+def test_resolver_updates_group_on_match(restaurant):
+    r = ProductResolver(restaurant)
     r.resolve("03021", "Arroz Frito", "ACOMPAÑAMIENTOS", Decimal("10"), Decimal("3"))
     product = r.resolve("03021", "Arroz Frito", "ENTRADAS", Decimal("10"), Decimal("3"))
     assert product.category.name == "ENTRADAS"
@@ -129,8 +129,8 @@ def test_resolver_updates_group_on_match():
 
 
 @pytest.mark.django_db
-def test_resolver_suffixes_sku_on_duplicate_clave():
-    r = ProductResolver()
+def test_resolver_suffixes_sku_on_duplicate_clave(restaurant):
+    r = ProductResolver(restaurant)
     r.resolve("8007", "Don Julio Silver", "TEQUILA", Decimal("25"), Decimal("8"))
     # Same clave reassigned to a genuinely different product (distinct name).
     other = r.resolve("8007", "Glenfiddich 12", "WHISKY", Decimal("30"), Decimal("10"))
@@ -141,11 +141,11 @@ def test_resolver_suffixes_sku_on_duplicate_clave():
 
 
 @pytest.mark.django_db
-def test_alias_hit_short_circuits_resolution():
-    r = ProductResolver()
+def test_alias_hit_short_circuits_resolution(restaurant):
+    r = ProductResolver(restaurant)
     first = r.resolve("100", "Old Fashioned", "COCTELES", Decimal("20"), Decimal("6"))
     # A fresh resolver (reloads aliases) must reuse the recorded identity.
-    again = ProductResolver().resolve(
+    again = ProductResolver(restaurant).resolve(
         "100", "Old Fashioned", "COCTELES", Decimal("20"), Decimal("6")
     )
     assert again == first

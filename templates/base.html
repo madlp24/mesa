@@ -55,6 +55,11 @@
                         </form>
                     </li>
                     {% if request.user.is_authenticated %}
+                        {% if request.restaurant %}
+                        <li class="nav-item">
+                            <span class="navbar-text me-3" title="{% trans 'Current restaurant' %}">{{ request.restaurant.name }}</span>
+                        </li>
+                        {% endif %}
                         <li class="nav-item">
                             <span class="navbar-text me-3">{{ request.user.email }}</span>
                         </li>
@@ -80,8 +85,8 @@
 
     <footer class="mesa-footer">
         <div class="container py-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <span>{% trans "Mesa &middot; Business intelligence for Tres Cuatro Cinco steakhouse" %}</span>
-            <span class="text-muted">{% trans "Bogot&aacute;, Colombia" %}</span>
+            <span>{% trans "Mesa &middot; Business intelligence for Soft Restaurant data" %}</span>
+            {% if request.restaurant %}<span class="text-muted">{{ request.restaurant.name }}</span>{% endif %}
         </div>
     </footer>
 

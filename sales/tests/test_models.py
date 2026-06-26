@@ -8,9 +8,10 @@ from sales.models import Sale, SaleItem
 
 
 @pytest.fixture
-def sale_item(db):
-    category = Category.objects.create(name="Mains")
+def sale_item(restaurant):
+    category = Category.objects.create(restaurant=restaurant, name="Mains")
     product = Product.objects.create(
+        restaurant=restaurant,
         name="Burger",
         sku="BUR-01",
         category=category,
@@ -18,6 +19,7 @@ def sale_item(db):
         sale_price=Decimal("10.00"),
     )
     sale = Sale.objects.create(
+        restaurant=restaurant,
         external_id="2026-01-10:BUR-01",
         occurred_at=datetime(2026, 1, 10, 12, 0, tzinfo=timezone.utc),
         total=Decimal("30.00"),

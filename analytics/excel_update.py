@@ -65,11 +65,12 @@ def _detect_warnings(path: Path, workbook) -> list[str]:
     return warnings
 
 
-def update_productos_vendidos(path: Path) -> dict:
+def update_productos_vendidos(path: Path, restaurant) -> dict:
     """Write the missing months into a copy of ``path``; return a summary.
 
-    The summary has ``copy`` (the written path), ``months_added`` (labels),
-    ``matched`` / ``appended`` row counts, and ``warnings``.
+    Uses the given restaurant's data. The summary has ``copy`` (the written
+    path), ``months_added`` (labels), ``matched`` / ``appended`` row counts, and
+    ``warnings``.
     """
     path = Path(path)
     if not path.exists():
@@ -90,7 +91,7 @@ def update_productos_vendidos(path: Path) -> dict:
         if period:
             existing_months[period] = _FIRST_MONTH_COL + offset
 
-    months, products = _matrix_data()
+    months, products = _matrix_data(restaurant)
     new_months = [m for m in months if m not in existing_months]
 
     # Append a column per new month.

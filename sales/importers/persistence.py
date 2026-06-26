@@ -8,24 +8,30 @@ from .canonical import CanonicalSale, CanonicalSaleItem
 
 
 @transaction.atomic
-def persist(canonical_sales: list[CanonicalSale]) -> dict:
-    """Insert canonical sales into the database, idempotent by external_id.
+def persist(canonical_sales: list[CanonicalSale], restaurant) -> dict:
+    """Insert canonical sales for one restaurant, idempotent by external_id.
 
     Product identity is resolved by name through :class:`ProductResolver` for
     items that embed catalog hints (e.g. the PDF report); importers that carry
-    only a SKU (e.g. the Excel importer) fall back to a direct SKU lookup.
+    only a SKU (e.g. the Excel importer) fall back to a direct SKU lookup. All
+    rows are scoped to ``restaurant``.
     """
     new_count = 0
     item_count = 0
     skipped_count = 0
-    resolver = ProductResolver()
-    products_by_sku = {p.sku: p for p in Product.objects.all()}
+    resolver = ProductResolver(restaurant)
+    products_by_sku = {
+        p.sku: p for p in Product.objects.filter(restaurant=restaurant)
+    }
 
     for cs in canonical_sales:
-        if Sale.objects.filter(external_id=cs.external_id).exists():
+        if Sale.objects.filter(
+            restaurant=restaurant, external_id=cs.external_id
+        ).exists():
             skipped_count += 1
             continue
         sale = Sale.objects.create(
+            restaurant=restaurant,
             external_id=cs.external_id,
             occurred_at=cs.occurred_at,
             total=cs.total,

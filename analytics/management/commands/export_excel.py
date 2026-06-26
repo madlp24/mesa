@@ -12,6 +12,7 @@ from analytics.exports import (
     build_analysis_workbook,
     build_productos_vendidos_workbook,
 )
+from tenants.utils import resolve_restaurant
 
 
 class Command(BaseCommand):
@@ -25,6 +26,9 @@ class Command(BaseCommand):
             help="matrix = Productos-Vendidos units matrix; report = analysis report.",
         )
         parser.add_argument("--output", required=True, help="Destination .xlsx path.")
+        parser.add_argument(
+            "--restaurant", help="Restaurant slug (optional if there is only one)."
+        )
         parser.add_argument("--start", help="Report only: window start (YYYY-MM-DD).")
         parser.add_argument("--end", help="Report only: window end (YYYY-MM-DD).")
 
@@ -33,12 +37,13 @@ class Command(BaseCommand):
         if output.suffix.lower() != ".xlsx":
             raise CommandError("--output must end in .xlsx")
 
+        restaurant = resolve_restaurant(options.get("restaurant"))
         if options["type"] == "matrix":
-            workbook = build_productos_vendidos_workbook()
+            workbook = build_productos_vendidos_workbook(restaurant)
         else:
             start = parse_date(options["start"]) if options.get("start") else None
             end = parse_date(options["end"]) if options.get("end") else None
-            workbook = build_analysis_workbook(start, end)
+            workbook = build_analysis_workbook(restaurant, start, end)
 
         output.parent.mkdir(parents=True, exist_ok=True)
         workbook.save(output)

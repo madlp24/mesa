@@ -38,11 +38,12 @@ _COGS = ExpressionWrapper(
 
 
 def sale_items_in_range(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
 ) -> QuerySet:
-    """Return the SaleItem queryset filtered to the inclusive date window."""
-    items = SaleItem.objects.all()
+    """SaleItems for one restaurant, filtered to the inclusive date window."""
+    items = SaleItem.objects.filter(sale__restaurant=restaurant)
     if start:
         items = items.filter(sale__occurred_at__date__gte=start)
     if end:
@@ -51,6 +52,7 @@ def sale_items_in_range(
 
 
 def compute_kpis(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
 ) -> dict:
@@ -62,7 +64,7 @@ def compute_kpis(
       - ``average_ticket``   Decimal, revenue divided by number of sales
       - ``gross_margin_pct`` Decimal, margin / revenue as a percentage
     """
-    items = sale_items_in_range(start, end)
+    items = sale_items_in_range(restaurant, start, end)
     totals = items.aggregate(
         revenue=Sum(_REVENUE),
         margin=Sum(_MARGIN),
@@ -87,6 +89,7 @@ def compute_kpis(
 
 
 def revenue_by_day(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
 ) -> list[dict]:
@@ -96,7 +99,7 @@ def revenue_by_day(
     per day that actually had sales (gaps are not back-filled).
     """
     rows = (
-        sale_items_in_range(start, end)
+        sale_items_in_range(restaurant, start, end)
         .annotate(day=TruncDate("sale__occurred_at"))
         .values("day")
         .annotate(revenue=Sum(_REVENUE))
@@ -106,6 +109,7 @@ def revenue_by_day(
 
 
 def top_products_by_revenue(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
     limit: int = 10,
@@ -116,7 +120,7 @@ def top_products_by_revenue(
     revenue (not units) because weight-based products report quantity in grams.
     """
     rows = (
-        sale_items_in_range(start, end)
+        sale_items_in_range(restaurant, start, end)
         .values("product__id", "product__name")
         .annotate(revenue=Sum(_REVENUE))
         .order_by("-revenue")[:limit]
@@ -125,6 +129,7 @@ def top_products_by_revenue(
 
 
 def revenue_by_category(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
 ) -> list[dict]:
@@ -134,7 +139,7 @@ def revenue_by_category(
     category that had sales.
     """
     rows = (
-        sale_items_in_range(start, end)
+        sale_items_in_range(restaurant, start, end)
         .values("product__category__id", "product__category__name")
         .annotate(revenue=Sum(_REVENUE))
         .order_by("-revenue")
@@ -182,6 +187,7 @@ def _summarize(row: dict) -> dict:
 
 
 def product_report(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
 ) -> list[dict]:
@@ -192,7 +198,7 @@ def product_report(
     grams), so ranking elsewhere is by revenue, not units.
     """
     rows = (
-        sale_items_in_range(start, end)
+        sale_items_in_range(restaurant, start, end)
         .values("product__name", "product__category__name")
         .annotate(qty=Sum("quantity"), **_money_expressions())
         .order_by("-revenue")
@@ -208,12 +214,13 @@ def product_report(
 
 
 def category_report(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
 ) -> list[dict]:
     """Per-category totals for the window: quantity, revenue, cost, margin, %."""
     rows = (
-        sale_items_in_range(start, end)
+        sale_items_in_range(restaurant, start, end)
         .values("product__category__name")
         .annotate(qty=Sum("quantity"), **_money_expressions())
         .order_by("-revenue")
@@ -237,6 +244,7 @@ MARGIN_SORT_KEYS = (
 
 
 def product_margins(
+    restaurant,
     start: datetime.date | None = None,
     end: datetime.date | None = None,
     sort: str = "margin_pct",
@@ -253,14 +261,17 @@ def product_margins(
         sort = "margin_pct"
 
     totals = (
-        sale_items_in_range(start, end)
+        sale_items_in_range(restaurant, start, end)
         .values("product_id")
         .annotate(units=Sum("quantity"), total_margin=Sum(_MARGIN))
     )
     by_product = {row["product_id"]: row for row in totals}
 
     rows = []
-    for product in Product.objects.filter(is_active=True).select_related("category"):
+    products = Product.objects.filter(
+        restaurant=restaurant, is_active=True
+    ).select_related("category")
+    for product in products:
         stats = by_product.get(product.id)
         rows.append(
             {
@@ -293,6 +304,7 @@ def _months_back(anchor: datetime.date, count: int) -> list[datetime.date]:
 
 
 def monthly_pnl(
+    restaurant,
     year: int | None = None,
     today: datetime.date | None = None,
 ) -> list[dict]:
@@ -311,7 +323,8 @@ def monthly_pnl(
         periods = _months_back(today, 12)
 
     aggregated = (
-        SaleItem.objects.annotate(month=TruncMonth("sale__occurred_at"))
+        sale_items_in_range(restaurant)
+        .annotate(month=TruncMonth("sale__occurred_at"))
         .values("month")
         .annotate(revenue=Sum(_REVENUE), cogs=Sum(_COGS))
     )
