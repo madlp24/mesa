@@ -104,6 +104,20 @@ python manage.py export_excel --type report --output analisis.xlsx --start 2026-
 `matrix` is the Productos-Vendidos units-per-month matrix; `report` is the analysis
 report (per product and per category, plus top-N rankings).
 
+### Updating an existing workbook in place
+
+To write the new months into your own existing "Productos vendidos" workbook
+(matching rows by name, appending genuinely new products), without touching the
+original:
+
+```bash
+python manage.py update_excel --file "Análisis unificado.xlsx"
+```
+
+It writes a copy `… (actualizado).xlsx`, never the original, preserves historical
+codes, and warns if the workbook looks open in Excel or contains charts/macros
+(which openpyxl cannot preserve).
+
 ### Running tests and linting
 
 ```bash
