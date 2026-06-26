@@ -45,20 +45,21 @@ US15 top-products bar (#14/PR35), US16 revenue-by-category doughnut (#15/PR36),
 US17 margin analysis page (#16/PR37), US18 monthly P&L (#17/PR38),
 US20 test coverage + CI (#18/PR40), navbar toggler fix (#24/PR39),
 UI visual refresh (PR42), US2 onboarding (#19/PR43), US21 bilingual EN/ES (#41/PR44),
-US22 product identity + Excel export (#45/PR47), US23 update existing Excel (#46/PR49).
+US22 product identity + Excel export (#45/PR47), US23 update existing Excel (#46/PR49),
+US24 multi-tenant foundation (#50/PR52), US25 self-service web upload (#51/PR53).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
 PRODUCT PIVOT (agreed with user): Mesa is now a generic, **multi-tenant SaaS** for any
 restaurant using the Soft Restaurant POS (not just Tres Cuatro Cinco). Each user gets
-their own restaurant and sees only their data; report upload moves to the web.
+their own restaurant and sees only their data; report upload happens on the web at
+`/upload/` (`sales/forms.py` + `sales/views.py upload_report` -> importer/persist into
+`request.restaurant`; navbar "Upload"; Django messages in base.html).
 
-DONE (US24 merged, PR52). IN PROGRESS: US25 self-service web upload (#51) on branch
-`feat/us25-web-upload`. US25 adds `sales/forms.py` (ReportUploadForm: .pdf/.xlsx, size
-limit), `sales/views.py` `upload_report` (writes the upload to a temp file, runs the
-importer + `persist()` into `request.restaurant`, friendly error on parse failure,
-summary on success), `sales/urls.py` at `/upload/`, template `templates/sales/upload.html`,
-a navbar "Upload" link, and Django messages rendered in `base.html` (MESSAGE_TAGS maps
-ERROR->danger). Deploy of US24+US25 to Heroku pending (decided: deploy at end of milestone).
+DEPLOYED 2026-06-26 (Heroku release v7): multi-tenant + web upload are LIVE on the demo.
+Translations compile at build via `bin/post_compile` (release-dyno fs is ephemeral).
+NEXT (defined, not started): US19 polished README + redeploy (#20). Optional backlog
+from the roadmap chat: US26 first-run/empty states + rename, US28 import history/undo,
+US29 fix product fusion in the UI.
 Also pending: US19 polished README (#20), deferred to last; the app is deployed (see
 [[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the Heroku release config
 + demo seed fixture, not yet merged — NOTE: that seed fixture predates US24 and now
