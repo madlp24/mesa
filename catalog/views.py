@@ -39,7 +39,7 @@ def _items_in_range(product: Product, start, end) -> QuerySet:
 
 @login_required
 def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
-    product = get_object_or_404(Product, pk=pk)
+    product = get_object_or_404(Product, pk=pk, restaurant=request.restaurant)
     start, end = _date_range(request)
     totals = _items_in_range(product, start, end).aggregate(
         units=Sum("quantity"),
@@ -60,7 +60,7 @@ def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 def product_sales_series(request: HttpRequest, pk: int) -> JsonResponse:
     """Return units sold per day for the product, as JSON for the line chart."""
-    product = get_object_or_404(Product, pk=pk)
+    product = get_object_or_404(Product, pk=pk, restaurant=request.restaurant)
     start, end = _date_range(request)
     rows = (
         _items_in_range(product, start, end)

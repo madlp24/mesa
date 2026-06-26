@@ -3,6 +3,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from sales.importers import get_importer_for, persist
+from tenants.utils import resolve_restaurant
 
 
 class Command(BaseCommand):
@@ -10,11 +11,17 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--file", required=True, help="Path to the report file")
+        parser.add_argument(
+            "--restaurant",
+            help="Restaurant slug to import into (optional if there is only one).",
+        )
 
     def handle(self, *args, **options):
         path = Path(options["file"])
         if not path.exists():
             raise CommandError(f"File not found: {path}")
+
+        restaurant = resolve_restaurant(options.get("restaurant"))
 
         try:
             importer = get_importer_for(path)
@@ -22,7 +29,7 @@ class Command(BaseCommand):
             raise CommandError(str(exc)) from exc
 
         canonical = importer.normalize(path)
-        result = persist(canonical)
+        result = persist(canonical, restaurant)
         skipped_rows = getattr(importer, "skipped_rows", 0)
         self.stdout.write(
             self.style.SUCCESS(
@@ -33,5 +40,6 @@ class Command(BaseCommand):
         )
         self.stdout.write(
             f"{result['new']} new sales, "
-            f"{result['skipped_duplicate']} skipped as duplicate"
+            f"{result['skipped_duplicate']} skipped as duplicate "
+            f"(restaurant: {restaurant.name})"
         )

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-25 15:29-0500\n"
+"POT-Creation-Date: 2026-06-26 12:25-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -49,11 +49,11 @@ msgstr "Unidades vendidas"
 msgid "Total margin"
 msgstr "Margen total"
 
-#: config/settings/base.py:77
+#: config/settings/base.py:79
 msgid "English"
 msgstr "Inglés"
 
-#: config/settings/base.py:78
+#: config/settings/base.py:80
 msgid "Spanish"
 msgstr "Español"
 
@@ -244,22 +244,21 @@ msgstr "PyG"
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:64
+#: templates/base.html:60
+msgid "Current restaurant"
+msgstr "Restaurante actual"
+
+#: templates/base.html:69
 msgid "Logout"
 msgstr "Cerrar sesión"
 
-#: templates/base.html:69
+#: templates/base.html:74
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/base.html:83
-msgid "Mesa &middot; Business intelligence for Tres Cuatro Cinco steakhouse"
-msgstr ""
-"Mesa &middot; Inteligencia de negocio para el asadero Tres Cuatro Cinco"
-
-#: templates/base.html:84
-msgid "Bogot&aacute;, Colombia"
-msgstr "Bogot&aacute;, Colombia"
+#: templates/base.html:88
+msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
+msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
 #: templates/catalog/product_detail.html:11
 msgid "SKU"
@@ -272,3 +271,6 @@ msgstr "inactivo"
 #: templates/catalog/product_detail.html:53
 msgid "Units sold per day"
 msgstr "Unidades vendidas por día"
+
+#~ msgid "Bogot&aacute;, Colombia"
+#~ msgstr "Bogot&aacute;, Colombia"

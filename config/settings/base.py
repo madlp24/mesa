@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "rest_framework",
+    "tenants.apps.TenantsConfig",
     "catalog.apps.CatalogConfig",
     "sales.apps.SalesConfig",
     "analytics.apps.AnalyticsConfig",
@@ -37,6 +38,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "tenants.middleware.CurrentRestaurantMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = [

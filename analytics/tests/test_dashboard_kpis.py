@@ -2,7 +2,6 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 
 import pytest
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from analytics.services import compute_kpis
@@ -11,9 +10,10 @@ from sales.models import Sale, SaleItem
 
 
 @pytest.fixture
-def products(db):
-    category = Category.objects.create(name="Mains")
+def products(restaurant):
+    category = Category.objects.create(restaurant=restaurant, name="Mains")
     burger = Product.objects.create(
+        restaurant=restaurant,
         name="Burger",
         sku="BUR-01",
         category=category,
@@ -21,6 +21,7 @@ def products(db):
         sale_price=Decimal("1000.00"),
     )
     wine = Product.objects.create(
+        restaurant=restaurant,
         name="Wine",
         sku="WIN-01",
         category=category,
@@ -32,6 +33,7 @@ def products(db):
 
 def _add_sale(product, external_id, day, quantity, unit_price, unit_cost):
     sale = Sale.objects.create(
+        restaurant=product.restaurant,
         external_id=external_id,
         occurred_at=datetime(2026, 1, day, 12, 0, tzinfo=timezone.utc),
         total=unit_price * quantity,
@@ -60,8 +62,8 @@ def sales(products):
 
 
 @pytest.mark.django_db
-def test_compute_kpis_aggregates_all_metrics(sales):
-    kpis = compute_kpis()
+def test_compute_kpis_aggregates_all_metrics(restaurant, sales):
+    kpis = compute_kpis(restaurant)
 
     assert kpis["total_revenue"] == Decimal("9000.00")
     assert kpis["items_sold"] == 6
@@ -70,8 +72,8 @@ def test_compute_kpis_aggregates_all_metrics(sales):
 
 
 @pytest.mark.django_db
-def test_compute_kpis_zero_without_sales(db):
-    kpis = compute_kpis()
+def test_compute_kpis_zero_without_sales(restaurant):
+    kpis = compute_kpis(restaurant)
 
     assert kpis["total_revenue"] == Decimal("0")
     assert kpis["items_sold"] == 0
@@ -80,9 +82,9 @@ def test_compute_kpis_zero_without_sales(db):
 
 
 @pytest.mark.django_db
-def test_compute_kpis_respects_date_range(sales):
+def test_compute_kpis_respects_date_range(restaurant, sales):
     # Only the day-20 sale falls in this window.
-    kpis = compute_kpis(start=date(2026, 1, 15), end=date(2026, 1, 31))
+    kpis = compute_kpis(restaurant, start=date(2026, 1, 15), end=date(2026, 1, 31))
 
     assert kpis["total_revenue"] == Decimal("1000.00")
     assert kpis["items_sold"] == 1
@@ -91,15 +93,6 @@ def test_compute_kpis_respects_date_range(sales):
 
 
 # --- view tests ------------------------------------------------------------
-
-
-@pytest.fixture
-def logged_client(client, db):
-    user = get_user_model().objects.create_user(
-        username="owner", email="owner@example.com", password="secret123"
-    )
-    client.force_login(user)
-    return client
 
 
 @pytest.mark.django_db

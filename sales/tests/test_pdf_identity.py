@@ -33,7 +33,7 @@ def _write_report(path, period_start, lines):
 
 
 @pytest.mark.django_db
-def test_prefix_variant_fuses_across_two_imports(tmp_path):
+def test_prefix_variant_fuses_across_two_imports(tmp_path, restaurant):
     # May report: bare "Negroni" under clave 8100.
     may = tmp_path / "may.pdf"
     _write_report(
@@ -51,18 +51,24 @@ def test_prefix_variant_fuses_across_two_imports(tmp_path):
                                          "7.00", "154,000.00", "7,000.00")],
     )
 
-    call_command("import_sales", "--file", str(may), stdout=StringIO())
-    call_command("import_sales", "--file", str(june), stdout=StringIO())
+    call_command(
+        "import_sales", "--file", str(may), "--restaurant", restaurant.slug,
+        stdout=StringIO(),
+    )
+    call_command(
+        "import_sales", "--file", str(june), "--restaurant", restaurant.slug,
+        stdout=StringIO(),
+    )
 
     # One canonical product, two POS identities recorded, two sales attributed.
     assert Product.objects.count() == 1
-    product = Product.objects.get()
+    product = Product.objects.get(restaurant=restaurant)
     assert product.sale_items.count() == 2
     assert ProductAlias.objects.filter(product=product).count() == 2
 
 
 @pytest.mark.django_db
-def test_meat_quantity_stays_in_grams(tmp_path):
+def test_meat_quantity_stays_in_grams(tmp_path, restaurant):
     report = tmp_path / "meat.pdf"
     _write_report(
         report,
@@ -74,9 +80,12 @@ def test_meat_quantity_stays_in_grams(tmp_path):
         ],
     )
 
-    call_command("import_sales", "--file", str(report), stdout=StringIO())
+    call_command(
+        "import_sales", "--file", str(report), "--restaurant", restaurant.slug,
+        stdout=StringIO(),
+    )
 
     item = SaleItem.objects.get()
     assert item.quantity == 2656  # grams, as reported
     # The "*GR" marker is preserved in the stored name but ignored for matching.
-    assert Product.objects.get().name == "TOMAHAWK*GR"
+    assert Product.objects.get(restaurant=restaurant).name == "TOMAHAWK*GR"

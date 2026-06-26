@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 import pytest
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from analytics.exports import (
@@ -16,14 +15,16 @@ from sales.models import Sale, SaleItem
 
 
 @pytest.fixture
-def catalog(db):
-    food = Category.objects.create(name="Acompañamientos")
-    drinks = Category.objects.create(name="Bebidas")
+def catalog(restaurant):
+    food = Category.objects.create(restaurant=restaurant, name="Acompañamientos")
+    drinks = Category.objects.create(restaurant=restaurant, name="Bebidas")
     arepa = Product.objects.create(
+        restaurant=restaurant,
         name="Arepa de Choclo", sku="03028", category=food,
         cost_price=Decimal("3"), sale_price=Decimal("10"),
     )
     cafe = Product.objects.create(
+        restaurant=restaurant,
         name="Americano", sku="14001", category=drinks,
         cost_price=Decimal("1"), sale_price=Decimal("4"),
     )
@@ -32,6 +33,7 @@ def catalog(db):
 
 def _sell(product, ext, year, month, day, qty):
     sale = Sale.objects.create(
+        restaurant=product.restaurant,
         external_id=ext,
         occurred_at=datetime(year, month, day, 12, tzinfo=timezone.utc),
         total=product.sale_price * qty,
@@ -43,12 +45,12 @@ def _sell(product, ext, year, month, day, qty):
 
 
 @pytest.mark.django_db
-def test_productos_vendidos_matrix(catalog):
+def test_productos_vendidos_matrix(restaurant, catalog):
     _sell(catalog["arepa"], "a1", 2026, 1, 5, 10)
     _sell(catalog["arepa"], "a2", 2026, 2, 5, 4)
     _sell(catalog["cafe"], "c1", 2026, 1, 7, 20)
 
-    ws = build_productos_vendidos_workbook()[PRODUCTOS_VENDIDOS_SHEET]
+    ws = build_productos_vendidos_workbook(restaurant)[PRODUCTOS_VENDIDOS_SHEET]
     header = [cell.value for cell in ws[1]]
     assert header == ["Grupo", "Clave", "Producto", "Enero 2026", "Febrero 2026"]
 
@@ -60,11 +62,11 @@ def test_productos_vendidos_matrix(catalog):
 
 
 @pytest.mark.django_db
-def test_analysis_workbook_sheets_and_totals(catalog):
+def test_analysis_workbook_sheets_and_totals(restaurant, catalog):
     _sell(catalog["arepa"], "a1", 2026, 1, 5, 10)  # revenue 100, cost 30, margin 70
     _sell(catalog["cafe"], "c1", 2026, 1, 7, 20)  # revenue 80, cost 20, margin 60
 
-    wb = build_analysis_workbook()
+    wb = build_analysis_workbook(restaurant)
     assert wb.sheetnames == ["Por producto", "Por categoría", "Rankings"]
 
     products = wb["Por producto"]
@@ -86,15 +88,6 @@ def test_analysis_workbook_sheets_and_totals(catalog):
     flat = [c for row in rankings.iter_rows(values_only=True) for c in row]
     assert "Top 10 por ingreso" in flat
     assert "Top 10 por margen $" in flat
-
-
-@pytest.fixture
-def logged_client(client, db):
-    user = get_user_model().objects.create_user(
-        username="owner", email="owner@example.com", password="secret123"
-    )
-    client.force_login(user)
-    return client
 
 
 @pytest.mark.django_db

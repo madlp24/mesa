@@ -57,7 +57,7 @@ def _resolve_range(request: HttpRequest) -> tuple:
 def dashboard(request: HttpRequest) -> HttpResponse:
     start, end = _resolve_range(request)
     context = {
-        "kpis": compute_kpis(start, end),
+        "kpis": compute_kpis(request.restaurant, start, end),
         "start": start,
         "end": end,
     }
@@ -68,7 +68,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
 def revenue_over_time(request: HttpRequest) -> JsonResponse:
     """Daily revenue (COP) for the active range, as JSON for the line chart."""
     start, end = _resolve_range(request)
-    rows = revenue_by_day(start, end)
+    rows = revenue_by_day(request.restaurant, start, end)
     return JsonResponse(
         {
             "labels": [row["day"].isoformat() for row in rows],
@@ -81,7 +81,7 @@ def revenue_over_time(request: HttpRequest) -> JsonResponse:
 def top_products(request: HttpRequest) -> JsonResponse:
     """Top 10 products by revenue for the active range, as JSON for the chart."""
     start, end = _resolve_range(request)
-    rows = top_products_by_revenue(start, end)
+    rows = top_products_by_revenue(request.restaurant, start, end)
     return JsonResponse(
         {
             "labels": [row["name"] for row in rows],
@@ -102,7 +102,9 @@ def margin_analysis(request: HttpRequest) -> HttpResponse:
     if direction not in ("asc", "desc"):
         direction = "desc"
 
-    rows = product_margins(start, end, sort=sort, descending=direction == "desc")
+    rows = product_margins(
+        request.restaurant, start, end, sort=sort, descending=direction == "desc"
+    )
     context = {
         "columns": MARGIN_COLUMNS,
         "rows": rows,
@@ -120,8 +122,13 @@ def pnl_summary(request: HttpRequest) -> HttpResponse:
     year_param = request.GET.get("year", "")
     year = int(year_param) if year_param.isdigit() else None
 
-    rows = monthly_pnl(year=year)
-    years = [d.year for d in Sale.objects.dates("occurred_at", "year", order="DESC")]
+    rows = monthly_pnl(request.restaurant, year=year)
+    years = [
+        d.year
+        for d in Sale.objects.filter(restaurant=request.restaurant).dates(
+            "occurred_at", "year", order="DESC"
+        )
+    ]
     context = {
         "rows": rows,
         "selected_year": year,
@@ -148,7 +155,7 @@ def _xlsx_response(workbook, filename: str) -> HttpResponse:
 def export_productos_vendidos(request: HttpRequest) -> HttpResponse:
     """Download the Productos-Vendidos units-per-month matrix as .xlsx."""
     return _xlsx_response(
-        build_productos_vendidos_workbook(), "productos_vendidos.xlsx"
+        build_productos_vendidos_workbook(request.restaurant), "productos_vendidos.xlsx"
     )
 
 
@@ -156,14 +163,16 @@ def export_productos_vendidos(request: HttpRequest) -> HttpResponse:
 def export_analysis(request: HttpRequest) -> HttpResponse:
     """Download the analysis report for the active range as .xlsx."""
     start, end = _resolve_range(request)
-    return _xlsx_response(build_analysis_workbook(start, end), "analisis_mesa.xlsx")
+    return _xlsx_response(
+        build_analysis_workbook(request.restaurant, start, end), "analisis_mesa.xlsx"
+    )
 
 
 @login_required
 def revenue_by_category_api(request: HttpRequest) -> JsonResponse:
     """Revenue per category for the active range, as JSON for the doughnut."""
     start, end = _resolve_range(request)
-    rows = revenue_by_category(start, end)
+    rows = revenue_by_category(request.restaurant, start, end)
     return JsonResponse(
         {
             "labels": [row["name"] for row in rows],

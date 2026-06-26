@@ -1,7 +1,9 @@
 # Mesa
 
-Restaurant business intelligence dashboard built with Django and Chart.js, powered by
-real POS data from Tres Cuatro Cinco steakhouse in Bogota, Colombia.
+Multi-tenant business intelligence for restaurants that use the **Soft Restaurant**
+POS. Upload your "Productos Vendidos" reports and get instant dashboards, margin and
+P&L analysis, and a clean Excel of your own data to work with. Built with Django and
+Chart.js. Each restaurant signs up and sees only its own data.
 
 ## Local Setup
 
@@ -80,11 +82,16 @@ The Django admin lives at <http://127.0.0.1:8000/admin/>.
 
 ### Loading sample data
 
-The dashboard needs sales data to render charts. Import a POS file with:
+The dashboard needs sales data to render charts. Import a POS file into a restaurant
+with:
 
 ```bash
-python manage.py import_sales --file <path-to-excel-or-pdf>
+python manage.py import_sales --file <path-to-excel-or-pdf> --restaurant <slug>
 ```
+
+Mesa is **multi-tenant**: every user belongs to a restaurant (created automatically on
+signup) and only ever sees that restaurant's data. `--restaurant` is optional when only
+one restaurant exists. The export/update commands below take the same flag.
 
 Products are identified by **name** (not the unreliable POS code): the importer
 resolves each `(code, name)` to one canonical product and records the decision as

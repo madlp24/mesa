@@ -43,12 +43,14 @@ def _write_report_pdf(path):
 
 
 @pytest.mark.django_db
-def test_import_pdf_creates_catalog_sales_and_skips_bad_rows(tmp_path):
+def test_import_pdf_creates_catalog_sales_and_skips_bad_rows(tmp_path, restaurant):
     path = tmp_path / "daily.pdf"
     _write_report_pdf(path)
     out = StringIO()
 
-    call_command("import_sales", "--file", str(path), stdout=out)
+    call_command(
+        "import_sales", "--file", str(path), "--restaurant", restaurant.slug, stdout=out
+    )
 
     assert Sale.objects.count() == 3
     assert SaleItem.objects.count() == 3
@@ -58,13 +60,13 @@ def test_import_pdf_creates_catalog_sales_and_skips_bad_rows(tmp_path):
         "ACOMPAÑAMIENTOS",
         "BEBIDAS CALIENTES",
     }
-    arepa = Product.objects.get(sku="03028")
+    arepa = Product.objects.get(restaurant=restaurant, sku="03028")
     assert arepa.name == "AREPA DE CHOCLO"
     assert arepa.category.name == "ACOMPAÑAMIENTOS"
     assert arepa.cost_price == Decimal("9302.44")
     assert arepa.sale_price == Decimal("31481.48")
 
-    sale = Sale.objects.get(external_id="2025-04-01:03028")
+    sale = Sale.objects.get(restaurant=restaurant, external_id="2025-04-01:03028")
     assert sale.occurred_at.date() == date(2025, 4, 1)
     assert sale.total == Decimal("1070370.00")
     assert sale.items.get().quantity == 34
@@ -76,13 +78,18 @@ def test_import_pdf_creates_catalog_sales_and_skips_bad_rows(tmp_path):
 
 
 @pytest.mark.django_db
-def test_reimporting_same_pdf_is_idempotent(tmp_path):
+def test_reimporting_same_pdf_is_idempotent(tmp_path, restaurant):
     path = tmp_path / "daily.pdf"
     _write_report_pdf(path)
 
-    call_command("import_sales", "--file", str(path), stdout=StringIO())
+    call_command(
+        "import_sales", "--file", str(path), "--restaurant", restaurant.slug,
+        stdout=StringIO(),
+    )
     out = StringIO()
-    call_command("import_sales", "--file", str(path), stdout=out)
+    call_command(
+        "import_sales", "--file", str(path), "--restaurant", restaurant.slug, stdout=out
+    )
 
     assert Sale.objects.count() == 3
     assert "0 sales imported" in out.getvalue()

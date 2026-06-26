@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 import pytest
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from catalog.models import Category, Product
@@ -10,9 +9,10 @@ from sales.models import Sale, SaleItem
 
 
 @pytest.fixture
-def product(db):
-    category = Category.objects.create(name="Mains")
+def product(restaurant):
+    category = Category.objects.create(restaurant=restaurant, name="Mains")
     return Product.objects.create(
+        restaurant=restaurant,
         name="Burger",
         sku="BUR-01",
         category=category,
@@ -23,6 +23,7 @@ def product(db):
 
 def _add_sale(product, external_id, day, quantity):
     sale = Sale.objects.create(
+        restaurant=product.restaurant,
         external_id=external_id,
         occurred_at=datetime(2026, 1, day, 12, 0, tzinfo=timezone.utc),
         total=Decimal("0.00"),
@@ -34,15 +35,6 @@ def _add_sale(product, external_id, day, quantity):
         unit_price=Decimal("10.00"),
         unit_cost=Decimal("4.00"),
     )
-
-
-@pytest.fixture
-def logged_client(client, db):
-    user = get_user_model().objects.create_user(
-        username="owner", email="owner@example.com", password="secret123"
-    )
-    client.force_login(user)
-    return client
 
 
 @pytest.mark.django_db

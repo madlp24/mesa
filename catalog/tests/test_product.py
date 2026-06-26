@@ -7,13 +7,14 @@ from catalog.models import Category, Product
 
 
 @pytest.fixture
-def category(db):
-    return Category.objects.create(name="Mains")
+def category(restaurant):
+    return Category.objects.create(restaurant=restaurant, name="Mains")
 
 
 @pytest.mark.django_db
 def test_margin_amount_is_sale_minus_cost(category):
     product = Product.objects.create(
+        restaurant=category.restaurant,
         name="Burger",
         sku="BUR-01",
         category=category,
@@ -27,6 +28,7 @@ def test_margin_amount_is_sale_minus_cost(category):
 @pytest.mark.django_db
 def test_margin_pct_is_margin_over_sale_price(category):
     product = Product.objects.create(
+        restaurant=category.restaurant,
         name="Burger",
         sku="BUR-02",
         category=category,
@@ -40,6 +42,7 @@ def test_margin_pct_is_margin_over_sale_price(category):
 @pytest.mark.django_db
 def test_margin_pct_returns_zero_when_sale_price_is_zero(category):
     product = Product.objects.create(
+        restaurant=category.restaurant,
         name="Freebie",
         sku="FRE-01",
         category=category,
@@ -53,6 +56,7 @@ def test_margin_pct_returns_zero_when_sale_price_is_zero(category):
 @pytest.mark.django_db
 def test_category_with_products_cannot_be_deleted(category):
     Product.objects.create(
+        restaurant=category.restaurant,
         name="Burger",
         sku="BUR-03",
         category=category,
@@ -67,6 +71,7 @@ def test_category_with_products_cannot_be_deleted(category):
 @pytest.mark.django_db
 def test_str_returns_name(category):
     product = Product.objects.create(
+        restaurant=category.restaurant,
         name="Burger",
         sku="BUR-04",
         category=category,

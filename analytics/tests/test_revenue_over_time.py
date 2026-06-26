@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from decimal import Decimal
 
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone as dj_timezone
 
@@ -12,18 +11,10 @@ from sales.models import Sale, SaleItem
 
 
 @pytest.fixture
-def logged_client(client, db):
-    user = get_user_model().objects.create_user(
-        username="owner", email="owner@example.com", password="secret123"
-    )
-    client.force_login(user)
-    return client
-
-
-@pytest.fixture
-def product(db):
-    category = Category.objects.create(name="Mains")
+def product(restaurant):
+    category = Category.objects.create(restaurant=restaurant, name="Mains")
     return Product.objects.create(
+        restaurant=restaurant,
         name="Burger",
         sku="BUR-01",
         category=category,
@@ -34,6 +25,7 @@ def product(db):
 
 def _add_sale(product, external_id, occurred_at, quantity):
     sale = Sale.objects.create(
+        restaurant=product.restaurant,
         external_id=external_id,
         occurred_at=occurred_at,
         total=Decimal("10.00") * quantity,

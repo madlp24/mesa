@@ -3,13 +3,24 @@ from django.utils.text import slugify
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(unique=True)
+    restaurant = models.ForeignKey(
+        "tenants.Restaurant", on_delete=models.CASCADE, related_name="categories"
+    )
+    name = models.CharField(max_length=100)
+    slug = models.SlugField()
     display_order = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ["display_order", "name"]
         verbose_name_plural = "categories"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["restaurant", "name"], name="unique_category_name_per_restaurant"
+            ),
+            models.UniqueConstraint(
+                fields=["restaurant", "slug"], name="unique_category_slug_per_restaurant"
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -21,8 +32,11 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    restaurant = models.ForeignKey(
+        "tenants.Restaurant", on_delete=models.CASCADE, related_name="products"
+    )
     name = models.CharField(max_length=200)
-    sku = models.CharField(max_length=50, unique=True)
+    sku = models.CharField(max_length=50)
     category = models.ForeignKey(
         Category, on_delete=models.PROTECT, related_name="products"
     )
@@ -33,6 +47,11 @@ class Product(models.Model):
 
     class Meta:
         ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["restaurant", "sku"], name="unique_sku_per_restaurant"
+            )
+        ]
 
     @property
     def margin_amount(self):
@@ -58,6 +77,9 @@ class ProductAlias(models.Model):
     is made once and never re-guessed on later imports.
     """
 
+    restaurant = models.ForeignKey(
+        "tenants.Restaurant", on_delete=models.CASCADE, related_name="product_aliases"
+    )
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="aliases"
     )
@@ -70,7 +92,8 @@ class ProductAlias(models.Model):
         verbose_name_plural = "product aliases"
         constraints = [
             models.UniqueConstraint(
-                fields=["pos_clave", "raw_name"], name="unique_alias_identity"
+                fields=["restaurant", "pos_clave", "raw_name"],
+                name="unique_alias_identity_per_restaurant",
             )
         ]
 

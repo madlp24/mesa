@@ -27,6 +27,7 @@ def _sample_workbook(path):
 
 def _sell(product, ext, year, month, day, qty):
     sale = Sale.objects.create(
+        restaurant=product.restaurant,
         external_id=ext,
         occurred_at=datetime(year, month, day, 12, tzinfo=timezone.utc),
         total=product.sale_price * qty,
@@ -38,19 +39,22 @@ def _sell(product, ext, year, month, day, qty):
 
 
 @pytest.fixture
-def seeded_db(db):
-    cocteles = Category.objects.create(name="COCTELES")
-    entradas = Category.objects.create(name="ENTRADAS")
-    nuevos = Category.objects.create(name="NUEVOS")
+def seeded_db(restaurant):
+    cocteles = Category.objects.create(restaurant=restaurant, name="COCTELES")
+    entradas = Category.objects.create(restaurant=restaurant, name="ENTRADAS")
+    nuevos = Category.objects.create(restaurant=restaurant, name="NUEVOS")
     negroni = Product.objects.create(
+        restaurant=restaurant,
         name="Negroni Tanqueray", sku="8100", category=cocteles,
         cost_price=Decimal("7"), sale_price=Decimal("22"),
     )
     arepa = Product.objects.create(
+        restaurant=restaurant,
         name="Arepa de Choclo", sku="03028", category=entradas,
         cost_price=Decimal("3"), sale_price=Decimal("10"),
     )
     limonada = Product.objects.create(
+        restaurant=restaurant,
         name="Limonada", sku="5000", category=nuevos,
         cost_price=Decimal("1"), sale_price=Decimal("5"),
     )
@@ -71,11 +75,11 @@ def test_parse_month_label():
 
 
 @pytest.mark.django_db
-def test_update_writes_copy_not_original(tmp_path, seeded_db):
+def test_update_writes_copy_not_original(tmp_path, restaurant, seeded_db):
     original = tmp_path / "ventas.xlsx"
     _sample_workbook(original)
 
-    summary = update_productos_vendidos(original)
+    summary = update_productos_vendidos(original, restaurant)
 
     assert summary["copy"] == tmp_path / "ventas (actualizado).xlsx"
     assert summary["copy"].exists()
@@ -85,11 +89,11 @@ def test_update_writes_copy_not_original(tmp_path, seeded_db):
 
 
 @pytest.mark.django_db
-def test_new_month_appended_and_existing_preserved(tmp_path, seeded_db):
+def test_new_month_appended_and_existing_preserved(tmp_path, restaurant, seeded_db):
     path = tmp_path / "ventas.xlsx"
     _sample_workbook(path)
 
-    summary = update_productos_vendidos(path)
+    summary = update_productos_vendidos(path, restaurant)
     assert summary["months_added"] == ["Febrero 2026"]
 
     ws = load_workbook(summary["copy"])["Productos vendidos"]
@@ -107,11 +111,11 @@ def test_new_month_appended_and_existing_preserved(tmp_path, seeded_db):
 
 
 @pytest.mark.django_db
-def test_new_product_appended_as_new_row(tmp_path, seeded_db):
+def test_new_product_appended_as_new_row(tmp_path, restaurant, seeded_db):
     path = tmp_path / "ventas.xlsx"
     _sample_workbook(path)
 
-    summary = update_productos_vendidos(path)
+    summary = update_productos_vendidos(path, restaurant)
     assert summary["appended"] == 1
     assert summary["matched"] == 2
 
@@ -123,21 +127,21 @@ def test_new_product_appended_as_new_row(tmp_path, seeded_db):
 
 
 @pytest.mark.django_db
-def test_warns_when_workbook_locked(tmp_path, seeded_db):
+def test_warns_when_workbook_locked(tmp_path, restaurant, seeded_db):
     path = tmp_path / "ventas.xlsx"
     _sample_workbook(path)
     (tmp_path / "~$ventas.xlsx").write_text("lock")
 
-    summary = update_productos_vendidos(path)
+    summary = update_productos_vendidos(path, restaurant)
     assert any("open in Excel" in w for w in summary["warnings"])
 
 
 @pytest.mark.django_db
-def test_missing_sheet_raises(tmp_path, seeded_db):
+def test_missing_sheet_raises(tmp_path, restaurant, seeded_db):
     path = tmp_path / "wrong.xlsx"
     wb = Workbook()
     wb.active.title = "Otra hoja"
     wb.save(path)
 
     with pytest.raises(ExcelUpdateError, match="not found"):
-        update_productos_vendidos(path)
+        update_productos_vendidos(path, restaurant)
