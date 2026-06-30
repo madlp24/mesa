@@ -57,9 +57,13 @@ their own restaurant and sees only their data; report upload happens on the web 
 
 DEPLOYED 2026-06-26 (Heroku release v7): multi-tenant + web upload are LIVE on the demo.
 Translations compile at build via `bin/post_compile` (release-dyno fs is ephemeral).
-NEXT (defined, not started): US19 polished README + redeploy (#20). Optional backlog
-from the roadmap chat: US26 first-run/empty states + rename, US28 import history/undo,
-US29 fix product fusion in the UI.
+US26 first-run experience (#57): signup asks for the restaurant name
+(`ACCOUNT_SIGNUP_FORM_CLASS=tenants.forms.RestaurantSignupForm` renames the
+signal-created restaurant); empty dashboard shows an "Upload your first report" CTA
+(view passes `has_data`); `/settings/` page (`tenants.views.settings`) renames the
+restaurant, linked from the navbar restaurant name.
+NEXT (defined, not started): US19 polished README + redeploy (#20). Optional backlog:
+US28 import history/undo, US29 fix product fusion in the UI.
 Also pending: US19 polished README (#20), deferred to last; the app is deployed (see
 [[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the Heroku release config
 + demo seed fixture, not yet merged — NOTE: that seed fixture predates US24 and now

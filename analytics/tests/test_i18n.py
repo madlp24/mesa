@@ -1,21 +1,35 @@
 """Tests for the bilingual EN/ES UI (US21)."""
+from datetime import datetime, timezone
+from decimal import Decimal
+
 import pytest
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.urls import reverse
+
+from catalog.models import Category, Product
+from sales.models import Sale, SaleItem
 
 
 @pytest.fixture
-def logged_client(client, db):
-    user = get_user_model().objects.create_user(
-        username="owner", email="owner@example.com", password="secret123"
+def dashboard_data(restaurant):
+    """One sale so the dashboard renders KPIs/charts (not the empty state)."""
+    category = Category.objects.create(restaurant=restaurant, name="Mains")
+    product = Product.objects.create(
+        restaurant=restaurant, name="Burger", sku="B1", category=category,
+        cost_price=Decimal("4"), sale_price=Decimal("10"),
     )
-    client.force_login(user)
-    return client
+    sale = Sale.objects.create(
+        restaurant=restaurant, external_id="S1",
+        occurred_at=datetime(2026, 6, 1, 12, tzinfo=timezone.utc), total=Decimal("10"),
+    )
+    SaleItem.objects.create(
+        sale=sale, product=product, quantity=1,
+        unit_price=Decimal("10"), unit_cost=Decimal("4"),
+    )
 
 
 @pytest.mark.django_db
-def test_dashboard_renders_english_by_default(logged_client):
+def test_dashboard_renders_english_by_default(logged_client, dashboard_data):
     response = logged_client.get(reverse("analytics:dashboard"))
     body = response.content.decode()
 
@@ -39,7 +53,7 @@ def test_switcher_changes_active_language_to_spanish(logged_client):
 
 
 @pytest.mark.django_db
-def test_dashboard_renders_spanish_when_language_is_es(logged_client):
+def test_dashboard_renders_spanish_when_language_is_es(logged_client, dashboard_data):
     logged_client.post(
         reverse("set_language"),
         {"language": "es", "next": reverse("analytics:dashboard")},

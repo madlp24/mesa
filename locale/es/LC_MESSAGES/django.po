@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-26 15:03-0500\n"
+"POT-Creation-Date: 2026-06-30 14:17-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -141,64 +141,80 @@ msgstr "Panel"
 msgid "Sales performance at a glance for the selected period."
 msgstr "Rendimiento de ventas de un vistazo para el período seleccionado."
 
-#: templates/analytics/dashboard.html:14 templates/sales/upload.html:55
+#: templates/analytics/dashboard.html:15 templates/sales/upload.html:55
 msgid "Download Products-Sold matrix (Excel)"
 msgstr "Descargar matriz de Productos Vendidos (Excel)"
 
-#: templates/analytics/dashboard.html:17 templates/sales/upload.html:56
+#: templates/analytics/dashboard.html:18 templates/sales/upload.html:56
 msgid "Download analysis report (Excel)"
 msgstr "Descargar reporte de análisis (Excel)"
 
-#: templates/analytics/dashboard.html:24
+#: templates/analytics/dashboard.html:27
+msgid "Welcome to Mesa!"
+msgstr "¡Bienvenido a Mesa!"
+
+#: templates/analytics/dashboard.html:29
+msgid ""
+"Your restaurant has no data yet. Upload your first Soft Restaurant report to "
+"see your dashboards."
+msgstr ""
+"Tu restaurante aún no tiene datos. Sube tu primer reporte de Soft Restaurant "
+"para ver tus tableros."
+
+#: templates/analytics/dashboard.html:31
+msgid "Upload your first report"
+msgstr "Sube tu primer reporte"
+
+#: templates/analytics/dashboard.html:38
 #: templates/analytics/margin_analysis.html:14
 #: templates/catalog/product_detail.html:19
 msgid "From"
 msgstr "Desde"
 
-#: templates/analytics/dashboard.html:28
+#: templates/analytics/dashboard.html:42
 #: templates/analytics/margin_analysis.html:18
 #: templates/catalog/product_detail.html:23
 msgid "To"
 msgstr "Hasta"
 
-#: templates/analytics/dashboard.html:32
+#: templates/analytics/dashboard.html:46
 #: templates/analytics/margin_analysis.html:24 templates/analytics/pnl.html:23
 #: templates/catalog/product_detail.html:27
 msgid "Apply"
 msgstr "Aplicar"
 
-#: templates/analytics/dashboard.html:39
+#: templates/analytics/dashboard.html:53
 #: templates/catalog/product_detail.html:40
 msgid "Total revenue"
 msgstr "Ingresos totales"
 
-#: templates/analytics/dashboard.html:45
+#: templates/analytics/dashboard.html:59
 msgid "Items sold"
 msgstr "Artículos vendidos"
 
-#: templates/analytics/dashboard.html:51
+#: templates/analytics/dashboard.html:65
 msgid "Average ticket"
 msgstr "Ticket promedio"
 
-#: templates/analytics/dashboard.html:57
+#: templates/analytics/dashboard.html:71
 msgid "Gross margin"
 msgstr "Margen bruto"
 
-#: templates/analytics/dashboard.html:64
+#: templates/analytics/dashboard.html:78
 msgid "Revenue over time"
 msgstr "Ingresos a lo largo del tiempo"
 
-#: templates/analytics/dashboard.html:69
+#: templates/analytics/dashboard.html:83
 msgid "Top 10 products by revenue"
 msgstr "Top 10 productos por ingresos"
 
-#: templates/analytics/dashboard.html:74
+#: templates/analytics/dashboard.html:88
 msgid "Revenue by category"
 msgstr "Ingresos por categoría"
 
-#: templates/analytics/dashboard.html:102
-#: templates/analytics/dashboard.html:123
-#: templates/analytics/dashboard.html:141
+#: templates/analytics/dashboard.html:116
+#: templates/analytics/dashboard.html:137
+#: templates/analytics/dashboard.html:155
 msgid "Revenue (COP)"
 msgstr "Ingresos (COP)"
 
@@ -274,9 +290,9 @@ msgstr "Subir"
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:63
-msgid "Current restaurant"
-msgstr "Restaurante actual"
+#: templates/base.html:63 templates/tenants/settings.html:10
+msgid "Restaurant settings"
+msgstr "Ajustes del restaurante"
 
 #: templates/base.html:72
 msgid "Logout"
@@ -345,6 +361,33 @@ msgstr "Filas omitidas (ilegibles)"
 #: templates/sales/upload.html:54
 msgid "View dashboard"
 msgstr "Ver tablero"
+
+#: templates/tenants/settings.html:4
+msgid "Settings"
+msgstr "Ajustes"
+
+#: templates/tenants/settings.html:11
+msgid "Update how your restaurant is named across Mesa."
+msgstr "Actualiza cómo se llama tu restaurante en Mesa."
+
+#: templates/tenants/settings.html:27
+msgid "Save"
+msgstr "Guardar"
+
+#: tenants/forms.py:17 tenants/forms.py:35
+msgid "Restaurant name"
+msgstr "Nombre del restaurante"
+
+#: tenants/forms.py:18
+msgid "e.g. La Parrilla"
+msgstr "p. ej. La Parrilla"
+
+#: tenants/views.py:19
+msgid "Restaurant settings saved."
+msgstr "Ajustes del restaurante guardados."
+
+#~ msgid "Current restaurant"
+#~ msgstr "Restaurante actual"
 
 #~ msgid "Bogot&aacute;, Colombia"
 #~ msgstr "Bogot&aacute;, Colombia"
