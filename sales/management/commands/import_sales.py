@@ -2,7 +2,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-from sales.importers import get_importer_for, persist
+from sales.services import run_import
 from tenants.utils import resolve_restaurant
 
 
@@ -24,22 +24,21 @@ class Command(BaseCommand):
         restaurant = resolve_restaurant(options.get("restaurant"))
 
         try:
-            importer = get_importer_for(path)
+            batch = run_import(
+                path, restaurant, filename=path.name, source="cli"
+            )
         except ValueError as exc:
             raise CommandError(str(exc)) from exc
 
-        canonical = importer.normalize(path)
-        result = persist(canonical, restaurant)
-        skipped_rows = getattr(importer, "skipped_rows", 0)
         self.stdout.write(
             self.style.SUCCESS(
-                f"{result['new']} sales imported, "
-                f"{result['items']} items, "
-                f"{skipped_rows} rows skipped"
+                f"{batch.sales_created} sales imported, "
+                f"{batch.items_created} items, "
+                f"{batch.skipped_rows} rows skipped"
             )
         )
         self.stdout.write(
-            f"{result['new']} new sales, "
-            f"{result['skipped_duplicate']} skipped as duplicate "
+            f"{batch.sales_created} new sales, "
+            f"{batch.skipped_duplicate} skipped as duplicate "
             f"(restaurant: {restaurant.name})"
         )

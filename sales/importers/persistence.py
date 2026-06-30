@@ -8,13 +8,14 @@ from .canonical import CanonicalSale, CanonicalSaleItem
 
 
 @transaction.atomic
-def persist(canonical_sales: list[CanonicalSale], restaurant) -> dict:
+def persist(canonical_sales: list[CanonicalSale], restaurant, import_batch=None) -> dict:
     """Insert canonical sales for one restaurant, idempotent by external_id.
 
     Product identity is resolved by name through :class:`ProductResolver` for
     items that embed catalog hints (e.g. the PDF report); importers that carry
     only a SKU (e.g. the Excel importer) fall back to a direct SKU lookup. All
-    rows are scoped to ``restaurant``.
+    rows are scoped to ``restaurant`` and tagged with ``import_batch`` (when
+    given) so the import can be reviewed and undone later.
     """
     new_count = 0
     item_count = 0
@@ -32,6 +33,7 @@ def persist(canonical_sales: list[CanonicalSale], restaurant) -> dict:
             continue
         sale = Sale.objects.create(
             restaurant=restaurant,
+            import_batch=import_batch,
             external_id=cs.external_id,
             occurred_at=cs.occurred_at,
             total=cs.total,

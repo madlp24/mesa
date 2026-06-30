@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-30 14:17-0500\n"
+"POT-Creation-Date: 2026-06-30 14:45-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -71,7 +71,7 @@ msgstr "Tipo de archivo no soportado '%(ext)s'. Sube un reporte .pdf o .xlsx."
 msgid "File is too large (%(size)s). The limit is %(limit)s."
 msgstr "El archivo es demasiado grande (%(size)s). El límite es %(limit)s."
 
-#: sales/views.py:50
+#: sales/views.py:57
 msgid ""
 "We couldn't read that report. Make sure it is a Soft Restaurant 'Productos "
 "Vendidos' export and try again."
@@ -79,9 +79,14 @@ msgstr ""
 "No pudimos leer ese reporte. Asegúrate de que sea una exportación 'Productos "
 "Vendidos' de Soft Restaurant e inténtalo de nuevo."
 
-#: sales/views.py:58
+#: sales/views.py:65
 msgid "Report imported successfully."
 msgstr "Reporte importado correctamente."
+
+#: sales/views.py:83
+#, python-format
+msgid "Import undone: %(count)d sales removed."
+msgstr "Importación deshecha: %(count)d ventas eliminadas."
 
 #: templates/account/login.html:5 templates/account/login.html:53
 #: templates/account/signup.html:48
@@ -361,6 +366,30 @@ msgstr "Filas omitidas (ilegibles)"
 #: templates/sales/upload.html:54
 msgid "View dashboard"
 msgstr "Ver tablero"
+
+#: templates/sales/upload.html:65
+msgid "Recent imports"
+msgstr "Importaciones recientes"
+
+#: templates/sales/upload.html:70
+msgid "File"
+msgstr "Archivo"
+
+#: templates/sales/upload.html:71
+msgid "Date"
+msgstr "Fecha"
+
+#: templates/sales/upload.html:72
+msgid "Sales"
+msgstr "Ventas"
+
+#: templates/sales/upload.html:84
+msgid "Undo this import? The sales it created will be deleted."
+msgstr "¿Deshacer esta importación? Se eliminarán las ventas que creó."
+
+#: templates/sales/upload.html:86
+msgid "Undo"
+msgstr "Deshacer"
 
 #: templates/tenants/settings.html:4
 msgid "Settings"
