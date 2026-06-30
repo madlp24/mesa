@@ -58,6 +58,42 @@
       </div>
     </div>
     {% endif %}
+
+    {% if imports %}
+    <div class="card mt-4">
+      <div class="card-body">
+        <h2 class="h5 mb-3">{% trans "Recent imports" %}</h2>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>{% trans "File" %}</th>
+                <th>{% trans "Date" %}</th>
+                <th class="text-end">{% trans "Sales" %}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for batch in imports %}
+              <tr>
+                <td>{{ batch.filename }}</td>
+                <td class="text-muted small">{{ batch.created_at|date:"Y-m-d H:i" }}</td>
+                <td class="text-end">{{ batch.sales_created }}</td>
+                <td class="text-end">
+                  <form method="post" action="{% url 'sales:undo_import' batch.pk %}"
+                        onsubmit="return confirm('{% trans "Undo this import? The sales it created will be deleted." %}');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm">{% trans "Undo" %}</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

@@ -62,8 +62,12 @@ US26 first-run experience (#57): signup asks for the restaurant name
 signal-created restaurant); empty dashboard shows an "Upload your first report" CTA
 (view passes `has_data`); `/settings/` page (`tenants.views.settings`) renames the
 restaurant, linked from the navbar restaurant name.
-NEXT (defined, not started): US19 polished README + redeploy (#20). Optional backlog:
-US28 import history/undo, US29 fix product fusion in the UI.
+US28 import history + undo (#59): `sales.ImportBatch` records each import (filename,
+source web/cli, counts); `Sale.import_batch` FK tags created sales. `sales/services.py`
+`run_import()` (used by the upload view and `import_sales`) creates the batch; the
+upload page lists recent imports with an Undo button -> `undo_import_view` deletes that
+batch's sales (tenant-scoped). NEXT: US19 polished README + redeploy (#20). Optional
+backlog: US29 fix product fusion in the UI.
 Also pending: US19 polished README (#20), deferred to last; the app is deployed (see
 [[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the Heroku release config
 + demo seed fixture, not yet merged — NOTE: that seed fixture predates US24 and now

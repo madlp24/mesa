@@ -1,4 +1,4 @@
-"""Self-service web upload of Soft Restaurant reports (US25)."""
+"""Self-service web upload of Soft Restaurant reports (US25) + history (US28)."""
 import logging
 import tempfile
 from pathlib import Path
@@ -6,11 +6,13 @@ from pathlib import Path
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
 from sales.forms import ReportUploadForm
-from sales.importers import get_importer_for, persist
+from sales.models import ImportBatch
+from sales.services import run_import, undo_import
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,12 @@ def upload_report(request: HttpRequest) -> HttpResponse:
             if summary is not None:
                 form = ReportUploadForm()  # reset after a successful import
 
-    return render(request, "sales/upload.html", {"form": form, "summary": summary})
+    context = {
+        "form": form,
+        "summary": summary,
+        "imports": ImportBatch.objects.filter(restaurant=request.restaurant),
+    }
+    return render(request, "sales/upload.html", context)
 
 
 def _import_upload(request: HttpRequest, upload) -> dict | None:
@@ -40,9 +47,9 @@ def _import_upload(request: HttpRequest, upload) -> dict | None:
             for chunk in upload.chunks():
                 tmp.write(chunk)
             tmp_path = Path(tmp.name)
-        importer = get_importer_for(tmp_path)
-        canonical = importer.normalize(tmp_path)
-        result = persist(canonical, request.restaurant)
+        batch = run_import(
+            tmp_path, request.restaurant, filename=upload.name, source="web"
+        )
     except Exception:
         logger.exception("Report upload failed for %s", upload.name)
         messages.error(
@@ -57,9 +64,22 @@ def _import_upload(request: HttpRequest, upload) -> dict | None:
 
     messages.success(request, _("Report imported successfully."))
     return {
-        "filename": upload.name,
-        "new": result["new"],
-        "items": result["items"],
-        "skipped_duplicate": result["skipped_duplicate"],
-        "skipped_rows": getattr(importer, "skipped_rows", 0),
+        "filename": batch.filename,
+        "new": batch.sales_created,
+        "items": batch.items_created,
+        "skipped_duplicate": batch.skipped_duplicate,
+        "skipped_rows": batch.skipped_rows,
     }
+
+
+@login_required
+@require_POST
+def undo_import_view(request: HttpRequest, pk: int) -> HttpResponse:
+    """Undo an import: delete the sales it created (scoped to my restaurant)."""
+    batch = get_object_or_404(ImportBatch, pk=pk, restaurant=request.restaurant)
+    deleted = undo_import(batch)
+    messages.success(
+        request,
+        _("Import undone: %(count)d sales removed.") % {"count": deleted},
+    )
+    return redirect("sales:upload")
