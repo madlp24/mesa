@@ -56,8 +56,10 @@ def _resolve_range(request: HttpRequest) -> tuple:
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
     start, end = _resolve_range(request)
+    has_data = Sale.objects.filter(restaurant=request.restaurant).exists()
     context = {
         "kpis": compute_kpis(request.restaurant, start, end),
+        "has_data": has_data,
         "start": start,
         "end": end,
     }

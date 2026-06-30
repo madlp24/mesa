@@ -80,6 +80,7 @@ def test_dashboard_explicit_range_overrides_default(logged_client, product):
 
 @pytest.mark.django_db
 def test_dashboard_range_persists_in_picker(logged_client, product):
+    _add_sale(product, "RECENT", days_ago=3, quantity=1)  # so the picker renders
     today = timezone.localdate()
     start = today - timedelta(days=7)
     response = logged_client.get(

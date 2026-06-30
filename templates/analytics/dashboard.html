@@ -9,6 +9,7 @@
         <h1 class="h3 mb-1">{% trans "Dashboard" %}</h1>
         <p class="text-muted mb-0">{% trans "Sales performance at a glance for the selected period." %}</p>
     </div>
+    {% if has_data %}
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:export_productos_vendidos' %}">
             {% trans "Download Products-Sold matrix (Excel)" %}
@@ -17,7 +18,20 @@
             {% trans "Download analysis report (Excel)" %}
         </a>
     </div>
+    {% endif %}
 </div>
+
+{% if not has_data %}
+<div class="card text-center my-5">
+    <div class="card-body py-5">
+        <h2 class="h4 mb-2">{% trans "Welcome to Mesa!" %}</h2>
+        <p class="text-muted mb-4">
+            {% trans "Your restaurant has no data yet. Upload your first Soft Restaurant report to see your dashboards." %}
+        </p>
+        <a class="btn btn-primary btn-lg" href="{% url 'sales:upload' %}">{% trans "Upload your first report" %}</a>
+    </div>
+</div>
+{% else %}
 
 <form method="get" class="row g-2 align-items-end mb-4">
     <div class="col-auto">
@@ -175,4 +189,5 @@ function mesaPct(value, data) {
         });
 })();
 </script>
+{% endif %}
 {% endblock %}

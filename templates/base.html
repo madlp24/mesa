@@ -60,7 +60,7 @@
                     {% if request.user.is_authenticated %}
                         {% if request.restaurant %}
                         <li class="nav-item">
-                            <span class="navbar-text me-3" title="{% trans 'Current restaurant' %}">{{ request.restaurant.name }}</span>
+                            <a class="nav-link {% if url_name == 'settings' %}active{% endif %}" href="{% url 'tenants:settings' %}" title="{% trans 'Restaurant settings' %}">{{ request.restaurant.name }}</a>
                         </li>
                         {% endif %}
                         <li class="nav-item">
