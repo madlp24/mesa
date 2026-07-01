@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-30 14:45-0500\n"
+"POT-Creation-Date: 2026-07-01 15:10-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid "Name"
 msgstr "Nombre"
 
-#: analytics/views.py:27
+#: analytics/views.py:27 templates/catalog/product_list.html:26
 msgid "Category"
 msgstr "Categoría"
 
@@ -41,13 +41,36 @@ msgid "Margin %"
 msgstr "Margen %"
 
 #: analytics/views.py:32 templates/catalog/product_detail.html:34
-#: templates/catalog/product_detail.html:69
+#: templates/catalog/product_detail.html:118
 msgid "Units sold"
 msgstr "Unidades vendidas"
 
 #: analytics/views.py:33 templates/catalog/product_detail.html:46
 msgid "Total margin"
 msgstr "Margen total"
+
+#: catalog/views.py:76
+msgid "Select at least two products to merge."
+msgstr "Selecciona al menos dos productos para fusionar."
+
+#: catalog/views.py:92
+msgid "Choose which product to keep."
+msgstr "Elige qué producto conservar."
+
+#: catalog/views.py:102
+#, python-format
+msgid "Merged %(count)d product(s) into “%(name)s”."
+msgstr "Se fusionaron %(count)d producto(s) en «%(name)s»."
+
+#: catalog/views.py:124
+#, python-format
+msgid "Split “%(raw)s” into a new product."
+msgstr "Se separó «%(raw)s» en un producto nuevo."
+
+#: catalog/views.py:134
+#, python-format
+msgid "Moved “%(raw)s” to “%(name)s”."
+msgstr "Se movió «%(raw)s» a «%(name)s»."
 
 #: config/settings/base.py:83
 msgid "English"
@@ -262,7 +285,7 @@ msgstr "Últimos 12 meses"
 msgid "Month"
 msgstr "Mes"
 
-#: templates/analytics/pnl.html:33
+#: templates/analytics/pnl.html:33 templates/catalog/product_list.html:30
 msgid "Revenue"
 msgstr "Ingresos"
 
@@ -287,33 +310,66 @@ msgstr "Márgenes"
 msgid "P&L"
 msgstr "PyG"
 
-#: templates/base.html:39
+#: templates/base.html:39 templates/catalog/product_list.html:4
+#: templates/catalog/product_list.html:9
+#, fuzzy
+#| msgid "Product lines"
+msgid "Products"
+msgstr "Líneas de producto"
+
+#: templates/base.html:42
 msgid "Upload"
 msgstr "Subir"
 
-#: templates/base.html:51 templates/base.html:53
+#: templates/base.html:54 templates/base.html:56
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:63 templates/tenants/settings.html:10
+#: templates/base.html:66 templates/tenants/settings.html:10
 msgid "Restaurant settings"
 msgstr "Ajustes del restaurante"
 
-#: templates/base.html:72
+#: templates/base.html:75
 msgid "Logout"
 msgstr "Cerrar sesión"
 
-#: templates/base.html:77
+#: templates/base.html:80
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/base.html:99
+#: templates/base.html:102
 msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
 msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
+#: templates/catalog/merge_confirm.html:4
+msgid "Confirm merge"
+msgstr "Confirmar fusión"
+
+#: templates/catalog/merge_confirm.html:7
+#, fuzzy
+#| msgid "No active products."
+msgid "Merge products"
+msgstr "No hay productos activos."
+
+#: templates/catalog/merge_confirm.html:9
+msgid ""
+"Choose the product to keep. The others are deleted and their sales history "
+"and POS aliases move to it. This cannot be undone."
+msgstr "Elige el producto a conservar. Los demás se eliminan y su historial de ventas y alias del POS se trasladan a él. Esto no se puede deshacer."
+
+#: templates/catalog/merge_confirm.html:24
 #: templates/catalog/product_detail.html:11
+#: templates/catalog/product_list.html:27
 msgid "SKU"
 msgstr "SKU"
+
+#: templates/catalog/merge_confirm.html:33
+msgid "Merge into selected"
+msgstr "Fusionar en el seleccionado"
+
+#: templates/catalog/merge_confirm.html:34
+msgid "Cancel"
+msgstr "Cancelar"
 
 #: templates/catalog/product_detail.html:12
 msgid "inactive"
@@ -322,6 +378,89 @@ msgstr "inactivo"
 #: templates/catalog/product_detail.html:53
 msgid "Units sold per day"
 msgstr "Unidades vendidas por día"
+
+#: templates/catalog/product_detail.html:58
+msgid "POS identities (aliases)"
+msgstr "Identidades del POS (alias)"
+
+#: templates/catalog/product_detail.html:60
+msgid ""
+"Every POS code + name seen for this product. Move one to another product, or "
+"split it off if the POS merged two different items here. Its past sales "
+"follow it."
+msgstr "Cada código + nombre del POS visto para este producto. Mueve uno a otro producto, o sepáralo si el POS fusionó aquí dos artículos distintos. Sus ventas anteriores lo acompañan."
+
+#: templates/catalog/product_detail.html:67
+msgid "POS code"
+msgstr "Código POS"
+
+#: templates/catalog/product_detail.html:68
+#, fuzzy
+#| msgid "Upload a report"
+msgid "Name on report"
+msgstr "Sube un reporte"
+
+#: templates/catalog/product_detail.html:69
+msgid "Move to"
+msgstr "Mover a"
+
+#: templates/catalog/product_detail.html:82
+#, fuzzy
+#| msgid "No active products."
+msgid "Target product"
+msgstr "No hay productos activos."
+
+#: templates/catalog/product_detail.html:86
+#, fuzzy
+#| msgid "No active products."
+msgid "No other products"
+msgstr "No hay productos activos."
+
+#: templates/catalog/product_detail.html:91
+msgid "Move"
+msgstr "Mover"
+
+#: templates/catalog/product_detail.html:93
+msgid "Split into new product"
+msgstr "Separar en producto nuevo"
+
+#: templates/catalog/product_detail.html:102
+msgid "No POS aliases recorded for this product yet."
+msgstr "Aún no hay alias del POS para este producto."
+
+#: templates/catalog/product_list.html:11
+msgid ""
+"Select two or more rows and merge them when the POS split one product into "
+"duplicates."
+msgstr "Selecciona dos o más filas y fusiónalas cuando el POS dividió un producto en duplicados."
+
+#: templates/catalog/product_list.html:25
+#, fuzzy
+#| msgid "Product lines"
+msgid "Product"
+msgstr "Líneas de producto"
+
+#: templates/catalog/product_list.html:28
+msgid "Aliases"
+msgstr "Alias"
+
+#: templates/catalog/product_list.html:29
+#, fuzzy
+#| msgid "Units sold"
+msgid "Units"
+msgstr "Unidades vendidas"
+
+#: templates/catalog/product_list.html:39
+msgid "Select"
+msgstr "Seleccionar"
+
+#: templates/catalog/product_list.html:54
+msgid "Merge selected"
+msgstr "Fusionar seleccionados"
+
+#: templates/catalog/product_list.html:59
+msgid "No products yet. Upload a report to build your catalog."
+msgstr "Aún no hay productos. Sube un reporte para crear tu catálogo."
 
 #: templates/sales/upload.html:4
 msgid "Upload report"
