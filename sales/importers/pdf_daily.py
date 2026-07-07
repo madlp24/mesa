@@ -18,6 +18,8 @@ and category so :func:`persist` can auto-create missing products.
 """
 import logging
 import re
+from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import pdfplumber
@@ -45,10 +47,68 @@ _PRODUCT = re.compile(
 # Looks like a product row (starts with a code and has a money amount) but did
 # not fully parse -> a malformed row worth counting and logging.
 _CANDIDATE = re.compile(r"^\d+\s.*\$")
+# Report footer split by family, e.g.
+# "BEBIDAS: $1,651,851.00 (20%) 78 $591,901.87 $1,059,949.12"
+# -> family, VENTA, (pct), CANTIDAD, COSTOS, (VENTA-COSTO). We keep VENTA/COSTOS.
+# Note the optional space before the colon: some reports print "ALIMENTOS :".
+_FOOTER = re.compile(
+    r"^(?P<family>BEBIDAS|ALIMENTOS)\s*:\s*\$(?P<venta>[\-\d.,]+)\s*"
+    r"\(\d+%\)\s+[\d.,]+\s+\$(?P<costos>[\-\d.,]+)\s+\$[\-\d.,]+"
+)
 
 
 def _clean_number(raw: str) -> str:
     return raw.replace("$", "").replace(",", "").strip()
+
+
+@dataclass(frozen=True)
+class DailyTotals:
+    """The per-day Bar/Kitchen split from a report footer (BEBIDAS/ALIMENTOS)."""
+
+    date: str  # ISO "YYYY-MM-DD" (the report period's start date)
+    venta_bar: Decimal
+    costo_bar: Decimal
+    venta_cocina: Decimal
+    costo_cocina: Decimal
+
+
+def parse_daily_totals(path: Path) -> DailyTotals | None:
+    """Extract the day's Bar/Kitchen totals from a daily report footer.
+
+    Returns ``None`` when the file is not a daily report with the expected
+    footer (e.g. a different format, or the monthly summary of a broken layout).
+    """
+    period_date: str | None = None
+    families: dict[str, tuple[Decimal, Decimal]] = {}
+    with pdfplumber.open(path) as pdf:
+        for page in pdf.pages:
+            for line in (page.extract_text() or "").splitlines():
+                line = line.strip()
+                if period_date is None:
+                    match = _PERIOD.search(line)
+                    if match:
+                        day, month, year = match.groups()
+                        period_date = f"{year}-{month}-{day}"
+                footer = _FOOTER.match(line)
+                if footer:
+                    try:
+                        venta = Decimal(_clean_number(footer.group("venta")))
+                        costos = Decimal(_clean_number(footer.group("costos")))
+                    except InvalidOperation:
+                        continue
+                    families[footer.group("family")] = (venta, costos)
+
+    if period_date is None or "BEBIDAS" not in families or "ALIMENTOS" not in families:
+        return None
+    venta_bar, costo_bar = families["BEBIDAS"]
+    venta_cocina, costo_cocina = families["ALIMENTOS"]
+    return DailyTotals(
+        date=period_date,
+        venta_bar=venta_bar,
+        costo_bar=costo_bar,
+        venta_cocina=venta_cocina,
+        costo_cocina=costo_cocina,
+    )
 
 
 @register(".pdf")
