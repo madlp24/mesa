@@ -7,9 +7,9 @@
 <div class="row justify-content-center">
   <div class="col-lg-8 col-xl-7">
     <div class="mb-4">
-      <h1 class="h3 mb-1">{% trans "Upload a report" %}</h1>
+      <h1 class="h3 mb-1">{% trans "Upload reports" %}</h1>
       <p class="text-muted mb-0">
-        {% trans "Upload your Soft Restaurant Productos-Vendidos export (.pdf or .xlsx). It is imported into your restaurant and your dashboards update automatically." %}
+        {% trans "Upload your Soft Restaurant Productos-Vendidos exports (.pdf or .xlsx). Select several at once to import a whole month. They land in your restaurant and your dashboards update automatically." %}
       </p>
     </div>
 
@@ -21,35 +21,45 @@
             <label for="{{ form.report.id_for_label }}" class="form-label">{{ form.report.label }}</label>
             <input type="file" name="{{ form.report.html_name }}" id="{{ form.report.id_for_label }}"
                    class="form-control {% if form.report.errors %}is-invalid{% endif %}"
-                   accept=".pdf,.xlsx" required>
+                   accept=".pdf,.xlsx" multiple required>
             {% for error in form.report.errors %}
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
+            <div class="form-text">{% trans "Hold Ctrl/Cmd (or Shift) to select multiple files." %}</div>
           </div>
           <button type="submit" class="btn btn-primary">{% trans "Upload and import" %}</button>
         </form>
       </div>
     </div>
 
-    {% if summary %}
+    {% if summaries %}
     <div class="card mt-4">
       <div class="card-body">
         <h2 class="h5 mb-3">{% trans "Import summary" %}</h2>
-        <p class="text-muted small">{{ summary.filename }}</p>
-        <ul class="list-group list-group-flush mb-3">
-          <li class="list-group-item d-flex justify-content-between">
-            <span>{% trans "Sales imported" %}</span><strong>{{ summary.new }}</strong>
-          </li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>{% trans "Product lines" %}</span><strong>{{ summary.items }}</strong>
-          </li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>{% trans "Skipped as duplicate" %}</span><strong>{{ summary.skipped_duplicate }}</strong>
-          </li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>{% trans "Rows skipped (unreadable)" %}</span><strong>{{ summary.skipped_rows }}</strong>
-          </li>
-        </ul>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-3">
+            <thead>
+              <tr>
+                <th>{% trans "File" %}</th>
+                <th class="text-end">{% trans "Sales" %}</th>
+                <th class="text-end">{% trans "Lines" %}</th>
+                <th class="text-end">{% trans "Duplicate" %}</th>
+                <th class="text-end">{% trans "Unreadable" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for summary in summaries %}
+              <tr>
+                <td>{{ summary.filename }}</td>
+                <td class="text-end">{{ summary.new }}</td>
+                <td class="text-end">{{ summary.items }}</td>
+                <td class="text-end">{{ summary.skipped_duplicate }}</td>
+                <td class="text-end">{{ summary.skipped_rows }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
         <div class="d-flex flex-wrap gap-2">
           <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:dashboard' %}">{% trans "View dashboard" %}</a>
           <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:export_productos_vendidos' %}">{% trans "Download Products-Sold matrix (Excel)" %}</a>
