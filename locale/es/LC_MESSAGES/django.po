@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-01 15:10-0500\n"
+"POT-Creation-Date: 2026-07-07 13:13-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -80,33 +80,33 @@ msgstr "Inglés"
 msgid "Spanish"
 msgstr "Español"
 
-#: sales/forms.py:14
-msgid "Soft Restaurant report (.pdf or .xlsx)"
-msgstr "Reporte de Soft Restaurant (.pdf o .xlsx)"
-
-#: sales/forms.py:23
+#: sales/forms.py:37
 #, python-format
 msgid "Unsupported file type '%(ext)s'. Upload a .pdf or .xlsx report."
 msgstr "Tipo de archivo no soportado '%(ext)s'. Sube un reporte .pdf o .xlsx."
 
-#: sales/forms.py:28
+#: sales/forms.py:42
 #, python-format
-msgid "File is too large (%(size)s). The limit is %(limit)s."
-msgstr "El archivo es demasiado grande (%(size)s). El límite es %(limit)s."
+msgid "'%(name)s' is too large (%(size)s). The limit is %(limit)s per file."
+msgstr "'%(name)s' es demasiado grande (%(size)s). El límite es %(limit)s por archivo."
 
-#: sales/views.py:57
-msgid ""
-"We couldn't read that report. Make sure it is a Soft Restaurant 'Productos "
-"Vendidos' export and try again."
-msgstr ""
-"No pudimos leer ese reporte. Asegúrate de que sea una exportación 'Productos "
-"Vendidos' de Soft Restaurant e inténtalo de nuevo."
+#: sales/forms.py:53
+msgid "Soft Restaurant reports (.pdf or .xlsx) — one or several"
+msgstr "Reportes de Soft Restaurant (.pdf o .xlsx) — uno o varios"
+
+#: sales/views.py:37
+#, python-format
+msgid "Imported %(count)d report(s)."
+msgstr "Se importaron %(count)d reporte(s)."
 
 #: sales/views.py:65
-msgid "Report imported successfully."
-msgstr "Reporte importado correctamente."
+#, python-format
+msgid ""
+"We couldn't read '%(name)s'. Make sure it is a Soft Restaurant 'Productos "
+"Vendidos' export and try again."
+msgstr "No pudimos leer '%(name)s'. Asegúrate de que sea una exportación 'Productos Vendidos' de Soft Restaurant e inténtalo de nuevo."
 
-#: sales/views.py:83
+#: sales/views.py:90
 #, python-format
 msgid "Import undone: %(count)d sales removed."
 msgstr "Importación deshecha: %(count)d ventas eliminadas."
@@ -169,11 +169,11 @@ msgstr "Panel"
 msgid "Sales performance at a glance for the selected period."
 msgstr "Rendimiento de ventas de un vistazo para el período seleccionado."
 
-#: templates/analytics/dashboard.html:15 templates/sales/upload.html:55
+#: templates/analytics/dashboard.html:15 templates/sales/upload.html:65
 msgid "Download Products-Sold matrix (Excel)"
 msgstr "Descargar matriz de Productos Vendidos (Excel)"
 
-#: templates/analytics/dashboard.html:18 templates/sales/upload.html:56
+#: templates/analytics/dashboard.html:18 templates/sales/upload.html:66
 msgid "Download analysis report (Excel)"
 msgstr "Descargar reporte de análisis (Excel)"
 
@@ -312,10 +312,8 @@ msgstr "PyG"
 
 #: templates/base.html:39 templates/catalog/product_list.html:4
 #: templates/catalog/product_list.html:9
-#, fuzzy
-#| msgid "Product lines"
 msgid "Products"
-msgstr "Líneas de producto"
+msgstr "Productos"
 
 #: templates/base.html:42
 msgid "Upload"
@@ -346,16 +344,16 @@ msgid "Confirm merge"
 msgstr "Confirmar fusión"
 
 #: templates/catalog/merge_confirm.html:7
-#, fuzzy
-#| msgid "No active products."
 msgid "Merge products"
-msgstr "No hay productos activos."
+msgstr "Fusionar productos"
 
 #: templates/catalog/merge_confirm.html:9
 msgid ""
 "Choose the product to keep. The others are deleted and their sales history "
 "and POS aliases move to it. This cannot be undone."
-msgstr "Elige el producto a conservar. Los demás se eliminan y su historial de ventas y alias del POS se trasladan a él. Esto no se puede deshacer."
+msgstr ""
+"Elige el producto a conservar. Los demás se eliminan y su historial de "
+"ventas y alias del POS se trasladan a él. Esto no se puede deshacer."
 
 #: templates/catalog/merge_confirm.html:24
 #: templates/catalog/product_detail.html:11
@@ -388,33 +386,30 @@ msgid ""
 "Every POS code + name seen for this product. Move one to another product, or "
 "split it off if the POS merged two different items here. Its past sales "
 "follow it."
-msgstr "Cada código + nombre del POS visto para este producto. Mueve uno a otro producto, o sepáralo si el POS fusionó aquí dos artículos distintos. Sus ventas anteriores lo acompañan."
+msgstr ""
+"Cada código + nombre del POS visto para este producto. Mueve uno a otro "
+"producto, o sepáralo si el POS fusionó aquí dos artículos distintos. Sus "
+"ventas anteriores lo acompañan."
 
 #: templates/catalog/product_detail.html:67
 msgid "POS code"
 msgstr "Código POS"
 
 #: templates/catalog/product_detail.html:68
-#, fuzzy
-#| msgid "Upload a report"
 msgid "Name on report"
-msgstr "Sube un reporte"
+msgstr "Nombre en el reporte"
 
 #: templates/catalog/product_detail.html:69
 msgid "Move to"
 msgstr "Mover a"
 
 #: templates/catalog/product_detail.html:82
-#, fuzzy
-#| msgid "No active products."
 msgid "Target product"
-msgstr "No hay productos activos."
+msgstr "Producto destino"
 
 #: templates/catalog/product_detail.html:86
-#, fuzzy
-#| msgid "No active products."
 msgid "No other products"
-msgstr "No hay productos activos."
+msgstr "No hay otros productos"
 
 #: templates/catalog/product_detail.html:91
 msgid "Move"
@@ -432,23 +427,21 @@ msgstr "Aún no hay alias del POS para este producto."
 msgid ""
 "Select two or more rows and merge them when the POS split one product into "
 "duplicates."
-msgstr "Selecciona dos o más filas y fusiónalas cuando el POS dividió un producto en duplicados."
+msgstr ""
+"Selecciona dos o más filas y fusiónalas cuando el POS dividió un producto en "
+"duplicados."
 
 #: templates/catalog/product_list.html:25
-#, fuzzy
-#| msgid "Product lines"
 msgid "Product"
-msgstr "Líneas de producto"
+msgstr "Producto"
 
 #: templates/catalog/product_list.html:28
 msgid "Aliases"
 msgstr "Alias"
 
 #: templates/catalog/product_list.html:29
-#, fuzzy
-#| msgid "Units sold"
 msgid "Units"
-msgstr "Unidades vendidas"
+msgstr "Unidades"
 
 #: templates/catalog/product_list.html:39
 msgid "Select"
@@ -467,66 +460,65 @@ msgid "Upload report"
 msgstr "Subir reporte"
 
 #: templates/sales/upload.html:10
-msgid "Upload a report"
-msgstr "Sube un reporte"
+msgid "Upload reports"
+msgstr "Subir reportes"
 
 #: templates/sales/upload.html:12
 msgid ""
-"Upload your Soft Restaurant Productos-Vendidos export (.pdf or .xlsx). It is "
-"imported into your restaurant and your dashboards update automatically."
-msgstr ""
-"Sube tu exportación Productos-Vendidos de Soft Restaurant (.pdf o .xlsx). Se "
-"importa en tu restaurante y tus tableros se actualizan automáticamente."
+"Upload your Soft Restaurant Productos-Vendidos exports (.pdf or .xlsx). "
+"Select several at once to import a whole month. They land in your restaurant "
+"and your dashboards update automatically."
+msgstr "Sube tus exportaciones Productos-Vendidos de Soft Restaurant (.pdf o .xlsx). Selecciona varias a la vez para importar un mes completo. Se importan en tu restaurante y tus tableros se actualizan automáticamente."
 
-#: templates/sales/upload.html:29
+#: templates/sales/upload.html:28
+msgid "Hold Ctrl/Cmd (or Shift) to select multiple files."
+msgstr "Mantén Ctrl/Cmd (o Shift) para seleccionar varios archivos."
+
+#: templates/sales/upload.html:30
 msgid "Upload and import"
 msgstr "Subir e importar"
 
-#: templates/sales/upload.html:37
+#: templates/sales/upload.html:38
 msgid "Import summary"
 msgstr "Resumen de importación"
 
-#: templates/sales/upload.html:41
-msgid "Sales imported"
-msgstr "Ventas importadas"
-
-#: templates/sales/upload.html:44
-msgid "Product lines"
-msgstr "Líneas de producto"
-
-#: templates/sales/upload.html:47
-msgid "Skipped as duplicate"
-msgstr "Omitidas por duplicado"
-
-#: templates/sales/upload.html:50
-msgid "Rows skipped (unreadable)"
-msgstr "Filas omitidas (ilegibles)"
-
-#: templates/sales/upload.html:54
-msgid "View dashboard"
-msgstr "Ver tablero"
-
-#: templates/sales/upload.html:65
-msgid "Recent imports"
-msgstr "Importaciones recientes"
-
-#: templates/sales/upload.html:70
+#: templates/sales/upload.html:43 templates/sales/upload.html:80
 msgid "File"
 msgstr "Archivo"
 
-#: templates/sales/upload.html:71
-msgid "Date"
-msgstr "Fecha"
-
-#: templates/sales/upload.html:72
+#: templates/sales/upload.html:44 templates/sales/upload.html:82
 msgid "Sales"
 msgstr "Ventas"
 
-#: templates/sales/upload.html:84
+#: templates/sales/upload.html:45
+msgid "Lines"
+msgstr "Líneas"
+
+#: templates/sales/upload.html:46
+msgid "Duplicate"
+msgstr "Duplicado"
+
+#: templates/sales/upload.html:47
+msgid "Unreadable"
+msgstr "Ilegibles"
+
+#: templates/sales/upload.html:64
+msgid "View dashboard"
+msgstr "Ver tablero"
+
+#: templates/sales/upload.html:75
+msgid "Recent imports"
+msgstr "Importaciones recientes"
+
+#: templates/sales/upload.html:81
+msgid "Date"
+msgstr "Fecha"
+
+#: templates/sales/upload.html:94
 msgid "Undo this import? The sales it created will be deleted."
 msgstr "¿Deshacer esta importación? Se eliminarán las ventas que creó."
 
-#: templates/sales/upload.html:86
+#: templates/sales/upload.html:96
 msgid "Undo"
 msgstr "Deshacer"
 
@@ -553,6 +545,24 @@ msgstr "p. ej. La Parrilla"
 #: tenants/views.py:19
 msgid "Restaurant settings saved."
 msgstr "Ajustes del restaurante guardados."
+
+#~ msgid "Report imported successfully."
+#~ msgstr "Reporte importado correctamente."
+
+#~ msgid "Upload a report"
+#~ msgstr "Sube un reporte"
+
+#~ msgid "Sales imported"
+#~ msgstr "Ventas importadas"
+
+#~ msgid "Product lines"
+#~ msgstr "Líneas de producto"
+
+#~ msgid "Skipped as duplicate"
+#~ msgstr "Omitidas por duplicado"
+
+#~ msgid "Rows skipped (unreadable)"
+#~ msgstr "Filas omitidas (ilegibles)"
 
 #~ msgid "Current restaurant"
 #~ msgstr "Restaurante actual"

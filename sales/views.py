@@ -19,20 +19,28 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def upload_report(request: HttpRequest) -> HttpResponse:
-    """Upload a POS report and import it into the current restaurant."""
-    summary = None
+    """Upload one or several POS reports and import them into the restaurant."""
+    summaries: list[dict] = []
     form = ReportUploadForm()
 
     if request.method == "POST":
         form = ReportUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            summary = _import_upload(request, form.cleaned_data["report"])
-            if summary is not None:
+            summaries = [
+                summary
+                for upload in form.cleaned_data["report"]
+                if (summary := _import_upload(request, upload)) is not None
+            ]
+            if summaries:
+                messages.success(
+                    request,
+                    _("Imported %(count)d report(s).") % {"count": len(summaries)},
+                )
                 form = ReportUploadForm()  # reset after a successful import
 
     context = {
         "form": form,
-        "summary": summary,
+        "summaries": summaries,
         "imports": ImportBatch.objects.filter(restaurant=request.restaurant),
     }
     return render(request, "sales/upload.html", context)
@@ -54,15 +62,14 @@ def _import_upload(request: HttpRequest, upload) -> dict | None:
         logger.exception("Report upload failed for %s", upload.name)
         messages.error(
             request,
-            _("We couldn't read that report. Make sure it is a Soft Restaurant "
-              "'Productos Vendidos' export and try again."),
+            _("We couldn't read '%(name)s'. Make sure it is a Soft Restaurant "
+              "'Productos Vendidos' export and try again.") % {"name": upload.name},
         )
         return None
     finally:
         if tmp_path is not None:
             tmp_path.unlink(missing_ok=True)
 
-    messages.success(request, _("Report imported successfully."))
     return {
         "filename": batch.filename,
         "new": batch.sales_created,
