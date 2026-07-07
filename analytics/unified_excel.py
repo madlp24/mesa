@@ -19,9 +19,12 @@ sheet (N/O/S/T from the PDF footer) is a separate story.
 """
 from __future__ import annotations
 
+import datetime
+import re
 from pathlib import Path
 
 from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
 
 from catalog.identity import names_match, normalize_name
 
@@ -31,6 +34,21 @@ _GROUP_COL = 1
 _CLAVE_COL = 2
 _NAME_COL = 3
 _FIRST_MONTH_COL = 4
+
+# --- "Datos totales" sheet (US32) -----------------------------------------
+_DATOS_TOTALES_SHEET = "Datos totales"  # matched ignoring a trailing space
+_DT_YEAR = 1
+_DT_DATE = 2
+_DT_DAY = 3
+_DT_MONTH = 4
+_DT_WEEKDAY = 5
+_DT_VENTA_BAR = 14      # N
+_DT_COSTO_BAR = 15      # O
+_DT_VENTA_COCINA = 19   # S
+_DT_COSTO_COCINA = 20   # T
+_WEEKDAYS_ES = (
+    "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"
+)
 
 
 class UnifiedUpdateError(Exception):
@@ -176,8 +194,6 @@ def update_productos_vendidos(
             matched += 1
         ws.cell(row=target, column=col, value=product["quantities"][period])
 
-    from openpyxl.utils import get_column_letter
-
     copy = path.with_name(f"{path.stem} (Mesa {MONTHS_ES[month - 1]} {year}){path.suffix}")
     workbook.save(copy)
     return {
@@ -186,5 +202,112 @@ def update_productos_vendidos(
         "matched": matched,
         "appended": len(appended_names),
         "appended_names": appended_names,
+        "warnings": warnings,
+    }
+
+
+def _find_datos_sheet(workbook):
+    for name in workbook.sheetnames:
+        if name.strip().lower() == _DATOS_TOTALES_SHEET.lower():
+            return workbook[name]
+    raise UnifiedUpdateError(f'Sheet "{_DATOS_TOTALES_SHEET}" not found.')
+
+
+def _index_dates(ws) -> dict[datetime.date, int]:
+    """Map each existing dated row (col B) to its row number."""
+    index = {}
+    for r in range(2, ws.max_row + 1):
+        value = ws.cell(row=r, column=_DT_DATE).value
+        if isinstance(value, datetime.datetime):
+            index[value.date()] = r
+        elif isinstance(value, datetime.date):
+            index[value] = r
+    return index
+
+
+def _find_formula_template(ws) -> int | None:
+    """A data row whose formula cells (J=N+S, ...) can be copied to new rows."""
+    for r in range(2, ws.max_row + 1):
+        cell = ws.cell(row=r, column=10)  # column J = "Venta Total" (a formula)
+        if isinstance(cell.value, str) and cell.value.startswith("="):
+            return r
+    return None
+
+
+def _copy_row_formulas(ws, template: int, target: int) -> None:
+    """Replicate the template row's per-row formulas onto ``target``.
+
+    Formulas here are same-row references (``=N2+S2``); openpyxl does not
+    translate them on copy, so rewrite the template's row number to the target's.
+    """
+    pattern = re.compile(r"([A-Z]{1,3})" + str(template) + r"(?![0-9])")
+    for col in range(1, ws.max_column + 1):
+        value = ws.cell(row=template, column=col).value
+        if isinstance(value, str) and value.startswith("="):
+            rewritten = pattern.sub(lambda m: f"{m.group(1)}{target}", value)
+            ws.cell(row=target, column=col, value=rewritten)
+
+
+def _write_date_columns(ws, row: int, day: datetime.date) -> None:
+    ws.cell(row=row, column=_DT_YEAR, value=day.year)
+    ws.cell(row=row, column=_DT_DATE, value=datetime.datetime(day.year, day.month, day.day))
+    ws.cell(row=row, column=_DT_DAY, value=day.day)
+    ws.cell(row=row, column=_DT_MONTH, value=MONTHS_ES[day.month - 1])
+    ws.cell(row=row, column=_DT_WEEKDAY, value=_WEEKDAYS_ES[day.weekday()])
+
+
+def update_datos_totales(path, totals_by_date: dict) -> dict:
+    """Write Bar/Kitchen totals (N/O/S/T) per day into a copy of ``path``.
+
+    ``totals_by_date`` maps a ``datetime.date`` to a
+    :class:`sales.importers.pdf_daily.DailyTotals`. Existing rows (matched by the
+    date in column B) are filled in place; days with no row are appended at the
+    bottom with the date columns and the per-row formulas replicated, and are
+    reported in ``appended`` (openpyxl cannot safely insert mid-sheet without
+    corrupting the shifted rows' formulas). Writes a copy; returns a summary.
+    """
+    path = Path(path)
+    if not path.exists():
+        raise UnifiedUpdateError(f"File not found: {path}")
+
+    workbook = load_workbook(path)
+    ws = _find_datos_sheet(workbook)
+    warnings = _detect_warnings(path, workbook)
+
+    existing = _index_dates(ws)
+    template = _find_formula_template(ws)
+    append_at = ws.max_row + 1
+    filled = 0
+    appended: list[datetime.date] = []
+
+    for day in sorted(totals_by_date):
+        totals = totals_by_date[day]
+        row = existing.get(day)
+        if row is None:
+            row = append_at
+            append_at += 1
+            _write_date_columns(ws, row, day)
+            if template is not None:
+                _copy_row_formulas(ws, template, row)
+            appended.append(day)
+        else:
+            filled += 1
+        ws.cell(row=row, column=_DT_VENTA_BAR, value=float(totals.venta_bar))
+        ws.cell(row=row, column=_DT_COSTO_BAR, value=float(totals.costo_bar))
+        ws.cell(row=row, column=_DT_VENTA_COCINA, value=float(totals.venta_cocina))
+        ws.cell(row=row, column=_DT_COSTO_COCINA, value=float(totals.costo_cocina))
+
+    if appended and template is None:
+        warnings.append(
+            "No formula template row found; appended rows carry N/O/S/T only "
+            "(the derived columns J/K/L... will be empty)."
+        )
+
+    copy = path.with_name(f"{path.stem} (Mesa Datos totales){path.suffix}")
+    workbook.save(copy)
+    return {
+        "copy": copy,
+        "filled": filled,
+        "appended": [d.isoformat() for d in appended],
         "warnings": warnings,
     }
