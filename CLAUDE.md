@@ -31,6 +31,16 @@ python manage.py migrate
   `feat(catalog): add Product model #5`
 - Open a PR with `Closes #N` in the body so the issue auto-closes on merge.
 - Merge to `main` via PR (do not push to main directly).
+- ALWAYS keep the GitHub Project board up to date (board **"Mesa Devolopment"**,
+  https://github.com/users/madlp24/projects/6). Every new story gets a GitHub issue
+  that is added to the board; when work lands (PR merged / issue closed) its card must
+  be in **Done**; work in flight goes to **In Progress**. Non-story work (chores, docs,
+  refactors) that ships as a PR without an issue is added to the board as the PR itself
+  and set to Done. The board must reflect everything in this Status section — nothing
+  shipped should be missing from it. (Needs the `project` gh scope:
+  `gh auth refresh -s project`; Status field id `PVTSSF_lAHOBy5ZcM4BYiM8zhTnauQ`,
+  Done option `98236657`; add items with `gh project item-add 6 --owner madlp24 --url <url>`
+  then `gh project item-edit --project-id PVT_kwHOBy5ZcM4BYiM8 --id <item> --field-id <status> --single-select-option-id <opt>`.)
 - Python 3.11+ syntax, type hints where natural, PEP 8, no emojis. Run `ruff check .`
   before committing. Importer deps are added per-story as needed (already present:
   `openpyxl`, `pdfplumber` runtime; `reportlab` dev, only for PDF test fixtures).

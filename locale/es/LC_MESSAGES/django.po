@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-09 17:59-0500\n"
+"POT-Creation-Date: 2026-07-09 18:19-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -472,7 +472,10 @@ msgid ""
 "Mesa reads your Soft Restaurant “Productos Vendidos” reports and turns them "
 "into insight — what to promote, where to adjust prices, and where your "
 "revenue comes from."
-msgstr "Mesa lee tus reportes “Productos Vendidos” de Soft Restaurant y los convierte en insight — qué impulsar, dónde ajustar precios y de dónde vienen tus ingresos."
+msgstr ""
+"Mesa lee tus reportes “Productos Vendidos” de Soft Restaurant y los "
+"convierte en insight — qué impulsar, dónde ajustar precios y de dónde vienen "
+"tus ingresos."
 
 #: templates/pages/help.html:18
 msgid "Getting started"
@@ -559,7 +562,8 @@ msgstr "Analítica de ventas para Soft Restaurant"
 #: templates/pages/landing.html:9
 msgid ""
 "Know what to promote, what to reprice, and where your revenue comes from."
-msgstr "Descubre qué impulsar, qué precios ajustar y de dónde vienen tus ingresos."
+msgstr ""
+"Descubre qué impulsar, qué precios ajustar y de dónde vienen tus ingresos."
 
 #: templates/pages/landing.html:11
 msgid ""
@@ -567,7 +571,11 @@ msgid ""
 "and turns them into clear insight — what's selling, where your revenue "
 "really comes from, what to push, and where to adjust prices — so you decide "
 "with data, not gut feel."
-msgstr "Mesa lee los reportes “Productos Vendidos” de tu POS Soft Restaurant y los convierte en insight claro — qué se vende, de dónde vienen realmente tus ingresos, qué impulsar y dónde ajustar precios — para que decidas con datos, no por corazonada."
+msgstr ""
+"Mesa lee los reportes “Productos Vendidos” de tu POS Soft Restaurant y los "
+"convierte en insight claro — qué se vende, de dónde vienen realmente tus "
+"ingresos, qué impulsar y dónde ajustar precios — para que decidas con datos, "
+"no por corazonada."
 
 #: templates/pages/landing.html:14
 msgid "Try the live demo"
@@ -582,21 +590,57 @@ msgid "Explore the demo account"
 msgstr "Explora la cuenta demo"
 
 #: templates/pages/landing.html:24
-msgid "From sales reports to decisions"
-msgstr "De los reportes de venta a las decisiones"
+msgid "How it works"
+msgstr "Cómo funciona"
 
 #: templates/pages/landing.html:26
-msgid ""
-"Upload your Soft Restaurant reports and Mesa turns them into the numbers "
-"that drive decisions — so you see what's working, what to promote, and what "
-"to reconsider."
-msgstr "Sube tus reportes de Soft Restaurant y Mesa los convierte en los números que guían decisiones — para que veas qué funciona, qué impulsar y qué reconsiderar."
+msgid "Three steps from raw POS exports to decisions you can act on."
+msgstr "Tres pasos, de los reportes crudos del POS a decisiones accionables."
 
 #: templates/pages/landing.html:33
+msgid "Upload your reports"
+msgstr "Sube tus reportes"
+
+#: templates/pages/landing.html:34
+msgid ""
+"Drop your Soft Restaurant “Productos Vendidos” exports — PDF or Excel, one "
+"or several at once. Imports are safe to repeat and easy to undo."
+msgstr "Arrastra tus exportaciones “Productos Vendidos” de Soft Restaurant — PDF o Excel, uno o varios a la vez. Reimportar es seguro y deshacer es fácil."
+
+#: templates/pages/landing.html:40
+msgid "Mesa organizes them"
+msgstr "Mesa los organiza"
+
+#: templates/pages/landing.html:41
+msgid ""
+"It reads every line and identifies your products reliably by name — even "
+"when the POS reassigns codes — keeping your catalog clean."
+msgstr "Lee cada línea e identifica tus productos de forma confiable por nombre — aun cuando el POS reasigna códigos — manteniendo tu catálogo limpio."
+
+#: templates/pages/landing.html:47
+msgid "You decide with data"
+msgstr "Decides con datos"
+
+#: templates/pages/landing.html:48
+msgid ""
+"Dashboards, margins and P&L show what to promote, what to reprice, and where "
+"your revenue really comes from."
+msgstr "Los tableros, márgenes y P&L muestran qué impulsar, qué reprecificar y de dónde vienen realmente tus ingresos."
+
+#: templates/pages/landing.html:56
+msgid "Everything you get"
+msgstr "Todo lo que incluye"
+
+#: templates/pages/landing.html:58
+msgid ""
+"A focused toolkit around one goal: understanding your restaurant's sales."
+msgstr "Un conjunto de herramientas enfocado en un objetivo: entender las ventas de tu restaurante."
+
+#: templates/pages/landing.html:65
 msgid "Dashboards & KPIs"
 msgstr "Tableros y KPIs"
 
-#: templates/pages/landing.html:34
+#: templates/pages/landing.html:66
 msgid ""
 "Revenue, average ticket, gross margin and more, with revenue-over-time, top-"
 "products and category charts."
@@ -604,11 +648,11 @@ msgstr ""
 "Ventas, ticket promedio, margen bruto y más, con gráficas de ventas en el "
 "tiempo, productos top y categorías."
 
-#: templates/pages/landing.html:40
+#: templates/pages/landing.html:72
 msgid "Margins & P&L"
 msgstr "Márgenes y P&L"
 
-#: templates/pages/landing.html:41
+#: templates/pages/landing.html:73
 msgid ""
 "Per-product margin analysis and a monthly profit-and-loss summary, always "
 "scoped to your restaurant."
@@ -616,11 +660,11 @@ msgstr ""
 "Análisis de margen por producto y un resumen mensual de pérdidas y "
 "ganancias, siempre acotado a tu restaurante."
 
-#: templates/pages/landing.html:47
+#: templates/pages/landing.html:79
 msgid "Self-service upload"
 msgstr "Subida autoservicio"
 
-#: templates/pages/landing.html:48
+#: templates/pages/landing.html:80
 msgid ""
 "Drop in your PDF or Excel reports — several at once — and Mesa imports them, "
 "with history and one-click undo."
@@ -628,11 +672,11 @@ msgstr ""
 "Arrastra tus reportes PDF o Excel — varios a la vez — y Mesa los importa, "
 "con historial y deshacer en un clic."
 
-#: templates/pages/landing.html:54
+#: templates/pages/landing.html:86
 msgid "Smart product identity"
 msgstr "Identidad de producto inteligente"
 
-#: templates/pages/landing.html:55
+#: templates/pages/landing.html:87
 msgid ""
 "Products are matched by name, not by unreliable POS codes — fusing variants "
 "and typos while keeping genuinely different items apart."
@@ -641,11 +685,11 @@ msgstr ""
 "POS — fusionando variantes y errores de tipeo, y manteniendo separados los "
 "que sí son distintos."
 
-#: templates/pages/landing.html:61
+#: templates/pages/landing.html:93
 msgid "Excel automation"
 msgstr "Automatización de Excel"
 
-#: templates/pages/landing.html:62
+#: templates/pages/landing.html:94
 msgid ""
 "Fills your master analysis workbook — units sold per product and daily bar/"
 "kitchen totals — straight from the POS reports."
@@ -653,11 +697,11 @@ msgstr ""
 "Rellena tu libro maestro de análisis — unidades vendidas por producto y "
 "totales diarios de bar/cocina — directo desde los reportes del POS."
 
-#: templates/pages/landing.html:68
+#: templates/pages/landing.html:100
 msgid "Bilingual & multi-tenant"
 msgstr "Bilingüe y multi-inquilino"
 
-#: templates/pages/landing.html:69
+#: templates/pages/landing.html:101
 msgid ""
 "English and Spanish throughout, and strict per-restaurant data isolation so "
 "each owner sees only their own numbers."
@@ -665,19 +709,19 @@ msgstr ""
 "Inglés y español en todo, y aislamiento estricto por restaurante para que "
 "cada dueño vea solo sus números."
 
-#: templates/pages/landing.html:76
+#: templates/pages/landing.html:108
 msgid "See it with real numbers"
 msgstr "Míralo con números reales"
 
-#: templates/pages/landing.html:77
+#: templates/pages/landing.html:109
 msgid "Sign up in seconds, or sign in to the demo account above."
 msgstr "Regístrate en segundos, o entra con la cuenta demo de arriba."
 
-#: templates/pages/landing.html:79
+#: templates/pages/landing.html:111
 msgid "Get started"
 msgstr "Comenzar"
 
-#: templates/pages/landing.html:80
+#: templates/pages/landing.html:112
 msgid "Need help?"
 msgstr "¿Necesitas ayuda?"
 
@@ -774,6 +818,18 @@ msgstr "p. ej. La Parrilla"
 #: tenants/views.py:19
 msgid "Restaurant settings saved."
 msgstr "Ajustes del restaurante guardados."
+
+#~ msgid "From sales reports to decisions"
+#~ msgstr "De los reportes de venta a las decisiones"
+
+#~ msgid ""
+#~ "Upload your Soft Restaurant reports and Mesa turns them into the numbers "
+#~ "that drive decisions — so you see what's working, what to promote, and "
+#~ "what to reconsider."
+#~ msgstr ""
+#~ "Sube tus reportes de Soft Restaurant y Mesa los convierte en los números "
+#~ "que guían decisiones — para que veas qué funciona, qué impulsar y qué "
+#~ "reconsiderar."
 
 #~ msgid ""
 #~ "Mesa turns your Soft Restaurant “Productos Vendidos” exports into "
