@@ -64,19 +64,24 @@
                         </form>
                     </li>
                     {% if request.user.is_authenticated %}
-                        {% if request.restaurant %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if url_name == 'settings' %}active{% endif %}" href="{% url 'tenants:settings' %}" title="{% trans 'Restaurant settings' %}">{{ request.restaurant.name }}</a>
-                        </li>
-                        {% endif %}
-                        <li class="nav-item">
-                            <span class="navbar-text me-3">{{ request.user.email }}</span>
-                        </li>
-                        <li class="nav-item">
-                            <form method="post" action="{% url 'account_logout' %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="nav-link btn btn-link">{% trans "Logout" %}</button>
-                            </form>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {% if url_name == 'settings' %}active{% endif %}" href="#"
+                               id="accountMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {% if request.restaurant %}{{ request.restaurant.name }}{% else %}{{ request.user.email }}{% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
+                                <li><span class="dropdown-item-text text-muted small">{{ request.user.email }}</span></li>
+                                {% if request.restaurant %}
+                                <li><a class="dropdown-item" href="{% url 'tenants:settings' %}">{% trans "Restaurant settings" %}</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'account_logout' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">{% trans "Logout" %}</button>
+                                    </form>
+                                </li>
+                            </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">

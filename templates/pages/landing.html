@@ -5,10 +5,10 @@
 
 {% block content %}
 <section class="landing-hero text-center">
-  <span class="landing-eyebrow">{% trans "Restaurant business intelligence" %}</span>
-  <h1 class="landing-title">{% trans "Turn your POS reports into decisions." %}</h1>
+  <span class="landing-eyebrow">{% trans "Sales analytics for Soft Restaurant" %}</span>
+  <h1 class="landing-title">{% trans "Know what to promote, what to reprice, and where your revenue comes from." %}</h1>
   <p class="landing-lead mx-auto">
-    {% trans "Mesa is a multi-tenant SaaS that reads your Soft Restaurant “Productos Vendidos” exports and turns them into live dashboards, margin and P&L analysis, and clean Excel — no spreadsheets by hand." %}
+    {% trans "Mesa reads the “Productos Vendidos” reports from your Soft Restaurant POS and turns them into clear insight — what's selling, where your revenue really comes from, what to push, and where to adjust prices — so you decide with data, not gut feel." %}
   </p>
   <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
     <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">{% trans "Try the live demo" %}</a>
@@ -21,9 +21,9 @@
 
 <section class="mb-5">
   <div class="text-center mb-4">
-    <h2 class="h3">{% trans "What Mesa does" %}</h2>
+    <h2 class="h3">{% trans "From sales reports to decisions" %}</h2>
     <p class="text-muted mx-auto" style="max-width: 40rem;">
-      {% trans "Every restaurant on the Soft Restaurant POS gets its own private workspace. Upload a report and your numbers update automatically." %}
+      {% trans "Upload your Soft Restaurant reports and Mesa turns them into the numbers that drive decisions — so you see what's working, what to promote, and what to reconsider." %}
     </p>
   </div>
   <div class="row g-3">
@@ -69,21 +69,6 @@
         <p>{% trans "English and Spanish throughout, and strict per-restaurant data isolation so each owner sees only their own numbers." %}</p>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="landing-tech text-center mb-5">
-  <h2 class="h6 text-muted text-uppercase mb-3" style="letter-spacing: .08em;">{% trans "Built with" %}</h2>
-  <div class="d-flex flex-wrap gap-2 justify-content-center">
-    <span class="landing-badge">Django 5</span>
-    <span class="landing-badge">Python 3.12</span>
-    <span class="landing-badge">PostgreSQL</span>
-    <span class="landing-badge">Chart.js</span>
-    <span class="landing-badge">Bootstrap 5</span>
-    <span class="landing-badge">openpyxl</span>
-    <span class="landing-badge">pdfplumber</span>
-    <span class="landing-badge">GitHub Actions CI</span>
-    <span class="landing-badge">Heroku</span>
   </div>
 </section>
 
