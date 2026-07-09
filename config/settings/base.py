@@ -22,7 +22,6 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "allauth",
     "allauth.account",
-    "rest_framework",
     "tenants.apps.TenantsConfig",
     "catalog.apps.CatalogConfig",
     "sales.apps.SalesConfig",
