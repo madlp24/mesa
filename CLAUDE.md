@@ -173,9 +173,9 @@ check with `msgattrib --only-fuzzy`.)
 ## Known follow-ups (not blocking)
 - Meat products report CANTIDAD in GRAMS (e.g. 2656), not units. Fine for revenue/margin;
   US15 top-products ranks by revenue (not units) for this reason.
-- `analytics/api.py` and `analytics/serializers.py` are empty placeholders ("Filled in by
-  US12") - chart endpoints ended up as plain JsonResponse views in `analytics/views.py`
-  (catalog precedent), so DRF stays unused. Remove the placeholders or adopt DRF later.
+- Chart endpoints are plain JsonResponse views in `analytics/views.py` (not DRF). The
+  unused DRF dependency and its empty `analytics/api.py`/`serializers.py` placeholders
+  were removed (chore, 2026-07-08); adopt DRF later only if a real API is needed.
 - Local dev DB only: the `tomas` user password was reset to `preview123` during the UI
   refresh preview. Reset with `python manage.py changepassword tomas` if needed.
 
