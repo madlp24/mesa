@@ -16,7 +16,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark mesa-nav">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'analytics:dashboard' %}">Mesa<span class="brand-accent">.</span></a>
+            <a class="navbar-brand" href="{% url 'pages:landing' %}">Mesa<span class="brand-accent">.</span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#mainNav" aria-controls="mainNav"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,9 @@
                 {% endwith %}
                 {% endif %}
                 <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link {% if url_name == 'help' %}active{% endif %}" href="{% url 'pages:help' %}">{% trans "Help" %}</a>
+                    </li>
                     <li class="nav-item me-lg-2">
                         {% get_current_language as CURRENT_LANGUAGE %}
                         {% get_available_languages as LANGUAGES %}
@@ -78,6 +81,9 @@
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'account_login' %}">{% trans "Login" %}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-sm btn-primary ms-lg-2" href="{% url 'account_signup' %}">{% trans "Sign up" %}</a>
                         </li>
                     {% endif %}
                 </ul>
