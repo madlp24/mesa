@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Help" %} — Mesa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-xl-7">
+    <div class="mb-4">
+      <h1 class="h3 mb-1">{% trans "Help & getting started" %}</h1>
+      <p class="text-muted mb-0">
+        {% trans "Mesa turns your Soft Restaurant “Productos Vendidos” exports into dashboards, margin and P&L analysis, and clean Excel." %}
+      </p>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h2 class="h5 mb-3">{% trans "Getting started" %}</h2>
+        <ol class="mb-0 ps-3">
+          <li class="mb-2">{% trans "Create your account — you'll be asked for your restaurant's name." %}</li>
+          <li class="mb-2">{% trans "Go to Upload and add your Soft Restaurant report (.pdf or .xlsx). You can upload several at once." %}</li>
+          <li class="mb-2">{% trans "Open the Dashboard: your revenue, margins and P&L update automatically." %}</li>
+          <li>{% trans "Use the Products page to merge duplicates or fix how the POS grouped items." %}</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h2 class="h5 mb-3">{% trans "Frequently asked" %}</h2>
+        <p class="mb-1"><strong>{% trans "Which reports does Mesa read?" %}</strong></p>
+        <p class="text-muted">{% trans "The Soft Restaurant “Productos Vendidos” export, daily or monthly, as PDF or Excel." %}</p>
+        <p class="mb-1"><strong>{% trans "Is my data private?" %}</strong></p>
+        <p class="text-muted">{% trans "Yes — each restaurant is fully isolated and you only ever see your own data." %}</p>
+        <p class="mb-1"><strong>{% trans "I uploaded the wrong file. Can I undo it?" %}</strong></p>
+        <p class="text-muted mb-0">{% trans "Yes — the Upload page lists recent imports with an Undo button that removes just that import." %}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h5 mb-2">{% trans "Contact" %}</h2>
+        <p class="text-muted">{% trans "Questions, feedback or a bug to report? Get in touch:" %}</p>
+        <a href="mailto:{{ contact_email }}" class="btn btn-primary">{{ contact_email }}</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

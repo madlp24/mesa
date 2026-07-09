@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-07 13:13-0500\n"
+"POT-Creation-Date: 2026-07-09 16:01-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -72,11 +72,11 @@ msgstr "Se separó «%(raw)s» en un producto nuevo."
 msgid "Moved “%(raw)s” to “%(name)s”."
 msgstr "Se movió «%(raw)s» a «%(name)s»."
 
-#: config/settings/base.py:83
+#: config/settings/base.py:84
 msgid "English"
 msgstr "Inglés"
 
-#: config/settings/base.py:84
+#: config/settings/base.py:85
 msgid "Spanish"
 msgstr "Español"
 
@@ -88,7 +88,9 @@ msgstr "Tipo de archivo no soportado '%(ext)s'. Sube un reporte .pdf o .xlsx."
 #: sales/forms.py:42
 #, python-format
 msgid "'%(name)s' is too large (%(size)s). The limit is %(limit)s per file."
-msgstr "'%(name)s' es demasiado grande (%(size)s). El límite es %(limit)s por archivo."
+msgstr ""
+"'%(name)s' es demasiado grande (%(size)s). El límite es %(limit)s por "
+"archivo."
 
 #: sales/forms.py:53
 msgid "Soft Restaurant reports (.pdf or .xlsx) — one or several"
@@ -104,7 +106,9 @@ msgstr "Se importaron %(count)d reporte(s)."
 msgid ""
 "We couldn't read '%(name)s'. Make sure it is a Soft Restaurant 'Productos "
 "Vendidos' export and try again."
-msgstr "No pudimos leer '%(name)s'. Asegúrate de que sea una exportación 'Productos Vendidos' de Soft Restaurant e inténtalo de nuevo."
+msgstr ""
+"No pudimos leer '%(name)s'. Asegúrate de que sea una exportación 'Productos "
+"Vendidos' de Soft Restaurant e inténtalo de nuevo."
 
 #: sales/views.py:90
 #, python-format
@@ -140,7 +144,7 @@ msgstr "Recuérdame"
 msgid "Don't have an account?"
 msgstr "¿No tienes una cuenta?"
 
-#: templates/account/login.html:58
+#: templates/account/login.html:58 templates/base.html:86
 msgid "Sign up"
 msgstr "Regístrate"
 
@@ -319,23 +323,27 @@ msgstr "Productos"
 msgid "Upload"
 msgstr "Subir"
 
-#: templates/base.html:54 templates/base.html:56
+#: templates/base.html:49 templates/pages/help.html:4
+msgid "Help"
+msgstr "Ayuda"
+
+#: templates/base.html:57 templates/base.html:59
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:66 templates/tenants/settings.html:10
+#: templates/base.html:69 templates/tenants/settings.html:10
 msgid "Restaurant settings"
 msgstr "Ajustes del restaurante"
 
-#: templates/base.html:75
+#: templates/base.html:78
 msgid "Logout"
 msgstr "Cerrar sesión"
 
-#: templates/base.html:80
+#: templates/base.html:83
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/base.html:102
+#: templates/base.html:108
 msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
 msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
@@ -455,6 +463,201 @@ msgstr "Fusionar seleccionados"
 msgid "No products yet. Upload a report to build your catalog."
 msgstr "Aún no hay productos. Sube un reporte para crear tu catálogo."
 
+#: templates/pages/help.html:10
+msgid "Help & getting started"
+msgstr "Ayuda y primeros pasos"
+
+#: templates/pages/help.html:12
+msgid ""
+"Mesa turns your Soft Restaurant “Productos Vendidos” exports into "
+"dashboards, margin and P&L analysis, and clean Excel."
+msgstr "Mesa convierte tus exportaciones “Productos Vendidos” de Soft Restaurant en tableros, análisis de margen y P&L, y Excel listo para usar."
+
+#: templates/pages/help.html:18
+msgid "Getting started"
+msgstr "Primeros pasos"
+
+#: templates/pages/help.html:20
+msgid "Create your account — you'll be asked for your restaurant's name."
+msgstr "Crea tu cuenta — te pediremos el nombre de tu restaurante."
+
+#: templates/pages/help.html:21
+msgid ""
+"Go to Upload and add your Soft Restaurant report (.pdf or .xlsx). You can "
+"upload several at once."
+msgstr "Ve a Subir y agrega tu reporte de Soft Restaurant (.pdf o .xlsx). Puedes subir varios a la vez."
+
+#: templates/pages/help.html:22
+msgid "Open the Dashboard: your revenue, margins and P&L update automatically."
+msgstr "Abre el Tablero: tus ventas, márgenes y P&L se actualizan automáticamente."
+
+#: templates/pages/help.html:23
+msgid ""
+"Use the Products page to merge duplicates or fix how the POS grouped items."
+msgstr "Usa la página de Productos para fusionar duplicados o corregir cómo el POS agrupó los ítems."
+
+#: templates/pages/help.html:30
+msgid "Frequently asked"
+msgstr "Preguntas frecuentes"
+
+#: templates/pages/help.html:31
+msgid "Which reports does Mesa read?"
+msgstr "¿Qué reportes lee Mesa?"
+
+#: templates/pages/help.html:32
+msgid ""
+"The Soft Restaurant “Productos Vendidos” export, daily or monthly, as PDF or "
+"Excel."
+msgstr "La exportación “Productos Vendidos” de Soft Restaurant, diaria o mensual, en PDF o Excel."
+
+#: templates/pages/help.html:33
+msgid "Is my data private?"
+msgstr "¿Mis datos son privados?"
+
+#: templates/pages/help.html:34
+msgid ""
+"Yes — each restaurant is fully isolated and you only ever see your own data."
+msgstr "Sí — cada restaurante está totalmente aislado y solo ves tus propios datos."
+
+#: templates/pages/help.html:35
+msgid "I uploaded the wrong file. Can I undo it?"
+msgstr "Subí el archivo equivocado. ¿Puedo deshacerlo?"
+
+#: templates/pages/help.html:36
+msgid ""
+"Yes — the Upload page lists recent imports with an Undo button that removes "
+"just that import."
+msgstr "Sí — la página de Subir lista las importaciones recientes con un botón Deshacer que elimina solo esa importación."
+
+#: templates/pages/help.html:42
+msgid "Contact"
+msgstr "Contacto"
+
+#: templates/pages/help.html:43
+msgid "Questions, feedback or a bug to report? Get in touch:"
+msgstr "¿Preguntas, comentarios o un error que reportar? Escríbeme:"
+
+#: templates/pages/landing.html:4
+msgid "Business intelligence for restaurants"
+msgstr "Inteligencia de negocio para restaurantes"
+
+#: templates/pages/landing.html:8
+msgid "Restaurant business intelligence"
+msgstr "Inteligencia de negocio para restaurantes"
+
+#: templates/pages/landing.html:9
+msgid "Turn your POS reports into decisions."
+msgstr "Convierte tus reportes del POS en decisiones."
+
+#: templates/pages/landing.html:11
+msgid ""
+"Mesa is a multi-tenant SaaS that reads your Soft Restaurant “Productos "
+"Vendidos” exports and turns them into live dashboards, margin and P&L "
+"analysis, and clean Excel — no spreadsheets by hand."
+msgstr "Mesa es un SaaS multi-inquilino que lee tus exportaciones “Productos Vendidos” de Soft Restaurant y las convierte en tableros en vivo, análisis de margen y P&L, y Excel listo — sin planillas a mano."
+
+#: templates/pages/landing.html:14
+msgid "Try the live demo"
+msgstr "Prueba la demo en vivo"
+
+#: templates/pages/landing.html:15
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+#: templates/pages/landing.html:18
+msgid "Explore the demo account"
+msgstr "Explora la cuenta demo"
+
+#: templates/pages/landing.html:24
+msgid "What Mesa does"
+msgstr "Qué hace Mesa"
+
+#: templates/pages/landing.html:26
+msgid ""
+"Every restaurant on the Soft Restaurant POS gets its own private workspace. "
+"Upload a report and your numbers update automatically."
+msgstr "Cada restaurante con el POS Soft Restaurant tiene su propio espacio privado. Sube un reporte y tus números se actualizan automáticamente."
+
+#: templates/pages/landing.html:33
+msgid "Dashboards & KPIs"
+msgstr "Tableros y KPIs"
+
+#: templates/pages/landing.html:34
+msgid ""
+"Revenue, average ticket, gross margin and more, with revenue-over-time, top-"
+"products and category charts."
+msgstr "Ventas, ticket promedio, margen bruto y más, con gráficas de ventas en el tiempo, productos top y categorías."
+
+#: templates/pages/landing.html:40
+msgid "Margins & P&L"
+msgstr "Márgenes y P&L"
+
+#: templates/pages/landing.html:41
+msgid ""
+"Per-product margin analysis and a monthly profit-and-loss summary, always "
+"scoped to your restaurant."
+msgstr "Análisis de margen por producto y un resumen mensual de pérdidas y ganancias, siempre acotado a tu restaurante."
+
+#: templates/pages/landing.html:47
+msgid "Self-service upload"
+msgstr "Subida autoservicio"
+
+#: templates/pages/landing.html:48
+msgid ""
+"Drop in your PDF or Excel reports — several at once — and Mesa imports them, "
+"with history and one-click undo."
+msgstr "Arrastra tus reportes PDF o Excel — varios a la vez — y Mesa los importa, con historial y deshacer en un clic."
+
+#: templates/pages/landing.html:54
+msgid "Smart product identity"
+msgstr "Identidad de producto inteligente"
+
+#: templates/pages/landing.html:55
+msgid ""
+"Products are matched by name, not by unreliable POS codes — fusing variants "
+"and typos while keeping genuinely different items apart."
+msgstr "Los productos se emparejan por nombre, no por códigos poco confiables del POS — fusionando variantes y errores de tipeo, y manteniendo separados los que sí son distintos."
+
+#: templates/pages/landing.html:61
+msgid "Excel automation"
+msgstr "Automatización de Excel"
+
+#: templates/pages/landing.html:62
+msgid ""
+"Fills your master analysis workbook — units sold per product and daily bar/"
+"kitchen totals — straight from the POS reports."
+msgstr "Rellena tu libro maestro de análisis — unidades vendidas por producto y totales diarios de bar/cocina — directo desde los reportes del POS."
+
+#: templates/pages/landing.html:68
+msgid "Bilingual & multi-tenant"
+msgstr "Bilingüe y multi-inquilino"
+
+#: templates/pages/landing.html:69
+msgid ""
+"English and Spanish throughout, and strict per-restaurant data isolation so "
+"each owner sees only their own numbers."
+msgstr "Inglés y español en todo, y aislamiento estricto por restaurante para que cada dueño vea solo sus números."
+
+#: templates/pages/landing.html:76
+msgid "Built with"
+msgstr "Construido con"
+
+#: templates/pages/landing.html:91
+msgid "See it with real numbers"
+msgstr "Míralo con números reales"
+
+#: templates/pages/landing.html:92
+msgid "Sign up in seconds, or sign in to the demo account above."
+msgstr "Regístrate en segundos, o entra con la cuenta demo de arriba."
+
+#: templates/pages/landing.html:94
+msgid "Get started"
+msgstr "Comenzar"
+
+#: templates/pages/landing.html:95
+msgid "Need help?"
+msgstr "¿Necesitas ayuda?"
+
 #: templates/sales/upload.html:4
 msgid "Upload report"
 msgstr "Subir reporte"
@@ -468,7 +671,10 @@ msgid ""
 "Upload your Soft Restaurant Productos-Vendidos exports (.pdf or .xlsx). "
 "Select several at once to import a whole month. They land in your restaurant "
 "and your dashboards update automatically."
-msgstr "Sube tus exportaciones Productos-Vendidos de Soft Restaurant (.pdf o .xlsx). Selecciona varias a la vez para importar un mes completo. Se importan en tu restaurante y tus tableros se actualizan automáticamente."
+msgstr ""
+"Sube tus exportaciones Productos-Vendidos de Soft Restaurant (.pdf o .xlsx). "
+"Selecciona varias a la vez para importar un mes completo. Se importan en tu "
+"restaurante y tus tableros se actualizan automáticamente."
 
 #: templates/sales/upload.html:28
 msgid "Hold Ctrl/Cmd (or Shift) to select multiple files."

@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "catalog.apps.CatalogConfig",
     "sales.apps.SalesConfig",
     "analytics.apps.AnalyticsConfig",
+    "pages.apps.PagesConfig",
 ]
 
 MIDDLEWARE = [
@@ -96,7 +97,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SITE_ID = 1
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 ACCOUNT_LOGIN_METHODS = {"username", "email"}

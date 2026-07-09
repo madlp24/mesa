@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Mesa — {% trans "Business intelligence for restaurants" %}{% endblock %}
+
+{% block content %}
+<section class="landing-hero text-center">
+  <span class="landing-eyebrow">{% trans "Restaurant business intelligence" %}</span>
+  <h1 class="landing-title">{% trans "Turn your POS reports into decisions." %}</h1>
+  <p class="landing-lead mx-auto">
+    {% trans "Mesa is a multi-tenant SaaS that reads your Soft Restaurant “Productos Vendidos” exports and turns them into live dashboards, margin and P&L analysis, and clean Excel — no spreadsheets by hand." %}
+  </p>
+  <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+    <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">{% trans "Try the live demo" %}</a>
+    <a href="{% url 'account_login' %}" class="btn btn-outline-secondary btn-lg">{% trans "Log in" %}</a>
+  </div>
+  <p class="landing-demo-hint mt-3">
+    {% trans "Explore the demo account" %} — <code>demo</code> / <code>MesaDemo2026</code>
+  </p>
+</section>
+
+<section class="mb-5">
+  <div class="text-center mb-4">
+    <h2 class="h3">{% trans "What Mesa does" %}</h2>
+    <p class="text-muted mx-auto" style="max-width: 40rem;">
+      {% trans "Every restaurant on the Soft Restaurant POS gets its own private workspace. Upload a report and your numbers update automatically." %}
+    </p>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-6 col-lg-4">
+      <div class="landing-feature h-100">
+        <div class="landing-feature-icon">📈</div>
+        <h3 class="h6">{% trans "Dashboards & KPIs" %}</h3>
+        <p>{% trans "Revenue, average ticket, gross margin and more, with revenue-over-time, top-products and category charts." %}</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="landing-feature h-100">
+        <div class="landing-feature-icon">🧾</div>
+        <h3 class="h6">{% trans "Margins & P&L" %}</h3>
+        <p>{% trans "Per-product margin analysis and a monthly profit-and-loss summary, always scoped to your restaurant." %}</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="landing-feature h-100">
+        <div class="landing-feature-icon">⬆️</div>
+        <h3 class="h6">{% trans "Self-service upload" %}</h3>
+        <p>{% trans "Drop in your PDF or Excel reports — several at once — and Mesa imports them, with history and one-click undo." %}</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="landing-feature h-100">
+        <div class="landing-feature-icon">🍷</div>
+        <h3 class="h6">{% trans "Smart product identity" %}</h3>
+        <p>{% trans "Products are matched by name, not by unreliable POS codes — fusing variants and typos while keeping genuinely different items apart." %}</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="landing-feature h-100">
+        <div class="landing-feature-icon">📊</div>
+        <h3 class="h6">{% trans "Excel automation" %}</h3>
+        <p>{% trans "Fills your master analysis workbook — units sold per product and daily bar/kitchen totals — straight from the POS reports." %}</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="landing-feature h-100">
+        <div class="landing-feature-icon">🌎</div>
+        <h3 class="h6">{% trans "Bilingual & multi-tenant" %}</h3>
+        <p>{% trans "English and Spanish throughout, and strict per-restaurant data isolation so each owner sees only their own numbers." %}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="landing-tech text-center mb-5">
+  <h2 class="h6 text-muted text-uppercase mb-3" style="letter-spacing: .08em;">{% trans "Built with" %}</h2>
+  <div class="d-flex flex-wrap gap-2 justify-content-center">
+    <span class="landing-badge">Django 5</span>
+    <span class="landing-badge">Python 3.12</span>
+    <span class="landing-badge">PostgreSQL</span>
+    <span class="landing-badge">Chart.js</span>
+    <span class="landing-badge">Bootstrap 5</span>
+    <span class="landing-badge">openpyxl</span>
+    <span class="landing-badge">pdfplumber</span>
+    <span class="landing-badge">GitHub Actions CI</span>
+    <span class="landing-badge">Heroku</span>
+  </div>
+</section>
+
+<section class="landing-cta text-center">
+  <h2 class="h4 mb-2">{% trans "See it with real numbers" %}</h2>
+  <p class="text-muted mb-4">{% trans "Sign up in seconds, or sign in to the demo account above." %}</p>
+  <div class="d-flex flex-wrap gap-2 justify-content-center">
+    <a href="{% url 'account_signup' %}" class="btn btn-primary">{% trans "Get started" %}</a>
+    <a href="{% url 'pages:help' %}" class="btn btn-link">{% trans "Need help?" %}</a>
+  </div>
+</section>
+{% endblock %}
