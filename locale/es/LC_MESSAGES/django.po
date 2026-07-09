@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-09 17:50-0500\n"
+"POT-Creation-Date: 2026-07-09 17:59-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -469,11 +469,10 @@ msgstr "Ayuda y primeros pasos"
 
 #: templates/pages/help.html:12
 msgid ""
-"Mesa turns your Soft Restaurant “Productos Vendidos” exports into "
-"dashboards, margin and P&L analysis, and clean Excel."
-msgstr ""
-"Mesa convierte tus exportaciones “Productos Vendidos” de Soft Restaurant en "
-"tableros, análisis de margen y P&L, y Excel listo para usar."
+"Mesa reads your Soft Restaurant “Productos Vendidos” reports and turns them "
+"into insight — what to promote, where to adjust prices, and where your "
+"revenue comes from."
+msgstr "Mesa lee tus reportes “Productos Vendidos” de Soft Restaurant y los convierte en insight — qué impulsar, dónde ajustar precios y de dónde vienen tus ingresos."
 
 #: templates/pages/help.html:18
 msgid "Getting started"
@@ -554,22 +553,21 @@ msgid "Business intelligence for restaurants"
 msgstr "Inteligencia de negocio para restaurantes"
 
 #: templates/pages/landing.html:8
-msgid "Restaurant business intelligence"
-msgstr "Inteligencia de negocio para restaurantes"
+msgid "Sales analytics for Soft Restaurant"
+msgstr "Analítica de ventas para Soft Restaurant"
 
 #: templates/pages/landing.html:9
-msgid "Turn your POS reports into decisions."
-msgstr "Convierte tus reportes del POS en decisiones."
+msgid ""
+"Know what to promote, what to reprice, and where your revenue comes from."
+msgstr "Descubre qué impulsar, qué precios ajustar y de dónde vienen tus ingresos."
 
 #: templates/pages/landing.html:11
 msgid ""
-"Mesa is a multi-tenant SaaS that reads your Soft Restaurant “Productos "
-"Vendidos” exports and turns them into live dashboards, margin and P&L "
-"analysis, and clean Excel — no spreadsheets by hand."
-msgstr ""
-"Mesa es un SaaS multi-inquilino que lee tus exportaciones “Productos "
-"Vendidos” de Soft Restaurant y las convierte en tableros en vivo, análisis "
-"de margen y P&L, y Excel listo — sin planillas a mano."
+"Mesa reads the “Productos Vendidos” reports from your Soft Restaurant POS "
+"and turns them into clear insight — what's selling, where your revenue "
+"really comes from, what to push, and where to adjust prices — so you decide "
+"with data, not gut feel."
+msgstr "Mesa lee los reportes “Productos Vendidos” de tu POS Soft Restaurant y los convierte en insight claro — qué se vende, de dónde vienen realmente tus ingresos, qué impulsar y dónde ajustar precios — para que decidas con datos, no por corazonada."
 
 #: templates/pages/landing.html:14
 msgid "Try the live demo"
@@ -584,16 +582,15 @@ msgid "Explore the demo account"
 msgstr "Explora la cuenta demo"
 
 #: templates/pages/landing.html:24
-msgid "What Mesa does"
-msgstr "Qué hace Mesa"
+msgid "From sales reports to decisions"
+msgstr "De los reportes de venta a las decisiones"
 
 #: templates/pages/landing.html:26
 msgid ""
-"Every restaurant on the Soft Restaurant POS gets its own private workspace. "
-"Upload a report and your numbers update automatically."
-msgstr ""
-"Cada restaurante con el POS Soft Restaurant tiene su propio espacio privado. "
-"Sube un reporte y tus números se actualizan automáticamente."
+"Upload your Soft Restaurant reports and Mesa turns them into the numbers "
+"that drive decisions — so you see what's working, what to promote, and what "
+"to reconsider."
+msgstr "Sube tus reportes de Soft Restaurant y Mesa los convierte en los números que guían decisiones — para que veas qué funciona, qué impulsar y qué reconsiderar."
 
 #: templates/pages/landing.html:33
 msgid "Dashboards & KPIs"
@@ -777,6 +774,26 @@ msgstr "p. ej. La Parrilla"
 #: tenants/views.py:19
 msgid "Restaurant settings saved."
 msgstr "Ajustes del restaurante guardados."
+
+#~ msgid ""
+#~ "Mesa turns your Soft Restaurant “Productos Vendidos” exports into "
+#~ "dashboards, margin and P&L analysis, and clean Excel."
+#~ msgstr ""
+#~ "Mesa convierte tus exportaciones “Productos Vendidos” de Soft Restaurant "
+#~ "en tableros, análisis de margen y P&L, y Excel listo para usar."
+
+#~ msgid "Restaurant business intelligence"
+#~ msgstr "Inteligencia de negocio para restaurantes"
+
+#~ msgid "What Mesa does"
+#~ msgstr "Qué hace Mesa"
+
+#~ msgid ""
+#~ "Every restaurant on the Soft Restaurant POS gets its own private "
+#~ "workspace. Upload a report and your numbers update automatically."
+#~ msgstr ""
+#~ "Cada restaurante con el POS Soft Restaurant tiene su propio espacio "
+#~ "privado. Sube un reporte y tus números se actualizan automáticamente."
 
 #~ msgid "Built with"
 #~ msgstr "Construido con"
