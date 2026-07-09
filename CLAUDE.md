@@ -46,7 +46,12 @@ US17 margin analysis page (#16/PR37), US18 monthly P&L (#17/PR38),
 US20 test coverage + CI (#18/PR40), navbar toggler fix (#24/PR39),
 UI visual refresh (PR42), US2 onboarding (#19/PR43), US21 bilingual EN/ES (#41/PR44),
 US22 product identity + Excel export (#45/PR47), US23 update existing Excel (#46/PR49),
-US24 multi-tenant foundation (#50/PR52), US25 self-service web upload (#51/PR53).
+US24 multi-tenant foundation (#50/PR52), US25 self-service web upload (#51/PR53),
+US26 first-run experience (#57/PR58), US28 import history + undo (#59/PR60),
+US29 manage product identity in the UI (#61/PR62),
+US30 update master 'Productos vendidos' sheet (#64/PR65),
+US32 fill 'Datos totales' N/O/S/T from PDF footer (#66/PR68),
+US31 multi-file upload (#63/PR69).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
 PRODUCT PIVOT (agreed with user): Mesa is now a generic, **multi-tenant SaaS** for any
@@ -66,12 +71,41 @@ US28 import history + undo (#59): `sales.ImportBatch` records each import (filen
 source web/cli, counts); `Sale.import_batch` FK tags created sales. `sales/services.py`
 `run_import()` (used by the upload view and `import_sales`) creates the batch; the
 upload page lists recent imports with an Undo button -> `undo_import_view` deletes that
-batch's sales (tenant-scoped). NEXT: US19 polished README + redeploy (#20). Optional
-backlog: US29 fix product fusion in the UI.
-Also pending: US19 polished README (#20), deferred to last; the app is deployed (see
-[[mesa-heroku-deploy]] memory; branch `feat/us19-readme` has the Heroku release config
-+ demo seed fixture, not yet merged — NOTE: that seed fixture predates US24 and now
-needs a restaurant FK before it can be reloaded).
+batch's sales (tenant-scoped).
+
+US29 manage product identity in the UI (#61): a `/products/` page (catalog
+`product_list`, navbar "Products") lists products with alias count / units / revenue;
+select 2+ and **merge** into a canonical (moves sale items + aliases, deletes the rest).
+The product detail page lists POS aliases; each can be **re-pointed** to another product
+or **split** into a new one, and the historical sales for that clave follow it. Logic is
+in `catalog/services.py` (`merge_products`/`repoint_alias`/`split_alias`), tenant-scoped,
+raising `IdentityError` on cross-tenant refs.
+
+US30 + US32 update the owner's real master workbook ("Análisis unificado ....xlsx")
+via LOCAL commands (not on the web; the master file lives on the owner's Mac). Code in
+`analytics/unified_excel.py` (two-row-header aware; writes a COPY, never the original):
+- US30 (#64) `update_unified --file <xlsx> --restaurant <slug> --year --month`: fills the
+  "Productos vendidos" units matrix column for that month, matching rows by NAME (US22
+  fusion), appending unmatched products, reporting appended names to review.
+- US32 (#66) `update_datos_totales --file <xlsx> --pdf-dir <folder>`: fills "Datos totales"
+  N/O/S/T (Venta/Costo Bar y Cocina) from each daily PDF's footer, parsed by
+  `sales/importers/pdf_daily.py::parse_daily_totals` (BEBIDAS/ALIMENTOS block). Matches by
+  date and fills in place; missing dates are appended with per-row formulas replicated.
+  See [[productos-vendidos-update-process]] for the full monthly workflow.
+
+US31 multi-file upload (#63): `/upload/` accepts several files at once
+(`sales/forms.py MultipleFileField`); `upload_report` imports each (one ImportBatch per
+file), a per-file error is reported without aborting the batch.
+
+DEPLOYED 2026-07-08 (Heroku release v10): US29 + US30 + US32 + US31 are LIVE (US30/US32
+are local commands, no web surface). See [[mesa-heroku-deploy]].
+
+NEXT: US19 polished README (#20), DEFERRED TO LAST by user decision; needs user inputs
+(business story, screenshots, board link — live demo URL is now known). The old
+`feat/us19-readme` branch has an early Heroku config + a demo seed fixture that predates
+the restaurant FK (would need a restaurant before any reload); the real deploy config is
+already on `main`. Optional backlog: madurado columns (Z/AA/AB/AC) in "Datos totales"
+(owner said not needed for now). Confirm open work with `gh issue list`.
 
 Multi-tenancy (US24): shared-DB, row-level scoping. New `tenants` app: `Restaurant` +
 `Membership` (one restaurant per user). A `post_save` on User auto-creates a
@@ -112,10 +146,9 @@ i18n (US21): Django built-in i18n with `LocaleMiddleware`, `LANGUAGES=[en,es]`,
 inside the templates (server-rendered). `.mo` files are gitignored and built by
 `python manage.py compilemessages` (CI installs `gettext` and compiles before tests).
 
-NEXT: finish/merge US21 bilingual EN/ES (#41, "should").
-US19 Polished README (#20) is DEFERRED TO LAST by user decision (do it after the
-other stories). US19 will need user inputs (live demo URL - not yet deployed,
-business story, screenshots, board link). Confirm open work with `gh issue list`.
+(i18n note: `.po` entries must not be left `#, fuzzy` — Django treats fuzzy as
+untranslated and shows English. After `makemessages`, translate AND clear the fuzzy flag;
+check with `msgattrib --only-fuzzy`.)
 
 ### Ingestion architecture (built across US8-US11, in `sales/importers/`)
 - `BaseImporter.normalize(path) -> list[CanonicalSale]` is the contract; concrete
@@ -131,8 +164,11 @@ business story, screenshots, board link). Confirm open work with `gh issue list`
   occurred_at = report period start date, CLAVE->Product.sku, GRUPO->Category,
   CANTIDAD->quantity, PRECIO VENTA PROMEDIO->unit_price, COSTO PROMEDIO->unit_cost,
   VENTA TOTAL->Sale.total. Dashboard granularity = import granularity (use DAILY PDFs).
-  Real sample PDFs live on the user's Desktop (VENTA-COSTO ABRIL/JUNIO 2025), not in
-  the repo; the PDF test uses a synthetic reportlab fixture that mimics the real layout.
+  Real sample PDFs live on the user's Desktop under `VENTA COSTO 2025/<MONTH>/` (daily
+  `Venta-Costo DD Mes 2025.pdf` + a monthly `... mes ....pdf` summary), not in the repo;
+  the PDF tests use synthetic reportlab fixtures that mimic the real layout. Validated on
+  MARZO 2025 (2026-07): 27 daily PDFs parse with 0 skipped rows; the footer has a real
+  `ALIMENTOS :` space-before-colon variant handled by `parse_daily_totals`.
 
 ## Known follow-ups (not blocking)
 - Meat products report CANTIDAD in GRAMS (e.g. 2656), not units. Fine for revenue/margin;
