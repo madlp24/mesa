@@ -7,7 +7,7 @@ returning users land on their data, not the marketing copy.
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
-CONTACT_EMAIL = "mdelapavalondo@gmail.com"
+CONTACT_EMAIL = "mdelapavalondono@gmail.com"
 
 
 def landing(request: HttpRequest) -> HttpResponse:

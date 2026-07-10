@@ -184,6 +184,6 @@ and commit convention). Every story ships as its own PR with tests.
 ## Author
 
 **Miguel De La Pava** — founder, Tres Cuatro Cinco Steakhouse.
-GitHub [@madlp24](https://github.com/madlp24) · <mdelapavalondo@gmail.com>
+GitHub [@madlp24](https://github.com/madlp24) · <mdelapavalondono@gmail.com>
 
 © 2026 Miguel De La Pava. Portfolio project.
