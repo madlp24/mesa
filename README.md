@@ -1,169 +1,189 @@
-# Mesa
+# Mesa 🍽️
 
-Multi-tenant business intelligence for restaurants that use the **Soft Restaurant**
-POS. Upload your "Productos Vendidos" reports and get instant dashboards, margin and
-P&L analysis, and a clean Excel of your own data to work with. Built with Django and
-Chart.js. Each restaurant signs up and sees only its own data.
+**Sales analytics for restaurants running the [Soft Restaurant](https://softrestaurant.com/) POS.**
+Mesa reads the "Productos Vendidos" sales reports your POS already produces and turns
+them into decisions: **what to promote, where to adjust prices, and where your revenue
+really comes from** — so you run on data, not gut feel.
 
-## Local Setup
+[![CI](https://github.com/madlp24/mesa/actions/workflows/ci.yml/badge.svg)](https://github.com/madlp24/mesa/actions/workflows/ci.yml)
+![coverage](https://img.shields.io/badge/coverage-88%25-brightgreen)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.1-092E20?logo=django&logoColor=white)
+![i18n](https://img.shields.io/badge/i18n-EN%20%2F%20ES-c0492b)
 
-Get the app running locally in under 5 minutes.
+### ▶ Live demo — <https://mesa-345-ab00ff997aa2.herokuapp.com/>
 
-### Prerequisites
+Try it with the demo account **`demo` / `MesaDemo2026`**, or sign up and upload your own
+Soft Restaurant reports.
 
-- **Python 3.12** (the project pins `python-3.12.7`; 3.11+ works for development)
-- **git**
+---
 
-Check your version with `python3 --version`.
+## Why Mesa exists
 
-### macOS / Linux
+I'm **Miguel De La Pava**, founder of **Tres Cuatro Cinco**, a steakhouse. Every month
+we analyzed our sales by hand — copying the POS "Productos Vendidos" report into a
+spreadsheet, product by product — just to see what sold, what to push, and where to
+adjust prices. It was slow and easy to get wrong.
+
+Every restaurant on Soft Restaurant gets the **exact same reports**. So Mesa isn't a
+one-off spreadsheet — it's a **multi-tenant product**: any restaurant signs up, uploads
+its reports, and gets the analysis automatically.
+
+## What it does
+
+- 📈 **Dashboards & KPIs** — revenue, average ticket, gross margin and units, with
+  revenue-over-time, top-products and revenue-by-category charts. *See where your money
+  comes from.*
+- 💰 **Margins & P&L** — per-product margin analysis and a monthly profit-and-loss
+  summary. *Know what to reprice.*
+- 🧾 **Self-service upload** — drop your `.pdf` / `.xlsx` "Productos Vendidos" exports,
+  **one or several at once**; re-imports are idempotent, with an import history and
+  one-click **undo**.
+- 🧠 **Reliable product identity** — POS codes get reassigned and duplicated, so Mesa
+  identifies products **by name**, fusing variants (typos, word order, unit markers)
+  while keeping genuinely different items apart. Fix any edge case from the UI (merge,
+  re-point, split).
+- 📊 **Master-workbook automation** — fills the owner's real Excel workbook: the
+  "Productos vendidos" units matrix and the "Datos totales" Bar/Kitchen figures, read
+  straight from each report.
+- 🌐 **Multi-tenant & bilingual** — each restaurant sees only its own data; the whole UI
+  is available in **English and Spanish**.
+
+## How it works
+
+1. **Upload your reports** — PDF or Excel, one or many.
+2. **Mesa organizes them** — every line is parsed and matched to the right product by
+   name, keeping your catalog clean even as POS codes change.
+3. **You decide with data** — dashboards, margins and P&L show what to promote, what to
+   reprice, and where revenue comes from.
+
+## Screenshots
+
+The fastest way to see Mesa is the **[live demo](https://mesa-345-ab00ff997aa2.herokuapp.com/)**
+(`demo` / `MesaDemo2026`). Key screens:
+
+| Screen | Path |
+| --- | --- |
+| Landing | `/` |
+| Dashboard & charts | `/dashboard/` |
+| Margin analysis | `/margin/` |
+| Monthly P&L | `/pnl/` |
+| Products & identity | `/products/` |
+| Upload reports | `/upload/` |
+
+<!-- To embed images, drop PNGs in docs/screenshots/ and reference them here, e.g.:
+![Dashboard](docs/screenshots/dashboard.png) -->
+
+## Architecture highlights
+
+The parts worth a closer look:
+
+- **Name-based product identity** (`catalog/identity.py`) — the POS `clave` is not a
+  reliable key (it gets reassigned and duplicated), so identity is resolved by a
+  normalized **name**. A `ProductResolver` fuses obvious variants (word order, typos,
+  `*GR`/`ML` markers, `"X Trago"`, same-code prefixes like *Negroni → Negroni Tanqueray*)
+  while keeping distinct products apart (different age/size, bottle vs glass). Each
+  `(code, name)` pair is recorded once as a `ProductAlias`.
+- **Pluggable importers** (`sales/importers/`) — `BaseImporter.normalize()` is the
+  contract; concrete importers self-register by extension and are auto-discovered, so a
+  **new report format is one new file**, no core edits. `persist()` is idempotent by
+  `external_id`.
+- **Multi-tenancy** — shared-DB, row-level scoping. A middleware resolves
+  `request.restaurant`; every model, query, service and export is scoped to one tenant,
+  with per-restaurant uniqueness. Isolation is covered by tests.
+- **Excel automation** (`analytics/unified_excel.py`) — openpyxl, aware of the real
+  workbook's two-row (year / month) header; writes a **copy**, never the original,
+  matches rows by name, and preserves per-row formulas.
+- **Quality gate** — `pytest` with a **70% coverage floor** (currently ~88%) enforced in
+  GitHub Actions CI on every push.
+
+## Tech stack
+
+**Backend** Django 5 · Python 3.12 · PostgreSQL (SQLite locally) ·
+[django-allauth](https://allauth.org/) ·
+**Data** openpyxl · pdfplumber · **Frontend** Bootstrap 5 · Chart.js · Django i18n ·
+**Ops** Heroku · GitHub Actions CI · pytest · ruff.
+
+## Local setup
+
+Running locally takes about five minutes.
+
+**Prerequisites:** Python 3.12 (the project pins `python-3.12.7`; 3.11+ works for dev)
+and git.
 
 ```bash
 git clone https://github.com/madlp24/mesa.git
 cd mesa
 
-# 1. Create and activate a virtualenv
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate            # Windows: .\.venv\Scripts\Activate.ps1
 
-# 2. Install dependencies (dev set includes tests + linters)
-pip install -r requirements-dev.txt
+pip install -r requirements-dev.txt  # tests + linters included
 
-# 3. Create your local .env from the template
-cp .env.example .env
-
-# 4. Generate a SECRET_KEY and paste it into .env
-python -c "import secrets; print(secrets.token_urlsafe(50))"
-
-# 5. Set up the database (creates a local db.sqlite3)
-python manage.py migrate
-
-# 6. Create an admin user to log in with
-python manage.py createsuperuser
-
-# 7. Run the dev server
-python manage.py runserver
-```
-
-### Windows (PowerShell)
-
-```powershell
-git clone https://github.com/madlp24/mesa.git
-cd mesa
-
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-pip install -r requirements-dev.txt
-
-Copy-Item .env.example .env
-python -c "import secrets; print(secrets.token_urlsafe(50))"
-# paste the printed value as SECRET_KEY in .env
+cp .env.example .env                 # Windows: Copy-Item .env.example .env
+python -c "import secrets; print(secrets.token_urlsafe(50))"   # paste as SECRET_KEY in .env
 
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
 ```
 
-The app is now at <http://127.0.0.1:8000/>. Log in with the superuser you created.
-The Django admin lives at <http://127.0.0.1:8000/admin/>.
+The app is now at <http://127.0.0.1:8000/> (admin at `/admin/`). `.env` is gitignored
+and read via `python-decouple`; the defaults use a local SQLite database.
 
-### Environment variables
-
-`.env` is gitignored and read via `python-decouple`. Copy `.env.example` and adjust:
-
-| Variable | Default | Notes |
-| --- | --- | --- |
-| `SECRET_KEY` | — | Required. Generate with the command above. |
-| `DEBUG` | `True` | Keep `True` for local development. |
-| `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated. |
-| `DATABASE_URL` | empty | Leave empty to use the local SQLite database. |
-| `DJANGO_SETTINGS_MODULE` | `config.settings.dev` | Dev settings use SQLite. |
-
-### Loading sample data
-
-The dashboard needs sales data to render charts. The primary way is the **Upload**
-page in the navbar: pick your Soft Restaurant "Productos Vendidos" export (`.pdf` or
-`.xlsx`) and it is imported into your restaurant, with a summary of what was added.
-
-The same import is available from the command line:
-
-```bash
-python manage.py import_sales --file <path-to-excel-or-pdf> --restaurant <slug>
-```
-
-Mesa is **multi-tenant**: every user belongs to a restaurant (created automatically on
-signup) and only ever sees that restaurant's data. `--restaurant` is optional when only
-one restaurant exists. The export/update commands below take the same flag.
-
-Products are identified by **name** (not the unreliable POS code): the importer
-resolves each `(code, name)` to one canonical product and records the decision as
-a `ProductAlias`, fusing obvious variants while keeping genuinely different items
-(different age/size/serving) apart.
-
-### Exporting to Excel
-
-Generate `.xlsx` files from the real data (also available as download buttons on
-the dashboard):
-
-```bash
-python manage.py export_excel --type matrix --output productos_vendidos.xlsx
-python manage.py export_excel --type report --output analisis.xlsx --start 2026-01-01 --end 2026-12-31
-```
-
-`matrix` is the Productos-Vendidos units-per-month matrix; `report` is the analysis
-report (per product and per category, plus top-N rankings).
-
-### Updating an existing workbook in place
-
-To write the new months into your own existing "Productos vendidos" workbook
-(matching rows by name, appending genuinely new products), without touching the
-original:
-
-```bash
-python manage.py update_excel --file "Análisis unificado.xlsx"
-```
-
-It writes a copy `… (actualizado).xlsx`, never the original, preserves historical
-codes, and warns if the workbook looks open in Excel or contains charts/macros
-(which openpyxl cannot preserve).
-
-### Running tests and linting
-
-```bash
-python -m pytest -q        # test suite (coverage gate: 70%)
-ruff check .               # lint
-```
-
-## Languages (English / Spanish)
-
-The UI is fully bilingual. Use the **language selector in the navbar** to switch
-between English and Spanish; the choice is stored in a cookie and persists across
-requests. English is the source language; Spanish lives in
-`locale/es/LC_MESSAGES/django.po`.
-
-Compiled catalogs (`.mo`) are not committed — build them once after cloning:
+To build the Spanish translation catalog (needs GNU `gettext`:
+`brew install gettext` / `apt-get install gettext`):
 
 ```bash
 python manage.py compilemessages
 ```
 
-> This needs the GNU `gettext` tools. On macOS: `brew install gettext`.
-> On Debian/Ubuntu: `sudo apt-get install gettext`.
+## Loading data
 
-### Adding or updating translations
+Upload from the **Upload** page in the app, or from the command line:
 
-1. Mark new strings for translation in templates (`{% trans %}` / `{% blocktrans %}`)
-   or in Python (`gettext` / `gettext_lazy`).
-2. Regenerate the catalog and translate the new `msgstr` entries:
+```bash
+python manage.py import_sales --file <report.pdf|.xlsx> --restaurant <slug>
+```
 
-   ```bash
-   python manage.py makemessages -l es --ignore=.venv --ignore=staticfiles
-   # edit locale/es/LC_MESSAGES/django.po
-   python manage.py compilemessages
-   ```
+`--restaurant` is optional when only one restaurant exists.
 
-## Project status
+### Excel exports & master-workbook updates
 
-Catalog, ingestion, dashboard, and analysis epics are complete. See the
-[Project Index](../../issues/21) for user stories and the sprint plan.
+```bash
+# Export fresh workbooks from the data (also available as dashboard downloads)
+python manage.py export_excel --type matrix  --output productos_vendidos.xlsx
+python manage.py export_excel --type report  --output analisis.xlsx --start 2026-01-01 --end 2026-12-31
+
+# Fill one month's units into an existing "Productos vendidos" matrix (writes a COPY)
+python manage.py update_unified --file "Análisis unificado.xlsx" --restaurant <slug> --year 2025 --month 3
+
+# Fill "Datos totales" Bar/Kitchen figures (N/O/S/T) from a folder of daily PDFs
+python manage.py update_datos_totales --file "Análisis unificado.xlsx" --pdf-dir "VENTA COSTO 2025/MARZO"
+```
+
+Every workbook command writes to a **copy**, never the original, matches rows by name,
+and preserves historical codes and formulas.
+
+## Testing & CI
+
+```bash
+python -m pytest -q     # full suite, coverage floor 70% (currently ~88%)
+ruff check .            # lint
+```
+
+CI runs the same checks on every push ([workflow](.github/workflows/ci.yml)).
+
+## Project management
+
+Built story-by-story with a Kanban board and one issue per user story. See the
+[**project board**](https://github.com/users/madlp24/projects/6) and the
+[Project Index](https://github.com/madlp24/mesa/issues/21) (user stories, sprint plan,
+and commit convention). Every story ships as its own PR with tests.
+
+## Author
+
+**Miguel De La Pava** — founder, Tres Cuatro Cinco Steakhouse.
+GitHub [@madlp24](https://github.com/madlp24) · <mdelapavalondono@gmail.com>
+
+© 2026 Miguel De La Pava. Portfolio project.
