@@ -59,20 +59,43 @@ its reports, and gets the analysis automatically.
 
 ## Screenshots
 
-The fastest way to see Mesa is the **[live demo](https://mesa-345-ab00ff997aa2.herokuapp.com/)**
-(`demo` / `MesaDemo2026`). Key screens:
+Or explore the **[live demo](https://mesa-345-ab00ff997aa2.herokuapp.com/)**
+(`demo` / `MesaDemo2026`).
 
-| Screen | Path |
-| --- | --- |
-| Landing | `/` |
-| Dashboard & charts | `/dashboard/` |
-| Margin analysis | `/margin/` |
-| Monthly P&L | `/pnl/` |
-| Products & identity | `/products/` |
-| Upload reports | `/upload/` |
+**Dashboard** — KPIs, revenue-over-time, top products and category mix, from real sales:
 
-<!-- To embed images, drop PNGs in docs/screenshots/ and reference them here, e.g.:
-![Dashboard](docs/screenshots/dashboard.png) -->
+![Dashboard](docs/screenshots/dashboard.png)
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/products.png" alt="Product identity management"><br><sub><b>Products</b> — merge / re-point / split identities</sub></td>
+    <td width="50%"><img src="docs/screenshots/margins.png" alt="Margin analysis"><br><sub><b>Margins</b> — per-product margin analysis</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/upload.png" alt="Upload reports"><br><sub><b>Upload</b> — several reports at once, with history + undo</sub></td>
+    <td width="50%"><img src="docs/screenshots/pnl.png" alt="Monthly P&amp;L"><br><sub><b>P&amp;L</b> — monthly profit &amp; loss</sub></td>
+  </tr>
+</table>
+
+**Landing page:**
+
+![Landing](docs/screenshots/landing.png)
+
+## Wireframes
+
+The low-fidelity layouts the interface was built from (sources in
+[`docs/wireframes/`](docs/wireframes)):
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/wireframes/landing.png" alt="Landing wireframe"><br><sub>Landing</sub></td>
+    <td width="50%"><img src="docs/wireframes/dashboard.png" alt="Dashboard wireframe"><br><sub>Dashboard</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/wireframes/products.png" alt="Products wireframe"><br><sub>Products</sub></td>
+    <td width="50%"><img src="docs/wireframes/upload.png" alt="Upload wireframe"><br><sub>Upload</sub></td>
+  </tr>
+</table>
 
 ## Architecture highlights
 

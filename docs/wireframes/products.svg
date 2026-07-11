@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" font-family="Inter, Arial, sans-serif">
+  <style>
+    .frame{fill:#fff;stroke:#c9cdd2;stroke-width:2}
+    .nav{fill:#2a2f34}
+    .box{fill:#eef1f3;stroke:#cfd4d9;stroke-width:1.5}
+    .line{fill:#d7dce1}
+    .lbl-sm{fill:#9aa1a9;font-size:11px}
+    .navlbl{fill:#e8eaec;font-size:12px}
+    .accent{fill:#c0492b}
+    .title{fill:#3a4149;font-size:16px;font-weight:700}
+    .th{fill:#8a929a;font-size:11px;font-weight:700}
+  </style>
+  <rect x="1" y="1" width="898" height="498" class="frame" rx="10"/>
+  <rect x="2" y="2" width="896" height="40" class="nav" rx="9"/>
+  <text x="24" y="27" class="navlbl" font-weight="700" font-size="15">Mesa<tspan class="accent">.</tspan></text>
+  <text x="280" y="27" class="navlbl" font-weight="700">Products</text>
+  <text x="90" y="27" class="navlbl">Dashboard</text><text x="170" y="27" class="navlbl">Margins</text>
+  <text x="235" y="27" class="navlbl">P&amp;L</text><text x="350" y="27" class="navlbl">Upload</text>
+  <text x="24" y="80" class="title">Products</text>
+  <rect x="24" y="92" width="520" height="9" class="line" rx="3"/>
+  <!-- table -->
+  <rect x="24" y="118" width="852" height="300" class="box" rx="8"/>
+  <line x1="24" y1="150" x2="876" y2="150" stroke="#cfd4d9"/>
+  <text x="44" y="140" class="th">☐</text>
+  <text x="80" y="140" class="th">PRODUCT</text>
+  <text x="420" y="140" class="th">CATEGORY</text>
+  <text x="560" y="140" class="th">SKU</text>
+  <text x="650" y="140" class="th">ALIASES</text>
+  <text x="740" y="140" class="th">UNITS</text>
+  <text x="820" y="140" class="th">REVENUE</text>
+  <g>
+    <!-- rows -->
+    <g fill="#cfd4d9">
+      <rect x="80" y="168" width="200" height="9" rx="3"/><rect x="420" y="168" width="110" height="9" rx="3"/><rect x="560" y="168" width="60" height="9" rx="3"/>
+      <rect x="80" y="196" width="230" height="9" rx="3"/><rect x="420" y="196" width="90" height="9" rx="3"/><rect x="560" y="196" width="60" height="9" rx="3"/>
+      <rect x="80" y="224" width="180" height="9" rx="3"/><rect x="420" y="224" width="120" height="9" rx="3"/><rect x="560" y="224" width="60" height="9" rx="3"/>
+      <rect x="80" y="252" width="210" height="9" rx="3"/><rect x="420" y="252" width="100" height="9" rx="3"/><rect x="560" y="252" width="60" height="9" rx="3"/>
+      <rect x="80" y="280" width="160" height="9" rx="3"/><rect x="420" y="280" width="130" height="9" rx="3"/><rect x="560" y="280" width="60" height="9" rx="3"/>
+      <rect x="80" y="308" width="220" height="9" rx="3"/><rect x="420" y="308" width="90" height="9" rx="3"/><rect x="560" y="308" width="60" height="9" rx="3"/>
+      <rect x="80" y="336" width="190" height="9" rx="3"/><rect x="420" y="336" width="110" height="9" rx="3"/><rect x="560" y="336" width="60" height="9" rx="3"/>
+      <rect x="80" y="364" width="205" height="9" rx="3"/><rect x="420" y="364" width="95" height="9" rx="3"/><rect x="560" y="364" width="60" height="9" rx="3"/>
+      <rect x="80" y="392" width="175" height="9" rx="3"/><rect x="420" y="392" width="120" height="9" rx="3"/><rect x="560" y="392" width="60" height="9" rx="3"/>
+    </g>
+    <!-- checkboxes -->
+    <g fill="none" stroke="#b7bdc4" stroke-width="1.5">
+      <rect x="40" y="166" width="12" height="12" rx="2"/><rect x="40" y="194" width="12" height="12" rx="2"/>
+      <rect x="40" y="222" width="12" height="12" rx="2"/><rect x="40" y="250" width="12" height="12" rx="2"/>
+      <rect x="40" y="278" width="12" height="12" rx="2"/><rect x="40" y="306" width="12" height="12" rx="2"/>
+      <rect x="40" y="334" width="12" height="12" rx="2"/><rect x="40" y="362" width="12" height="12" rx="2"/>
+      <rect x="40" y="390" width="12" height="12" rx="2"/>
+    </g>
+    <!-- selected rows checked -->
+    <rect x="40" y="194" width="12" height="12" rx="2" fill="#c0492b"/>
+    <rect x="40" y="278" width="12" height="12" rx="2" fill="#c0492b"/>
+    <text x="660" y="177" fill="#9aa1a9" font-size="11">2</text>
+    <text x="750" y="177" fill="#9aa1a9" font-size="11">___</text>
+    <text x="828" y="177" fill="#9aa1a9" font-size="11">$ ___</text>
+  </g>
+  <!-- merge button -->
+  <rect x="24" y="434" width="150" height="34" fill="#c0492b" rx="6"/>
+  <text x="52" y="456" fill="#fff" font-size="12">Merge selected</text>
+</svg>

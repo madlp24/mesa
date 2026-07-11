@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" font-family="Inter, Arial, sans-serif">
+  <style>
+    .frame{fill:#fff;stroke:#c9cdd2;stroke-width:2}
+    .nav{fill:#2a2f34}
+    .box{fill:#eef1f3;stroke:#cfd4d9;stroke-width:1.5}
+    .line{fill:#d7dce1}
+    .lbl{fill:#7a828b;font-size:12px}
+    .lbl-sm{fill:#9aa1a9;font-size:11px}
+    .navlbl{fill:#e8eaec;font-size:12px}
+    .accent{fill:#c0492b}
+    .title{fill:#3a4149;font-size:16px;font-weight:700}
+    .th{fill:#8a929a;font-size:11px;font-weight:700}
+  </style>
+  <rect x="1" y="1" width="898" height="498" class="frame" rx="10"/>
+  <rect x="2" y="2" width="896" height="40" class="nav" rx="9"/>
+  <text x="24" y="27" class="navlbl" font-weight="700" font-size="15">Mesa<tspan class="accent">.</tspan></text>
+  <text x="350" y="27" class="navlbl" font-weight="700">Upload</text>
+  <text x="90" y="27" class="navlbl">Dashboard</text><text x="170" y="27" class="navlbl">Margins</text>
+  <text x="235" y="27" class="navlbl">P&amp;L</text><text x="280" y="27" class="navlbl">Products</text>
+  <text x="150" y="86" class="title">Upload reports</text>
+  <rect x="150" y="98" width="600" height="9" class="line" rx="3"/>
+  <!-- drop zone -->
+  <rect x="150" y="128" width="600" height="120" fill="#f4f6f7" stroke="#c0492b" stroke-width="1.5" stroke-dasharray="7 5" rx="10"/>
+  <text x="450" y="180" class="lbl" text-anchor="middle" font-size="13">Drop .pdf / .xlsx reports here — one or several</text>
+  <rect x="380" y="196" width="140" height="30" fill="#c0492b" rx="6"/>
+  <text x="404" y="216" fill="#fff" font-size="12">Choose files</text>
+  <!-- import summary table -->
+  <text x="150" y="286" class="th" font-size="13" fill="#3a4149">Import summary</text>
+  <rect x="150" y="298" width="600" height="180" class="box" rx="8"/>
+  <line x1="150" y1="326" x2="750" y2="326" stroke="#cfd4d9"/>
+  <text x="168" y="318" class="th">FILE</text>
+  <text x="470" y="318" class="th">SALES</text>
+  <text x="550" y="318" class="th">LINES</text>
+  <text x="630" y="318" class="th">DUP</text>
+  <text x="700" y="318" class="th">SKIP</text>
+  <g fill="#cfd4d9">
+    <rect x="168" y="342" width="230" height="9" rx="3"/><rect x="470" y="342" width="40" height="9" rx="3"/><rect x="550" y="342" width="40" height="9" rx="3"/>
+    <rect x="168" y="368" width="210" height="9" rx="3"/><rect x="470" y="368" width="40" height="9" rx="3"/><rect x="550" y="368" width="40" height="9" rx="3"/>
+    <rect x="168" y="394" width="240" height="9" rx="3"/><rect x="470" y="394" width="40" height="9" rx="3"/><rect x="550" y="394" width="40" height="9" rx="3"/>
+    <rect x="168" y="420" width="200" height="9" rx="3"/><rect x="470" y="420" width="40" height="9" rx="3"/><rect x="550" y="420" width="40" height="9" rx="3"/>
+    <rect x="168" y="446" width="220" height="9" rx="3"/><rect x="470" y="446" width="40" height="9" rx="3"/><rect x="550" y="446" width="40" height="9" rx="3"/>
+  </g>
+</svg>
