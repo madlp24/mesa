@@ -9,7 +9,10 @@
         <h1 class="h3 mb-1">{{ quote.number }}</h1>
         <p class="text-muted mb-0">{{ quote.client_name|default:_("No client yet") }}</p>
     </div>
-    <a class="btn btn-outline-secondary" href="{% url 'quotes:quote_list' %}">{% trans "All quotes" %}</a>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{% url 'quotes:quote_list' %}">{% trans "All quotes" %}</a>
+        <a class="btn btn-primary" href="{% url 'quotes:quote_pdf' quote.pk %}">{% trans "Download PDF" %}</a>
+    </div>
 </div>
 
 <div class="row g-4">

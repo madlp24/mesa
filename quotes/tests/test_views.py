@@ -186,3 +186,17 @@ class TestMenu:
 
         assert response.status_code == 200
         assert b"Orphan" in response.content
+
+
+@pytest.mark.django_db
+class TestTranslation:
+    def test_event_type_labels_follow_the_request_language(self, logged_client, restaurant):
+        """They are built at import time, so they must be lazy to translate."""
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-119")
+
+        response = logged_client.get(
+            reverse("quotes:quote_detail", args=[quote.pk]), headers={"accept-language": "es"}
+        )
+
+        assert "Cóctel de pie".encode() in response.content
+        assert b"Standing cocktail" not in response.content

@@ -6,21 +6,26 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.dateparse import parse_date
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
 
 from catalog.models import Product
 
 from . import services
 from .models import Course, MenuItem, PricingMode, Quote
+from .pdf import render_quote_pdf
 
 #: Margin to judge a quote against, taken from events this restaurant already billed.
 TARGET_MARGIN = Decimal("60")
 
+#: Lazy, because this dict is built once at import: gettext here would freeze
+#: the labels in whatever language happened to be active at startup.
 PROFILE_LABELS = {
-    "cocktail": _("Standing cocktail"),
-    "seated": _("Seated lunch or dinner"),
-    "steak": _("Steak dinner"),
+    "cocktail": gettext_lazy("Standing cocktail"),
+    "seated": gettext_lazy("Seated lunch or dinner"),
+    "steak": gettext_lazy("Steak dinner"),
 }
 
 
@@ -160,6 +165,16 @@ def quote_compose(request: HttpRequest, pk: int) -> HttpResponse:
     else:
         messages.success(request, _("Menu composed."))
     return redirect("quotes:quote_detail", pk=quote.pk)
+
+
+@login_required
+def quote_pdf(request: HttpRequest, pk: int) -> HttpResponse:
+    """The client-facing document. Cost and margin never appear in it."""
+    quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    response = HttpResponse(render_quote_pdf(quote), content_type="application/pdf")
+    filename = f"{quote.number}-{slugify(quote.client_name) or 'quote'}.pdf"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
 
 
 @login_required

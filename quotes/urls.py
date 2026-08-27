@@ -10,4 +10,5 @@ urlpatterns = [
     path("menu/<int:pk>/", views.menu_item_edit, name="menu_item_edit"),
     path("<int:pk>/", views.quote_detail, name="quote_detail"),
     path("<int:pk>/compose/", views.quote_compose, name="quote_compose"),
+    path("<int:pk>/pdf/", views.quote_pdf, name="quote_pdf"),
 ]
