@@ -47,31 +47,31 @@ class TestTotals:
         quote = _quote(restaurant, guests=1, charges_tip=False)
         _line(quote, price=108, cost=40)
 
-        assert quote.subtotal == Decimal("108")
-        assert quote.taxable_base == Decimal("100")
-        assert quote.tax_included == Decimal("8")
-        assert quote.total == Decimal("108")
+        assert quote.subtotal == Decimal(108)
+        assert quote.taxable_base == Decimal(100)
+        assert quote.tax_included == Decimal(8)
+        assert quote.total == Decimal(108)
 
     def test_tip_applies_to_the_pre_tax_base(self, restaurant):
         quote = _quote(restaurant, guests=1)
         _line(quote, price=108, cost=40)
 
-        assert quote.tip == Decimal("10")
-        assert quote.total == Decimal("118")
+        assert quote.tip == Decimal(10)
+        assert quote.total == Decimal(118)
 
     def test_per_guest_mode_ignores_the_line_prices(self, restaurant):
         quote = _quote(
             restaurant,
             guests=20,
             pricing_mode=PricingMode.PER_GUEST,
-            price_per_guest=Decimal("180000"),
+            price_per_guest=Decimal(180000),
             charges_tip=False,
         )
         _line(quote, price=35000, cost=9000, qty=20)
 
-        assert quote.subtotal == Decimal("3600000")
-        assert quote.total == Decimal("3600000")
-        assert quote.total_per_guest == Decimal("180000")
+        assert quote.subtotal == Decimal(3600000)
+        assert quote.total == Decimal(3600000)
+        assert quote.total_per_guest == Decimal(180000)
 
     def test_matches_a_real_quote_from_the_spreadsheet(self, restaurant):
         """COT-112: subtotal 7.044.000 -> 7.696.222, not the 8.218.000 charged.
@@ -82,9 +82,9 @@ class TestTotals:
         quote = _quote(restaurant, guests=1)
         _line(quote, price=7044000, cost=0)
 
-        assert round(quote.tax_included) == Decimal("521778")
-        assert round(quote.tip) == Decimal("652222")
-        assert round(quote.total) == Decimal("7696222")
+        assert round(quote.tax_included) == Decimal(521778)
+        assert round(quote.tip) == Decimal(652222)
+        assert round(quote.total) == Decimal(7696222)
 
 
 @pytest.mark.django_db
@@ -93,9 +93,9 @@ class TestMargin:
         quote = _quote(restaurant, guests=1)
         _line(quote, price=108, cost=40)
 
-        assert quote.cost == Decimal("40")
-        assert quote.profit == Decimal("60")
-        assert quote.margin_pct == Decimal("60")
+        assert quote.cost == Decimal(40)
+        assert quote.profit == Decimal(60)
+        assert quote.margin_pct == Decimal(60)
 
     def test_a_line_without_a_mapped_product_leaves_the_quote_uncosted(self, restaurant):
         quote = _quote(restaurant, guests=1)
@@ -103,13 +103,13 @@ class TestMargin:
         _line(quote, price=54, cost=None, name="Not mapped")
 
         assert quote.is_costed is False
-        assert quote.cost == Decimal("40")
+        assert quote.cost == Decimal(40)
 
     def test_cost_per_guest(self, restaurant):
         quote = _quote(restaurant, guests=10)
         _line(quote, price=1080, cost=400)
 
-        assert quote.cost_per_guest == Decimal("40")
+        assert quote.cost_per_guest == Decimal(40)
 
 
 @pytest.mark.django_db
@@ -120,11 +120,11 @@ class TestMenuItem:
             restaurant=restaurant,
             name="Picanha americana",
             course=Course.MAINS,
-            price=Decimal("136000"),
+            price=Decimal(136000),
             product=product,
         )
 
-        assert item.unit_cost == Decimal("30845")
+        assert item.unit_cost == Decimal(30845)
         assert item.is_mapped is True
 
     def test_product_units_bridge_a_unit_mismatch(self, restaurant, category):
@@ -134,16 +134,16 @@ class TestMenuItem:
             restaurant=restaurant,
             name="Picanha americana por kg",
             course=Course.MAINS,
-            price=Decimal("320000"),
+            price=Decimal(320000),
             product=product,
             product_units=Decimal("2.3810"),
         )
 
-        assert round(item.unit_cost) == Decimal("73442")
+        assert round(item.unit_cost) == Decimal(73442)
 
     def test_an_unmapped_item_has_no_cost(self, restaurant):
         item = MenuItem.objects.create(
-            restaurant=restaurant, name="Ceviche", course=Course.STARTERS, price=Decimal("50000")
+            restaurant=restaurant, name="Ceviche", course=Course.STARTERS, price=Decimal(50000)
         )
 
         assert item.unit_cost is None
@@ -159,7 +159,7 @@ class TestUnknownCost:
             restaurant=restaurant,
             name="Dubonnet",
             course=Course.ALCOHOL,
-            price=Decimal("180000"),
+            price=Decimal(180000),
             product=product,
         )
 

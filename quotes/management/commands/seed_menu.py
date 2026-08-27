@@ -6,7 +6,7 @@ descriptions are then edited in the UI: the POS calls a dish ``CROQUETAS DE LOMO
 AHUMADO *4U`` and a client should not have to read that.
 """
 import json
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
@@ -34,8 +34,8 @@ SERVING_HINTS: list[tuple[tuple[str, ...], str]] = [
 #: Cuts sold by the gram in the POS. Quoting 20 units of a per-gram product means
 #: 20 grams of wagyu, so these become one-kilo items instead.
 GRAM_MARKERS = ("* GR", "*GR", " X GR", "POR GR", "/GR")
-GRAMS_PER_KILO = Decimal("1000")
-GRAMS_PER_GUEST = Decimal("280")
+GRAMS_PER_KILO = Decimal(1000)
+GRAMS_PER_GUEST = Decimal(280)
 
 
 def is_priced_by_gram(product_name: str) -> bool:
@@ -56,13 +56,13 @@ def servings_for(category_name: str) -> Decimal:
     for fragments, servings in SERVING_HINTS:
         if any(f in upper for f in fragments):
             return Decimal(servings)
-    return Decimal("1")
+    return Decimal(1)
 
 
 def quoted_price(sale_price: Decimal) -> Decimal:
     """POS prices are net of tax; quotes show them with the tax inside."""
-    gross = Decimal(sale_price) * (Decimal("1") + TAX_RATE)
-    return gross.quantize(Decimal("100"), rounding=ROUND_HALF_UP)
+    gross = Decimal(sale_price) * (Decimal(1) + TAX_RATE)
+    return gross.quantize(Decimal(100), rounding=ROUND_HALF_UP)
 
 
 class Command(BaseCommand):
@@ -108,7 +108,7 @@ class Command(BaseCommand):
                 "price": quoted_price(product.sale_price),
                 "servings": servings_for(product.category.name),
                 "product": product,
-                "product_units": Decimal("1"),
+                "product_units": Decimal(1),
             }
             name = override.get("name") or product.name.strip().title()
 

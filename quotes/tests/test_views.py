@@ -95,7 +95,7 @@ class TestQuoteDetail:
     def test_margin_is_shown_when_lines_are_costed(self, logged_client, restaurant):
         quote = Quote.objects.create(restaurant=restaurant, number="CA-119", guests=1)
         QuoteLine.objects.create(
-            quote=quote, name="X", quantity=1, unit_price=Decimal("108"), unit_cost=Decimal("40")
+            quote=quote, name="X", quantity=1, unit_price=Decimal(108), unit_cost=Decimal(40)
         )
 
         response = logged_client.get(reverse("quotes:quote_detail", args=[quote.pk]))
@@ -137,10 +137,10 @@ class TestMenu:
         category = Category.objects.create(restaurant=restaurant, name="C")
         product = Product.objects.create(
             restaurant=restaurant, name="POS NAME", sku="S1", category=category,
-            cost_price=Decimal("9000"), sale_price=Decimal("30000"),
+            cost_price=Decimal(9000), sale_price=Decimal(30000),
         )
         item = MenuItem.objects.create(
-            restaurant=restaurant, name="Nice name", course=Course.STARTERS, price=Decimal("32400")
+            restaurant=restaurant, name="Nice name", course=Course.STARTERS, price=Decimal(32400)
         )
 
         logged_client.post(
@@ -154,17 +154,17 @@ class TestMenu:
         item.refresh_from_db()
 
         assert item.product == product
-        assert item.unit_cost == Decimal("9000")
+        assert item.unit_cost == Decimal(9000)
 
     def test_cannot_map_to_another_tenant_product(self, logged_client, restaurant):
         other = Restaurant.objects.create(name="Other", slug="other-r")
         other_user_category = Category.objects.create(restaurant=other, name="C")
         foreign = Product.objects.create(
             restaurant=other, name="THEIRS", sku="S9", category=other_user_category,
-            cost_price=Decimal("1"), sale_price=Decimal("2"),
+            cost_price=Decimal(1), sale_price=Decimal(2),
         )
         item = MenuItem.objects.create(
-            restaurant=restaurant, name="Mine", course=Course.STARTERS, price=Decimal("1000")
+            restaurant=restaurant, name="Mine", course=Course.STARTERS, price=Decimal(1000)
         )
 
         response = logged_client.post(
@@ -179,7 +179,7 @@ class TestMenu:
 
     def test_menu_list_shows_unmapped_items(self, logged_client, restaurant):
         MenuItem.objects.create(
-            restaurant=restaurant, name="Orphan", course=Course.STARTERS, price=Decimal("1000")
+            restaurant=restaurant, name="Orphan", course=Course.STARTERS, price=Decimal(1000)
         )
 
         response = logged_client.get(reverse("quotes:menu_list"))

@@ -28,7 +28,7 @@ def _quote_with_lines(restaurant):
     QuoteLine.objects.create(
         quote=quote, course=Course.MAINS, name="Picanha americana",
         description="Cut served at the centre of the table.",
-        quantity=Decimal("6"), unit_price=Decimal("320000"), unit_cost=Decimal("77777"),
+        quantity=Decimal(6), unit_price=Decimal(320000), unit_cost=Decimal(77777),
     )
     return quote
 
@@ -65,7 +65,7 @@ class TestRender:
             QuoteLine.objects.create(
                 quote=quote, course=Course.STARTERS, name=f"Dish {i}",
                 description="A description long enough to take a couple of lines on the page. " * 2,
-                quantity=Decimal("10"), unit_price=Decimal("30000"), unit_cost=Decimal("9000"),
+                quantity=Decimal(10), unit_price=Decimal(30000), unit_cost=Decimal(9000),
             )
 
         with pdfplumber.open(BytesIO(render_quote_pdf(quote))) as pdf:

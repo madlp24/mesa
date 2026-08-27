@@ -18,7 +18,7 @@ TAX_RATE = Decimal("0.08")
 #: Suggested tip, applied over the pre-tax base (not over the taxed price).
 DEFAULT_TIP_RATE = Decimal("0.10")
 
-ZERO = Decimal("0")
+ZERO = Decimal(0)
 
 
 class Course(models.TextChoices):
@@ -56,7 +56,7 @@ class MenuItem(models.Model):
     servings = models.DecimalField(
         max_digits=6,
         decimal_places=2,
-        default=Decimal("1"),
+        default=Decimal(1),
         help_text=_("How many guests one unit serves"),
     )
     product = models.ForeignKey(
@@ -69,7 +69,7 @@ class MenuItem(models.Model):
     product_units = models.DecimalField(
         max_digits=8,
         decimal_places=4,
-        default=Decimal("1"),
+        default=Decimal(1),
         help_text=_("Product units consumed by one unit of this item"),
     )
     is_active = models.BooleanField(default=True)
@@ -149,7 +149,7 @@ class Quote(models.Model):
 
     @property
     def taxable_base(self) -> Decimal:
-        return self.subtotal / (Decimal("1") + TAX_RATE)
+        return self.subtotal / (Decimal(1) + TAX_RATE)
 
     @property
     def tax_included(self) -> Decimal:
@@ -209,7 +209,7 @@ class QuoteLine(models.Model):
     course = models.CharField(max_length=20, choices=Course.choices, default=Course.OTHER)
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("1"))
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(1))
     unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=ZERO)
     unit_cost = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     position = models.PositiveIntegerField(default=0)

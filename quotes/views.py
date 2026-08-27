@@ -18,7 +18,7 @@ from .models import Course, MenuItem, PricingMode, Quote
 from .pdf import render_quote_pdf
 
 #: Margin to judge a quote against, taken from events this restaurant already billed.
-TARGET_MARGIN = Decimal("60")
+TARGET_MARGIN = Decimal(60)
 
 #: Lazy, because this dict is built once at import: gettext here would freeze
 #: the labels in whatever language happened to be active at startup.
@@ -214,8 +214,8 @@ def menu_item_edit(request: HttpRequest, pk: int) -> HttpResponse:
     item.description = request.POST.get("description", item.description).strip()
     item.course = request.POST.get("course", item.course)
     item.price = _decimal(request.POST.get("price"), str(item.price))
-    item.servings = _decimal(request.POST.get("servings"), "1") or Decimal("1")
-    item.product_units = _decimal(request.POST.get("product_units"), "1") or Decimal("1")
+    item.servings = _decimal(request.POST.get("servings"), "1") or Decimal(1)
+    item.product_units = _decimal(request.POST.get("product_units"), "1") or Decimal(1)
     item.is_active = request.POST.get("is_active") == "on"
     item.save()
 

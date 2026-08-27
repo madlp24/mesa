@@ -63,13 +63,13 @@ class TestUnits:
         station = _item(restaurant, "Station", Course.STARTERS, 300000, servings="25")
 
         assert units_needed(station, 30) == 2
-        assert cost_per_guest(station, 30) == Decimal("600000") / 30
+        assert cost_per_guest(station, 30) == Decimal(600000) / 30
 
     def test_a_per_guest_item_scales_one_to_one(self, restaurant):
         dessert = _item(restaurant, "Dessert", Course.DESSERTS, 30000)
 
         assert units_needed(dessert, 12) == 12
-        assert cost_per_guest(dessert, 12) == Decimal("30000")
+        assert cost_per_guest(dessert, 12) == Decimal(30000)
 
 
 @pytest.mark.django_db
@@ -79,7 +79,7 @@ class TestCompose:
 
         assert composition.picks
         assert composition.fits
-        assert composition.per_guest <= Decimal("250000")
+        assert composition.per_guest <= Decimal(250000)
 
     def test_every_course_of_the_profile_is_represented(self, menu):
         composition = compose(menu, 250000, 20, profile="seated")
@@ -127,7 +127,7 @@ class TestApply:
 
         assert quote.lines.count() == len(composition.picks)
         assert quote.pricing_mode == PricingMode.PER_GUEST
-        assert quote.price_per_guest == Decimal("250000")
+        assert quote.price_per_guest == Decimal(250000)
         assert quote.guests == 20
         assert all(line.unit_cost is not None for line in quote.lines.all())
 

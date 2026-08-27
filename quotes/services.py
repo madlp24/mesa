@@ -12,7 +12,7 @@ from decimal import Decimal
 
 from .models import Course, MenuItem, PricingMode, Quote, QuoteLine
 
-ZERO = Decimal("0")
+ZERO = Decimal(0)
 
 #: How a per-guest budget is split across the courses, by event type. Weights
 #: sum to 1 with alcohol included; without it they are renormalised.
@@ -77,7 +77,7 @@ class Composition:
 
 def units_needed(item: MenuItem, guests: int) -> int:
     """Units to serve ``guests``, rounded up — you pay for the whole station."""
-    servings = item.servings or Decimal("1")
+    servings = item.servings or Decimal(1)
     return max(1, math.ceil(Decimal(guests) / servings))
 
 
@@ -126,7 +126,7 @@ def compose(restaurant, budget_per_guest, guests, profile="seated", alcohol=True
     guests = max(1, int(guests))
 
     blocks = [b for b in PROFILES.get(profile, PROFILES["seated"]) if alcohol or not b.get("alcohol")]
-    weights = sum(b["weight"] for b in blocks) or Decimal("1")
+    weights = sum(b["weight"] for b in blocks) or Decimal(1)
 
     items = MenuItem.objects.filter(restaurant=restaurant, is_active=True, price__gt=0)
     by_course: dict[str, list[MenuItem]] = {}
