@@ -36,7 +36,7 @@ def test_autodiscovery_registered_both_importers_without_explicit_imports():
     # formats via autodiscover().
     import importlib
 
-    import sales.importers as importers
+    from sales import importers
 
     importlib.reload(importers)
 

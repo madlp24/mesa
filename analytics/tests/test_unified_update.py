@@ -1,5 +1,5 @@
 """Tests for the unified-analysis 'Productos vendidos' updater (US30)."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -47,7 +47,7 @@ def _sell(restaurant, category, name, sku, qty, day=5):
     )
     sale = Sale.objects.create(
         restaurant=restaurant, external_id=f"2025-03-{day:02d}:{sku}",
-        occurred_at=datetime(2025, 3, day, 12, tzinfo=timezone.utc), total=Decimal("5"),
+        occurred_at=datetime(2025, 3, day, 12, tzinfo=UTC), total=Decimal("5"),
     )
     SaleItem.objects.create(
         sale=sale, product=product, quantity=qty,

@@ -1,5 +1,5 @@
 """Tests for the bilingual EN/ES UI (US21)."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -20,7 +20,7 @@ def dashboard_data(restaurant):
     )
     sale = Sale.objects.create(
         restaurant=restaurant, external_id="S1",
-        occurred_at=datetime(2026, 6, 1, 12, tzinfo=timezone.utc), total=Decimal("10"),
+        occurred_at=datetime(2026, 6, 1, 12, tzinfo=UTC), total=Decimal("10"),
     )
     SaleItem.objects.create(
         sale=sale, product=product, quantity=1,

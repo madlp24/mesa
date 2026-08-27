@@ -11,7 +11,7 @@ __all__ = [
     "BaseImporter",
     "CanonicalSale",
     "CanonicalSaleItem",
-    "persist",
     "get_importer_for",
+    "persist",
     "register",
 ]

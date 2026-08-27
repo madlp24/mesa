@@ -1,5 +1,5 @@
 """Multi-tenant isolation tests (US24)."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -22,7 +22,7 @@ def _restaurant_with_sale(slug, product_name, qty, price):
     )
     sale = Sale.objects.create(
         restaurant=restaurant, external_id="S1",
-        occurred_at=datetime(2026, 1, 5, 12, tzinfo=timezone.utc), total=price * qty,
+        occurred_at=datetime(2026, 1, 5, 12, tzinfo=UTC), total=price * qty,
     )
     SaleItem.objects.create(
         sale=sale, product=product, quantity=qty, unit_price=price, unit_cost=Decimal("1")
