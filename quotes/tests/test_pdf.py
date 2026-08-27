@@ -96,3 +96,48 @@ class TestDownload:
         response = logged_client.get(reverse("quotes:quote_pdf", args=[theirs.pk]))
 
         assert response.status_code == 404
+
+
+@pytest.mark.django_db
+class TestFitsOnePage:
+    def test_a_seven_line_quote_keeps_its_totals_on_the_first_page(self, restaurant):
+        """A second page holding nothing but the totals reads as a mistake."""
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-120", client_name="Karisma", guests=12, days=2
+        )
+        dishes = [
+            ("Croquetas de lomo ahumado (3 und)", "Lomo de res ahumado, bechamel, sashimi de atun, salsa ponzu y salsa de aguacate y tomatillo."),
+            ("Ensalada de la casa", "Mix asiatico, supremas de naranja, pistachos, tomate cherry, encurtido de cebolla y rabano, vinagreta citrica."),
+            ("Picanha americana (420 g)", ""),
+            ("Patatas fritas con grana padano", ""),
+            ("Vegetales ahumados", ""),
+            ("Postre de limon deconstruido", "Galleta de mantequilla con canela, crema de limon, merengue tostado y polvo de limon."),
+            ("Bebidas sin alcohol a eleccion", "Para escoger entre aguas, sodas y sodas de la casa."),
+        ]
+        for i, (name, description) in enumerate(dishes):
+            QuoteLine.objects.create(
+                quote=quote, course=Course.STARTERS if i < 2 else Course.MAINS,
+                name=name, description=description, quantity=Decimal("12"),
+                unit_price=Decimal("44000"), unit_cost=Decimal("9574"), position=i,
+            )
+
+        with pdfplumber.open(BytesIO(render_quote_pdf(quote))) as pdf:
+            assert len(pdf.pages) == 1
+            assert "TOTAL" in pdf.pages[0].extract_text()
+
+    def test_the_totals_never_land_on_the_footer(self, restaurant):
+        """The block may sit low, but not on top of the footer rule."""
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-121", guests=1)
+        for i in range(9):
+            QuoteLine.objects.create(
+                quote=quote, course=Course.MAINS, name=f"Dish {i}",
+                description="A description that wraps onto a second line of its own. " * 2,
+                quantity=Decimal("1"), unit_price=Decimal("50000"), unit_cost=Decimal("10000"),
+                position=i,
+            )
+
+        with pdfplumber.open(BytesIO(render_quote_pdf(quote))) as pdf:
+            page = [p for p in pdf.pages if "TOTAL" in (p.extract_text() or "")][0]
+            lowest = min(w["bottom"] for w in page.extract_words())
+            footer_top = page.height - 54 - 40  # page bottom margin, then the rule
+            assert lowest < footer_top
