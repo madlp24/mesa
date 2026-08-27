@@ -200,3 +200,65 @@ class TestTranslation:
 
         assert "Cóctel de pie".encode() in response.content
         assert b"Standing cocktail" not in response.content
+
+
+@pytest.mark.django_db
+class TestCharges:
+    def test_adding_a_charge(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-150", guests=45)
+
+        logged_client.post(
+            reverse("quotes:quote_add_charge", args=[quote.pk]),
+            {"name": "Alquiler del espacio", "amount": "1000000", "quantity": "1"},
+        )
+        line = quote.lines.get()
+
+        assert line.add_on is True
+        assert line.unit_price == Decimal("1000000")
+        assert line.unit_cost == Decimal("0")
+
+    def test_a_charge_without_an_amount_is_rejected(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-151")
+
+        logged_client.post(
+            reverse("quotes:quote_add_charge", args=[quote.pk]),
+            {"name": "Sin monto", "amount": "0", "quantity": "1"},
+        )
+
+        assert not quote.lines.exists()
+
+    def test_removing_a_charge_leaves_the_dishes(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-152", guests=10)
+        dish = QuoteLine.objects.create(
+            quote=quote, name="Corte", quantity=Decimal("1"), unit_price=Decimal("100000")
+        )
+        charge = QuoteLine.objects.create(
+            quote=quote, name="Espacio", quantity=Decimal("1"),
+            unit_price=Decimal("500000"), add_on=True,
+        )
+
+        logged_client.post(reverse("quotes:quote_remove_charge", args=[quote.pk, charge.pk]))
+
+        assert list(quote.lines.all()) == [dish]
+
+    def test_a_dish_cannot_be_removed_through_the_charge_route(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-153", guests=10)
+        dish = QuoteLine.objects.create(
+            quote=quote, name="Corte", quantity=Decimal("1"), unit_price=Decimal("100000")
+        )
+
+        logged_client.post(reverse("quotes:quote_remove_charge", args=[quote.pk, dish.pk]))
+
+        assert quote.lines.filter(pk=dish.pk).exists()
+
+    def test_another_tenant_cannot_add_a_charge(self, logged_client):
+        other = Restaurant.objects.create(name="Other", slug="other-charges")
+        theirs = Quote.objects.create(restaurant=other, number="CA-500")
+
+        response = logged_client.post(
+            reverse("quotes:quote_add_charge", args=[theirs.pk]),
+            {"name": "X", "amount": "1000", "quantity": "1"},
+        )
+
+        assert response.status_code == 404
+        assert not theirs.lines.exists()

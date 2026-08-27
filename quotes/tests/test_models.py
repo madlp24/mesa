@@ -217,3 +217,62 @@ class TestMultiDay:
         assert quote.days == 1
         assert quote.subtotal == Decimal("108")
         assert quote.covers == 1
+
+
+@pytest.mark.django_db
+class TestChargesOnTop:
+    def _venue(self, quote, amount="1000000", qty=1):
+        return QuoteLine.objects.create(
+            quote=quote, course=Course.OTHER, name="Alquiler del espacio",
+            quantity=Decimal(qty), unit_price=Decimal(amount),
+            unit_cost=Decimal("0"), add_on=True,
+        )
+
+    def test_it_adds_on_top_of_the_per_guest_price(self, restaurant):
+        quote = _quote(
+            restaurant, guests=45, pricing_mode=PricingMode.PER_GUEST,
+            price_per_guest=Decimal("150000"), charges_tip=False,
+        )
+        self._venue(quote)
+
+        assert quote.subtotal == Decimal("7750000")
+        assert quote.total == Decimal("7750000")
+
+    def test_it_adds_on_top_in_consumption_mode_too(self, restaurant):
+        quote = _quote(restaurant, guests=10, charges_tip=False)
+        _line(quote, price=100000, cost=25000, qty=10)
+        self._venue(quote, amount="500000")
+
+        assert quote.subtotal == Decimal("1500000")
+
+    def test_it_does_not_scale_with_the_days(self, restaurant):
+        """The room is billed by its own quantity, not once per date."""
+        quote = _quote(
+            restaurant, guests=10, days=3, pricing_mode=PricingMode.PER_GUEST,
+            price_per_guest=Decimal("100000"), charges_tip=False,
+        )
+        self._venue(quote, amount="500000")
+
+        assert quote.subtotal == Decimal("3500000")
+
+    def test_it_carries_no_food_cost(self, restaurant):
+        quote = _quote(restaurant, guests=10, charges_tip=False)
+        _line(quote, price=100000, cost=25000, qty=10)
+        self._venue(quote)
+
+        assert quote.cost == Decimal("250000")
+
+    def test_it_is_not_a_dish(self, restaurant):
+        quote = _quote(restaurant, guests=10, charges_tip=False)
+        _line(quote, price=100000, cost=25000, qty=10, name="Corte")
+        self._venue(quote)
+
+        assert [line.name for line in quote.food_lines] == ["Corte"]
+        assert [line.name for line in quote.add_on_lines] == ["Alquiler del espacio"]
+
+    def test_a_quote_of_only_charges_is_not_costed(self, restaurant):
+        """No dishes means no food margin to report."""
+        quote = _quote(restaurant, guests=10)
+        self._venue(quote)
+
+        assert quote.is_costed is False

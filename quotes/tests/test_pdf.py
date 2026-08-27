@@ -303,3 +303,33 @@ class TestSqueezedLayout:
                 label = max(w["bottom"] for w in words if w["text"] == "PAGO")
                 note = min(w["top"] for w in words if w["text"] == "Para")
                 assert note > label, f"the note lands on the labels at tight={tight}"
+
+
+@pytest.mark.django_db
+class TestChargesOnThePdf:
+    def test_a_charge_is_named_in_the_totals_not_among_the_dishes(self, restaurant):
+        """The client has to see what the extra money buys."""
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-121", client_name="Daniela García",
+            guests=45, pricing_mode=PricingMode.PER_GUEST,
+            price_per_guest=Decimal("150000"), charges_tip=False,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Picanha americana (420 g)",
+            quantity=Decimal("22"), unit_price=Decimal("126000"), unit_cost=Decimal("30845"),
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.OTHER, name="Alquiler del espacio",
+            quantity=Decimal("1"), unit_price=Decimal("1000000"),
+            unit_cost=Decimal("0"), add_on=True,
+        )
+
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(quote))
+
+        assert "Alquiler del espacio" in text
+        assert "1.000.000" in text
+        assert "7.750.000" in text          # 150.000 x 45 + 1.000.000
+        dishes, totals = text.split("Alquiler del espacio", 1)
+        assert "Picanha" in dishes          # the charge sits after the menu
+        assert "TOTAL" in totals

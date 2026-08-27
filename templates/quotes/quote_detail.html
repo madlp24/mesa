@@ -73,6 +73,53 @@
             </div>
         </div>
 
+        <div class="card mb-4">
+            <div class="card-header">{% trans "Charges on top" %}</div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    {% trans "The room, corkage, extra staff — anything that is not part of the per-guest price." %}
+                </p>
+                {% if quote.add_on_lines %}
+                <ul class="list-group list-group-flush mb-3">
+                    {% for line in quote.add_on_lines %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>{{ line.name }}{% if line.quantity != 1 %} <span class="text-muted">x{{ line.quantity|floatformat:0 }}</span>{% endif %}</span>
+                        <span class="d-flex align-items-center gap-2">
+                            <span>{{ line.line_total|floatformat:0|intcomma }}</span>
+                            <form method="post" action="{% url 'quotes:quote_remove_charge' quote.pk line.pk %}">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-link text-danger p-0" type="submit"
+                                        aria-label="{% trans 'Remove' %} {{ line.name }}">&times;</button>
+                            </form>
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <form method="post" action="{% url 'quotes:quote_add_charge' quote.pk %}" class="row g-2 align-items-end">
+                    {% csrf_token %}
+                    <div class="col-12">
+                        <label class="form-label small" for="charge_name">{% trans "Charge" %}</label>
+                        <input class="form-control form-control-sm" id="charge_name" name="name"
+                               placeholder="{% trans 'Venue rental' %}">
+                    </div>
+                    <div class="col-7">
+                        <label class="form-label small" for="charge_amount">{% trans "Amount" %}</label>
+                        <input type="number" step="1000" class="form-control form-control-sm"
+                               id="charge_amount" name="amount">
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label small" for="charge_qty">{% trans "Qty" %}</label>
+                        <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
+                               id="charge_qty" name="quantity">
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-outline-secondary btn-sm w-100" type="submit">{% trans "Add charge" %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">{% trans "Compose from a budget" %}</div>
             <div class="card-body">
@@ -167,7 +214,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between">
                 <span>{% trans "Menu" %}</span>
-                <span class="text-muted">{{ quote.lines.count }} {% trans "lines" %}</span>
+                <span class="text-muted">{{ quote.food_lines|length }} {% trans "lines" %}</span>
             </div>
             {% if courses %}
             <div class="table-responsive">
@@ -191,6 +238,12 @@
                         {% endfor %}
                     </tbody>
                     <tfoot class="border-top">
+                        {% for line in quote.add_on_lines %}
+                        <tr>
+                            <td colspan="3" class="text-end text-muted">{{ line.name }}{% if line.quantity != 1 %} x{{ line.quantity|floatformat:0 }}{% endif %}</td>
+                            <td class="text-end">{{ line.line_total|floatformat:0|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
                         <tr>
                             <td colspan="3" class="text-end text-muted">{% trans "Subtotal (tax included)" %}</td>
                             <td class="text-end">{{ quote.subtotal|floatformat:0|intcomma }}</td>

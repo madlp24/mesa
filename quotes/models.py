@@ -140,8 +140,21 @@ class Quote(models.Model):
     # -- what the client pays -------------------------------------------------
 
     @property
+    def food_lines(self):
+        """What is served. Add-ons are charges, not dishes."""
+        return [line for line in self.lines.all() if not line.add_on]
+
+    @property
+    def add_on_lines(self):
+        return [line for line in self.lines.all() if line.add_on]
+
+    @property
     def lines_total(self) -> Decimal:
-        return sum((line.line_total for line in self.lines.all()), ZERO)
+        return sum((line.line_total for line in self.food_lines), ZERO)
+
+    @property
+    def add_ons_total(self) -> Decimal:
+        return sum((line.line_total for line in self.add_on_lines), ZERO)
 
     @property
     def subtotal(self) -> Decimal:
@@ -155,7 +168,7 @@ class Quote(models.Model):
             if self.pricing_mode == PricingMode.PER_GUEST
             else self.lines_total
         )
-        return base * self.days
+        return base * self.days + self.add_ons_total
 
     @property
     def taxable_base(self) -> Decimal:
@@ -178,13 +191,18 @@ class Quote(models.Model):
 
     @property
     def cost(self) -> Decimal:
-        """Food cost of the event, from the mapped products."""
-        return sum((line.line_cost for line in self.lines.all()), ZERO) * self.days
+        """Food cost of the event, from the mapped products.
+
+        Add-ons carry no food cost: renting the room buys nothing off the menu.
+        """
+        food = sum((line.line_cost for line in self.food_lines), ZERO)
+        return food * self.days + sum((line.line_cost for line in self.add_on_lines), ZERO)
 
     @property
     def is_costed(self) -> bool:
-        """False when any line is missing its product mapping."""
-        return self.lines.exists() and all(line.unit_cost is not None for line in self.lines.all())
+        """False when a dish is missing its product mapping."""
+        food = self.food_lines
+        return bool(food) and all(line.unit_cost is not None for line in food)
 
     @property
     def profit(self) -> Decimal:
@@ -227,6 +245,10 @@ class QuoteLine(models.Model):
     quantity = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(1))
     unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=ZERO)
     unit_cost = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    #: A charge billed on top of the per-guest price -- the room, corkage, extra
+    #: staff. It does not scale with the number of days: its own quantity says
+    #: how many of it the event needs.
+    add_on = models.BooleanField(default=False)
     position = models.PositiveIntegerField(default=0)
 
     class Meta:
