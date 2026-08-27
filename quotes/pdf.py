@@ -98,8 +98,9 @@ class QuoteCanvas:
     #: Table rows stop here, leaving air above the footer rule at MARGIN + 40.
     FLOOR = MARGIN + 46
     #: The totals block is the last thing on the page, so it may sit closer to
-    #: the footer than a row that still has neighbours below it.
-    FLOOR_TOTALS = MARGIN + 23
+    #: the footer than a row that still has neighbours below it -- but not so
+    #: close that it lands on the footer rule at MARGIN + 40.
+    FLOOR_TOTALS = MARGIN + 50
 
     def room(self, needed, floor=None):
         if self.y - needed < (self.FLOOR if floor is None else floor):
@@ -216,12 +217,12 @@ class QuoteCanvas:
             if not per_guest:
                 subtotal = sum(line.line_total for line in course_lines)
                 self.text_right(_money(subtotal), COL_TOTAL - 7, self.y, 8, bold=True, color=MUTED)
-            self.y -= 22
+            self.y -= 19
 
             for line in course_lines:
                 name_lines = _wrap(line.name, BOLD, 9.5, desc_w)
                 desc_lines = _wrap(line.description, REG, 7.8, desc_w) if line.description else []
-                height = len(name_lines) * 11.5 + len(desc_lines) * 9.6 + 9
+                height = len(name_lines) * 11.5 + len(desc_lines) * 9.3 + 5
                 self.room(height + 12)
 
                 y = self.y
@@ -238,9 +239,9 @@ class QuoteCanvas:
                     self.text_right(_money(line.line_total), COL_TOTAL, self.y, 9.5, bold=True)
 
                 self.y -= height
-                self.rule(self.y + 4, Color(0.895, 0.885, 0.865), 0.4)
-                self.y -= 4
-            self.y -= 6
+                self.rule(self.y + 3, Color(0.895, 0.885, 0.865), 0.4)
+                self.y -= 3
+            self.y -= 4
 
     def totals(self):
         quote = self.quote
