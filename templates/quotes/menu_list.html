@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load i18n humanize %}
+
+{% block title %}{% trans "Quoting menu" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="h3 mb-1">{% trans "Quoting menu" %}</h1>
+        <p class="text-muted mb-0">
+            {% trans "How each dish reads on a proposal, and which product it is served from. The product is where the cost comes from." %}
+        </p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{% url 'quotes:quote_list' %}">{% trans "Quotes" %}</a>
+</div>
+
+{% if unmapped_count %}
+<div class="alert alert-warning">
+    {% blocktrans count counter=unmapped_count %}
+    {{ counter }} item has no product mapped. Quotes using it cannot show a margin.
+    {% plural %}
+    {{ counter }} items have no product mapped. Quotes using them cannot show a margin.
+    {% endblocktrans %}
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans "Item" %}</th>
+                    <th scope="col">{% trans "Course" %}</th>
+                    <th scope="col" class="text-end">{% trans "Price" %}</th>
+                    <th scope="col" class="text-end">{% trans "Serves" %}</th>
+                    <th scope="col">{% trans "Product" %}</th>
+                    <th scope="col" class="text-end">{% trans "Unit cost" %}</th>
+                    <th scope="col" class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr class="{% if not item.is_active %}opacity-50{% endif %}">
+                    <td>
+                        <div>{{ item.name }}</div>
+                        {% if item.description %}<div class="text-muted small">{{ item.description|truncatechars:80 }}</div>{% endif %}
+                    </td>
+                    <td class="text-muted small">{{ item.get_course_display }}</td>
+                    <td class="text-end">{{ item.price|floatformat:0|intcomma }}</td>
+                    <td class="text-end text-muted">{{ item.servings|floatformat:2 }}</td>
+                    <td>
+                        {% if item.product %}
+                        <span class="text-muted small">{{ item.product.name }}</span>
+                        {% else %}
+                        <span class="badge text-bg-warning">{% trans "not mapped" %}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if item.unit_cost %}{{ item.unit_cost|floatformat:0|intcomma }}{% else %}—{% endif %}
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-secondary" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#edit-{{ item.pk }}"
+                                aria-expanded="false" aria-controls="edit-{{ item.pk }}">
+                            {% trans "Edit" %}
+                        </button>
+                    </td>
+                </tr>
+                <tr class="collapse" id="edit-{{ item.pk }}">
+                    <td colspan="7" class="bg-body-tertiary">
+                        <form method="post" action="{% url 'quotes:menu_item_edit' item.pk %}" class="row g-2 align-items-end">
+                            {% csrf_token %}
+                            <div class="col-md-3">
+                                <label class="form-label small" for="name-{{ item.pk }}">{% trans "Name" %}</label>
+                                <input class="form-control form-control-sm" id="name-{{ item.pk }}" name="name" value="{{ item.name }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small" for="desc-{{ item.pk }}">{% trans "Description" %}</label>
+                                <input class="form-control form-control-sm" id="desc-{{ item.pk }}" name="description" value="{{ item.description }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small" for="course-{{ item.pk }}">{% trans "Course" %}</label>
+                                <select class="form-select form-select-sm" id="course-{{ item.pk }}" name="course">
+                                    <option value="starters" {% if item.course == 'starters' %}selected{% endif %}>{% trans "Starters" %}</option>
+                                    <option value="mains" {% if item.course == 'mains' %}selected{% endif %}>{% trans "Mains" %}</option>
+                                    <option value="sides" {% if item.course == 'sides' %}selected{% endif %}>{% trans "Sides" %}</option>
+                                    <option value="desserts" {% if item.course == 'desserts' %}selected{% endif %}>{% trans "Desserts" %}</option>
+                                    <option value="alcohol" {% if item.course == 'alcohol' %}selected{% endif %}>{% trans "Alcoholic drinks" %}</option>
+                                    <option value="soft" {% if item.course == 'soft' %}selected{% endif %}>{% trans "Soft drinks" %}</option>
+                                    <option value="other" {% if item.course == 'other' %}selected{% endif %}>{% trans "Other" %}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small" for="price-{{ item.pk }}">{% trans "Price" %}</label>
+                                <input type="number" step="500" class="form-control form-control-sm" id="price-{{ item.pk }}" name="price" value="{{ item.price|floatformat:0 }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small" for="serv-{{ item.pk }}">{% trans "Serves" %}</label>
+                                <input type="number" step="0.01" class="form-control form-control-sm" id="serv-{{ item.pk }}" name="servings" value="{{ item.servings|floatformat:2 }}">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small" for="prod-{{ item.pk }}">{% trans "Served from product" %}</label>
+                                <select class="form-select form-select-sm" id="prod-{{ item.pk }}" name="product">
+                                    <option value="">{% trans "— not mapped —" %}</option>
+                                    {% for product in products %}
+                                    <option value="{{ product.pk }}" {% if item.product_id == product.pk %}selected{% endif %}>{{ product.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small" for="units-{{ item.pk }}">{% trans "Product units" %}</label>
+                                <input type="number" step="0.0001" class="form-control form-control-sm" id="units-{{ item.pk }}" name="product_units" value="{{ item.product_units|floatformat:4 }}">
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="active-{{ item.pk }}" name="is_active" {% if item.is_active %}checked{% endif %}>
+                                    <label class="form-check-label small" for="active-{{ item.pk }}">{% trans "Active" %}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button class="btn btn-sm btn-primary" type="submit">{% trans "Save item" %}</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load i18n humanize %}
+
+{% block title %}{% trans "Quotes" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="h3 mb-1">{% trans "Event quotes" %}</h1>
+        <p class="text-muted mb-0">
+            {% trans "Build a quote from your catalog and see what the event leaves before you send it." %}
+        </p>
+    </div>
+    <a class="btn btn-primary" href="{% url 'quotes:quote_create' %}">{% trans "New quote" %}</a>
+</div>
+
+{% if menu_count == 0 %}
+<div class="alert alert-warning">
+    {% trans "Your quoting menu is empty. Run" %} <code>python manage.py seed_menu --restaurant &lt;id&gt;</code>
+    {% trans "to build it from your catalog." %}
+</div>
+{% elif unmapped_count %}
+<div class="alert alert-warning d-flex justify-content-between align-items-center">
+    <span>
+        {% blocktrans count counter=unmapped_count %}
+        {{ counter }} menu item has no product behind it, so quotes using it cannot show a margin.
+        {% plural %}
+        {{ counter }} menu items have no product behind them, so quotes using them cannot show a margin.
+        {% endblocktrans %}
+    </span>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'quotes:menu_list' %}">{% trans "Fix the menu" %}</a>
+</div>
+{% endif %}
+
+{% if quotes %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans "Number" %}</th>
+                    <th scope="col">{% trans "Client" %}</th>
+                    <th scope="col">{% trans "Event" %}</th>
+                    <th scope="col" class="text-end">{% trans "Guests" %}</th>
+                    <th scope="col" class="text-end">{% trans "Total" %}</th>
+                    <th scope="col" class="text-end">{% trans "Cost" %}</th>
+                    <th scope="col" class="text-end">{% trans "Margin" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quote in quotes %}
+                <tr>
+                    <td><a href="{% url 'quotes:quote_detail' quote.pk %}">{{ quote.number }}</a></td>
+                    <td>{{ quote.client_name|default:"—" }}</td>
+                    <td class="text-muted">{{ quote.event_date|default:"—" }}</td>
+                    <td class="text-end">{{ quote.guests }}</td>
+                    <td class="text-end">{{ quote.total|floatformat:0|intcomma }}</td>
+                    <td class="text-end text-muted">
+                        {% if quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}{% else %}—{% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if quote.is_costed %}
+                        <span class="badge {% if quote.margin_pct >= 60 %}text-bg-success{% elif quote.margin_pct >= 50 %}text-bg-warning{% else %}text-bg-danger{% endif %}">
+                            {{ quote.margin_pct|floatformat:1 }}%
+                        </span>
+                        {% else %}
+                        <span class="text-muted">{% trans "not costed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <p class="text-muted mb-3">{% trans "No quotes yet." %}</p>
+        <a class="btn btn-primary" href="{% url 'quotes:quote_create' %}">{% trans "Build your first quote" %}</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
