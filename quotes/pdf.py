@@ -231,7 +231,10 @@ class QuoteCanvas:
             self.c.setLineWidth(0.5)
             self.c.line(x, base, x + col_w - 18, base)
             self.text(label.upper(), x, base - 7, 6.4, color=ACCENT, spacing=1.0)
-        self.y -= row_h + self.gap(37)
+        # The rule and label sit at a fixed depth inside the cell, so only the
+        # row pitch and the trailing gap may shrink -- take the fixed 27 out of
+        # the squeeze or the note strip lands on the last row of labels.
+        self.y -= row_h + 27 + self.gap(10)
 
     def note(self):
         note = _(

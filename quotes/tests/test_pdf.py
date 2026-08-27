@@ -4,6 +4,7 @@ from io import BytesIO
 
 import pdfplumber
 import pytest
+from django.utils import translation
 from django.urls import reverse
 
 from quotes.models import Course, PricingMode, Quote, QuoteLine
@@ -276,3 +277,29 @@ class TestAutoFit:
         roomy = QuoteCanvas(short, tight=1.0).build()
 
         assert len(render_quote_pdf(short)) == len(roomy)
+
+
+@pytest.mark.django_db
+class TestSqueezedLayout:
+    def test_the_note_never_lands_on_the_header_labels(self, restaurant):
+        """Cell labels sit at a fixed depth, so the block that follows them
+        must not shrink past where they end."""
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-140", client_name="Daniela García",
+            concept="Almuerzo · Gosh Agencia", guests=45,
+            payment_terms="50% anticipo, 50% en el evento",
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Corte", quantity=Decimal("22"),
+            unit_price=Decimal("126000"), unit_cost=Decimal("30845"),
+        )
+
+        # Spanish is the worst case: its labels and note run longest.
+        with translation.override("es"):
+            for tight in (1.0, 0.86, 0.72):
+                data = QuoteCanvas(quote, tight=tight).build()
+                with pdfplumber.open(BytesIO(data)) as pdf:
+                    words = pdf.pages[0].extract_words()
+                label = max(w["bottom"] for w in words if w["text"] == "PAGO")
+                note = min(w["top"] for w in words if w["text"] == "Para")
+                assert note > label, f"the note lands on the labels at tight={tight}"
