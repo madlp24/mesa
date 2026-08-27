@@ -17,11 +17,15 @@ def _report_pdf_bytes(day="01", month="05"):
     pdf.setFont("Helvetica", 8)
     lines = [
         "TRES CUATRO CINCO STEAKHOUSE",
-        f"PRODUCTOS VENDIDOS DEL {day}/{month}/2026 06:00:00 AM AL "
-        f"28/{month}/2026 06:00:00 AM",
+        (
+            f"PRODUCTOS VENDIDOS DEL {day}/{month}/2026 06:00:00 AM AL "
+            f"28/{month}/2026 06:00:00 AM"
+        ),
         "GRUPO:COCTELES",
-        "8100 NEGRONI $20,000.00 5.00 $100,000.00 $6,000.00 "
-        "$0.00 $0.00 $0.00 $0.00",
+        (
+            "8100 NEGRONI $20,000.00 5.00 $100,000.00 $6,000.00 "
+            "$0.00 $0.00 $0.00 $0.00"
+        ),
     ]
     y = 560
     for line in lines:
