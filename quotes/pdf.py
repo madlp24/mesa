@@ -100,7 +100,7 @@ class QuoteCanvas:
     #: The totals block is the last thing on the page, so it may sit closer to
     #: the footer than a row that still has neighbours below it -- but not so
     #: close that it lands on the footer rule at MARGIN + 40.
-    FLOOR_TOTALS = MARGIN + 50
+    FLOOR_TOTALS = MARGIN + 44
 
     def room(self, needed, floor=None):
         if self.y - needed < (self.FLOOR if floor is None else floor):

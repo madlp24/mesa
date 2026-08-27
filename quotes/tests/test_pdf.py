@@ -6,7 +6,7 @@ import pdfplumber
 import pytest
 from django.urls import reverse
 
-from quotes.models import Course, Quote, QuoteLine
+from quotes.models import Course, PricingMode, Quote, QuoteLine
 from quotes.pdf import render_quote_pdf
 from tenants.models import Restaurant
 
@@ -100,30 +100,42 @@ class TestDownload:
 
 @pytest.mark.django_db
 class TestFitsOnePage:
-    def test_a_seven_line_quote_keeps_its_totals_on_the_first_page(self, restaurant):
-        """A second page holding nothing but the totals reads as a mistake."""
+    def test_the_first_real_quote_fits_on_one_page(self, restaurant):
+        """CA-120, line for line. A second page holding only the totals reads
+        as a mistake on a document that goes to a client, and this quote missed
+        fitting by under two points."""
         quote = Quote.objects.create(
-            restaurant=restaurant, number="CA-120", client_name="Karisma", guests=12, days=2
+            restaurant=restaurant, number="CA-120", client_name="Fundación Karisma",
+            concept="Almuerzo corporativo · 1 y 2 de septiembre", guests=12, days=2,
+            payment_terms="50% anticipo, 50% en el evento",
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("180000"),
+            charges_tip=False,
         )
-        dishes = [
-            ("Croquetas de lomo ahumado (3 und)", "Lomo de res ahumado, bechamel, sashimi de atun, salsa ponzu y salsa de aguacate y tomatillo."),
-            ("Ensalada de la casa", "Mix asiatico, supremas de naranja, pistachos, tomate cherry, encurtido de cebolla y rabano, vinagreta citrica."),
-            ("Picanha americana (420 g)", ""),
-            ("Patatas fritas con grana padano", ""),
-            ("Vegetales ahumados", ""),
-            ("Postre de limon deconstruido", "Galleta de mantequilla con canela, crema de limon, merengue tostado y polvo de limon."),
-            ("Bebidas sin alcohol a eleccion", "Para escoger entre aguas, sodas y sodas de la casa."),
+        lines = [
+            (Course.STARTERS, "Croquetas de lomo ahumado (3 und)",
+             "Lomo de res ahumado, bechamel, sashimi de atún, salsa ponzu y salsa de aguacate y tomatillo.", 12, 44000),
+            (Course.STARTERS, "Ensalada de la casa",
+             "Mix asiático, supremas de naranja, pistachos, tomate cherry, encurtido de cebolla y rábano, vinagreta cítrica.", 4, 29000),
+            (Course.MAINS, "Picanha americana (420 g)", "", 6, 126000),
+            (Course.SIDES, "Patatas fritas con grana padano", "", 4, 21000),
+            (Course.SIDES, "Vegetales ahumados", "", 4, 21000),
+            (Course.DESSERTS, "Postre de limón deconstruido",
+             "Galleta de mantequilla con canela, crema de limón, merengue tostado y polvo de limón.", 12, 30000),
+            (Course.SOFT, "Bebidas sin alcohol a elección",
+             "Para escoger entre aguas, sodas y sodas de la casa.", 12, 10000),
         ]
-        for i, (name, description) in enumerate(dishes):
+        for position, (course, name, description, qty, price) in enumerate(lines):
             QuoteLine.objects.create(
-                quote=quote, course=Course.STARTERS if i < 2 else Course.MAINS,
-                name=name, description=description, quantity=Decimal("12"),
-                unit_price=Decimal("44000"), unit_cost=Decimal("9574"), position=i,
+                quote=quote, course=course, name=name, description=description,
+                quantity=Decimal(qty), unit_price=Decimal(price),
+                unit_cost=Decimal(price) / 4, position=position,
             )
 
         with pdfplumber.open(BytesIO(render_quote_pdf(quote))) as pdf:
             assert len(pdf.pages) == 1
-            assert "TOTAL" in pdf.pages[0].extract_text()
+            text = pdf.pages[0].extract_text()
+            assert "TOTAL" in text
+            assert "4.320.000" in text
 
     def test_the_totals_never_land_on_the_footer(self, restaurant):
         """The block may sit low, but not on top of the footer rule."""
