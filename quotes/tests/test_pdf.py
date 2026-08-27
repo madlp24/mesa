@@ -7,7 +7,7 @@ import pytest
 from django.urls import reverse
 
 from quotes.models import Course, PricingMode, Quote, QuoteLine
-from quotes.pdf import render_quote_pdf
+from quotes.pdf import QuoteCanvas, render_quote_pdf
 from tenants.models import Restaurant
 
 
@@ -199,3 +199,80 @@ class TestBranding:
         data = render_quote_pdf(_quote_with_lines(restaurant))
 
         assert b"/Image" in data or b"/XObject" in data
+
+
+@pytest.mark.django_db
+class TestAutoFit:
+    def _quote_with(self, restaurant, number, count):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number=number, guests=45,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("180000"),
+            charges_tip=False,
+        )
+        courses = [
+            Course.STARTERS, Course.STARTERS, Course.STARTERS, Course.MAINS,
+            Course.SIDES, Course.SIDES, Course.DESSERTS, Course.SOFT,
+        ]
+        for i in range(count):
+            QuoteLine.objects.create(
+                quote=quote, course=courses[i % len(courses)], name=f"Plato número {i}",
+                description="Una descripción de la longitud que llevan los platos de la carta, "
+                            "que ocupa dos renglones completos en el documento.",
+                quantity=Decimal("12"), unit_price=Decimal("44000"),
+                unit_cost=Decimal("9574"), position=i,
+            )
+        return quote
+
+    def test_the_gosh_quote_is_squeezed_onto_one_page(self, restaurant):
+        """CA-121 line for line: eight dishes for 45 guests, which overflowed
+        the designed spacing by 26 points and left the totals alone on page 2."""
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-121", client_name="Daniela García",
+            concept="Almuerzo · Gosh Agencia", guests=45, days=1,
+            payment_terms="50% anticipo, 50% en el evento",
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("180000"),
+            charges_tip=False,
+        )
+        lines = [
+            (Course.STARTERS, "Croquetas de lomo ahumado (3 und)",
+             "Lomo de res ahumado, bechamel, sashimi de atún, salsa ponzu y salsa de aguacate y tomatillo.", 45),
+            (Course.STARTERS, "Berenjenas asadas a fuego de leña",
+             "Caramelizadas con miso, queso costeño, ensalada cítrica con duraznos ahumados, arándanos deshidratados y salsa de yogur de búfala.", 30),
+            (Course.STARTERS, "Ensalada de la casa",
+             "Mix asiático, supremas de naranja, pistachos, tomate cherry, encurtido de cebolla y rábano, vinagreta cítrica.", 12),
+            (Course.MAINS, "Picanha americana (420 g)", "", 22),
+            (Course.SIDES, "Patatas fritas con grana padano", "", 12),
+            (Course.SIDES, "Vegetales ahumados", "", 12),
+            (Course.DESSERTS, "Postre de limón deconstruido",
+             "Galleta de mantequilla con canela, crema de limón, merengue tostado y polvo de limón. Para compartir.", 30),
+            (Course.SOFT, "Bebidas sin alcohol a elección",
+             "Para escoger entre aguas, sodas y sodas de la casa.", 45),
+        ]
+        for position, (course, name, description, qty) in enumerate(lines):
+            QuoteLine.objects.create(
+                quote=quote, course=course, name=name, description=description,
+                quantity=Decimal(qty), unit_price=Decimal("44000"),
+                unit_cost=Decimal("9574"), position=position,
+            )
+
+        with pdfplumber.open(BytesIO(render_quote_pdf(quote))) as pdf:
+            assert len(pdf.pages) == 1
+            text = pdf.pages[0].extract_text()
+            assert "TOTAL" in text
+            assert "8.100.000" in text
+
+    def test_a_quote_that_truly_needs_two_pages_gets_them(self, restaurant):
+        """Squeezing has a floor; past it the reader gets a second sheet."""
+        quote = self._quote_with(restaurant, "CA-122", 30)
+
+        with pdfplumber.open(BytesIO(render_quote_pdf(quote))) as pdf:
+            assert len(pdf.pages) > 1
+            assert "TOTAL" in pdf.pages[-1].extract_text()
+
+    def test_a_short_quote_is_not_squeezed(self, restaurant):
+        """Nothing to gain, so it keeps the spacing it was designed with."""
+        short = self._quote_with(restaurant, "CA-123", 3)
+
+        roomy = QuoteCanvas(short, tight=1.0).build()
+
+        assert len(render_quote_pdf(short)) == len(roomy)

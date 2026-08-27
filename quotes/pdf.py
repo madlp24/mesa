@@ -64,12 +64,19 @@ def _wrap(text, font, size, width):
 
 
 class QuoteCanvas:
-    def __init__(self, quote):
+    def __init__(self, quote, tight=1.0):
         self.quote = quote
+        #: Vertical breathing room, 1.0 being the designed spacing. Lowered only
+        #: when doing so saves the reader a page (see ``render_quote_pdf``).
+        self.tight = tight
         self.buffer = BytesIO()
         self.c = pdfcanvas.Canvas(self.buffer, pagesize=letter)
         self.page = 1
         self.y = 0
+
+    def gap(self, points):
+        """A vertical gap, shrunk when the document is being squeezed."""
+        return points * self.tight
 
     # -- primitives ----------------------------------------------------------
 
@@ -190,7 +197,7 @@ class QuoteCanvas:
         )
         self.y -= 13
         self.rule(self.y, LINE, 0.7)
-        self.y -= 20
+        self.y -= self.gap(20)
 
     def meta(self):
         """Value first, label under it in red -- the house's own stationery."""
@@ -209,7 +216,7 @@ class QuoteCanvas:
             (_("Guests"), guests),
             (_("Payment terms"), quote.payment_terms or "-"),
         ]
-        col_w, row_h = CONTENT_W / 3, 32
+        col_w, row_h = CONTENT_W / 3, self.gap(32)
         for i, (label, value) in enumerate(fields):
             x = MARGIN + (i % 3) * col_w
             top = self.y - (i // 3) * row_h
@@ -224,7 +231,7 @@ class QuoteCanvas:
             self.c.setLineWidth(0.5)
             self.c.line(x, base, x + col_w - 18, base)
             self.text(label.upper(), x, base - 7, 6.4, color=ACCENT, spacing=1.0)
-        self.y -= row_h + 37
+        self.y -= row_h + self.gap(37)
 
     def note(self):
         note = _(
@@ -238,7 +245,7 @@ class QuoteCanvas:
         for line in lines:
             self.text(line, MARGIN + 12, y, 7.6, color=MUTED)
             y -= 9.6
-        self.y -= height + 5
+        self.y -= height + self.gap(5)
 
     def table_head(self):
         per_guest = self.quote.pricing_mode == PricingMode.PER_GUEST
@@ -249,7 +256,7 @@ class QuoteCanvas:
             self.text_right(pgettext("column heading", "TOTAL"), COL_TOTAL, self.y, 6.8, color=ACCENT, spacing=0.6)
         self.y -= 7
         self.rule(self.y, ACCENT, 0.9)
-        self.y -= 13
+        self.y -= self.gap(13)
 
     def lines(self):
         quote = self.quote
@@ -269,12 +276,16 @@ class QuoteCanvas:
             if not per_guest:
                 subtotal = sum(line.line_total for line in course_lines)
                 self.text_right(_money(subtotal), COL_TOTAL - 7, self.y, 8, bold=True, color=MUTED)
-            self.y -= 19
+            self.y -= self.gap(19)
 
             for line in course_lines:
                 name_lines = _wrap(line.name, BOLD, 9.5, desc_w)
                 desc_lines = _wrap(line.description, REG, 7.8, desc_w) if line.description else []
-                height = len(name_lines) * 11.3 + len(desc_lines) * 9.2 + 4
+                height = (
+                    len(name_lines) * 11.3
+                    + len(desc_lines) * 9.2
+                    + self.gap(4)
+                )
                 self.room(height + 12)
 
                 y = self.y
@@ -292,8 +303,8 @@ class QuoteCanvas:
 
                 self.y -= height
                 self.rule(self.y + 3, Color(0.895, 0.885, 0.865), 0.4)
-                self.y -= 3
-            self.y -= 4
+                self.y -= self.gap(3)
+            self.y -= self.gap(4)
 
     def totals(self):
         """The breakdown the client asked for: what the food costs before the
@@ -340,5 +351,29 @@ class QuoteCanvas:
         return self.buffer.getvalue()
 
 
+#: Tried in order. Anything below the last value starts to read as cramped, so a
+#: quote long enough to need a second page simply gets one.
+FIT_STEPS = (1.0, 0.86, 0.72)
+
+
+def _page_count(data: bytes) -> int:
+    return data.count(b"/Type /Page\n")
+
+
 def render_quote_pdf(quote) -> bytes:
-    return QuoteCanvas(quote).build()
+    """Render the quote, squeezing the layout only if that saves a page.
+
+    A quote that spills by a few points leaves a second sheet holding nothing
+    but the totals, which reads as a mistake on a document sent to a client.
+    """
+    best = None
+    for tight in FIT_STEPS:
+        data = QuoteCanvas(quote, tight=tight).build()
+        pages = _page_count(data)
+        if best is None:
+            best = (pages, data)
+        if pages < best[0]:
+            best = (pages, data)
+        if pages <= 1:
+            return data
+    return best[1]
