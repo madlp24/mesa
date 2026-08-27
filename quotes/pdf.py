@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 from reportlab.lib.colors import Color
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen import canvas as pdfcanvas
 
@@ -23,13 +24,20 @@ CONTENT_W = PAGE_W - MARGIN * 2
 
 INK = Color(0.110, 0.102, 0.086)
 MUTED = Color(0.420, 0.400, 0.360)
-ACCENT = Color(0.549, 0.137, 0.094)
-LINE = Color(0.780, 0.760, 0.720)
-BAND = Color(0.925, 0.915, 0.895)
-NOTE_BG = Color(0.965, 0.955, 0.940)
+#: The red of the house mark, sampled from the emblem itself.
+ACCENT = Color(0.878, 0.063, 0.125)
+ACCENT_DEEP = Color(0.678, 0.055, 0.106)
+LINE = Color(0.855, 0.835, 0.815)
+BAND = Color(0.973, 0.957, 0.953)
 WHITE = Color(1, 1, 1)
 
 REG, BOLD = "Helvetica", "Helvetica-Bold"
+#: A serif carries the wordmark, the way the house's own stationery does.
+SERIF, SERIF_BOLD = "Times-Roman", "Times-Bold"
+
+#: How much of the emblem survives behind the text.
+WATERMARK_ALPHA = 0.07
+WATERMARK_SIZE = 340
 
 COL_QTY = MARGIN + CONTENT_W - 250
 COL_UNIT = MARGIN + CONTENT_W - 130
@@ -65,10 +73,15 @@ class QuoteCanvas:
 
     # -- primitives ----------------------------------------------------------
 
-    def text(self, s, x, y, size, bold=False, color=INK, spacing=0):
+    def _font(self, bold, serif):
+        if serif:
+            return SERIF_BOLD if bold else SERIF
+        return BOLD if bold else REG
+
+    def text(self, s, x, y, size, bold=False, color=INK, spacing=0, serif=False):
         # Character spacing lives on the text object, not the canvas.
         obj = self.c.beginText(x, y)
-        obj.setFont(BOLD if bold else REG, size)
+        obj.setFont(self._font(bold, serif), size)
         obj.setFillColor(color)
         # Always set it, including 0: the value persists on the canvas and would
         # otherwise leak the masthead's spacing into every line below it.
@@ -76,12 +89,13 @@ class QuoteCanvas:
         obj.textOut(str(s))
         self.c.drawText(obj)
 
-    def text_right(self, s, x, y, size, bold=False, color=INK, spacing=0):
+    def text_right(self, s, x, y, size, bold=False, color=INK, spacing=0, serif=False):
+        font = self._font(bold, serif)
         obj = self.c.beginText(0, y)
-        obj.setFont(BOLD if bold else REG, size)
+        obj.setFont(font, size)
         obj.setFillColor(color)
         obj.setCharSpace(spacing)
-        width = stringWidth(str(s), BOLD if bold else REG, size) + spacing * len(str(s))
+        width = stringWidth(str(s), font, size) + spacing * len(str(s))
         obj.setTextOrigin(x - width, y)
         obj.textOut(str(s))
         self.c.drawText(obj)
@@ -109,8 +123,33 @@ class QuoteCanvas:
 
     # -- structure -----------------------------------------------------------
 
+    def watermark(self):
+        """The house emblem, faded far enough back to read straight through."""
+        raw = self.quote.restaurant.logo
+        if not raw:
+            return
+        try:
+            from PIL import Image
+
+            img = Image.open(BytesIO(bytes(raw))).convert("RGBA")
+            alpha = img.split()[3].point(lambda v: int(v * WATERMARK_ALPHA))
+            img.putalpha(alpha)
+            side = WATERMARK_SIZE
+            self.c.drawImage(
+                ImageReader(img),
+                (PAGE_W - side) / 2,
+                (PAGE_H - side) / 2 - 30,
+                width=side,
+                height=side * img.height / img.width,
+                mask="auto",
+            )
+        except Exception:
+            # A logo that will not decode must never cost the client their quote.
+            return
+
     def start_page(self, first):
         self.y = PAGE_H - MARGIN
+        self.watermark()
         if first:
             self.masthead()
             self.meta()
@@ -126,8 +165,9 @@ class QuoteCanvas:
         self.table_head()
 
     def finish_page(self):
-        self.rule(MARGIN + 40)
-        self.text(self.quote.restaurant.name, MARGIN, MARGIN + 26, 8.5, bold=True, spacing=1.4)
+        self.rule(MARGIN + 40, ACCENT, 0.7)
+        self.text(self.quote.restaurant.name, MARGIN, MARGIN + 26, 8.5,
+                  bold=True, color=ACCENT_DEEP, spacing=1.4, serif=True)
         self.text_right(
             _("Page %(n)s") % {"n": self.page}, MARGIN + CONTENT_W, MARGIN + 15, 7.6, color=MUTED
         )
@@ -135,20 +175,29 @@ class QuoteCanvas:
         self.page += 1
 
     def masthead(self):
-        self.band(self.y - 4, 3, ACCENT)
-        self.y -= 34
-        name = self.quote.restaurant.name.upper()
-        self.text(name, MARGIN, self.y, 20, bold=True, spacing=3.2)
-        self.text_right(_("QUOTE"), MARGIN + CONTENT_W, self.y, 11, bold=True, color=ACCENT)
+        """The house mark on the left, what the document is on the right."""
+        self.band(self.y - 2, 2.5, ACCENT)
+        self.y -= 30
+        self.text(
+            self.quote.restaurant.name.upper(), MARGIN, self.y, 17,
+            bold=True, color=INK, spacing=2.6, serif=True,
+        )
+        self.text_right(_("Quotation"), MARGIN + CONTENT_W, self.y + 2, 21, color=ACCENT, serif=True)
+        self.y -= 12
+        self.text(_("EVENTS"), MARGIN, self.y, 7, color=MUTED, spacing=2.2)
+        self.text_right(
+            f"{_('No.')} {self.quote.number}", MARGIN + CONTENT_W, self.y, 10.5, bold=True
+        )
         self.y -= 13
-        self.text(_("EVENTS"), MARGIN, self.y, 8.5, color=MUTED, spacing=2.4)
-        self.text_right(self.quote.number, MARGIN + CONTENT_W, self.y, 13, bold=True)
-        self.y -= 16
-        self.rule(self.y, LINE, 0.8)
-        self.y -= 22
+        self.rule(self.y, LINE, 0.7)
+        self.y -= 20
 
     def meta(self):
+        """Value first, label under it in red -- the house's own stationery."""
         quote = self.quote
+        guests = str(quote.guests) + (
+            _(" x %(n)s days") % {"n": quote.days} if quote.days > 1 else ""
+        )
         fields = [
             (_("Client"), quote.client_name or "-"),
             (_("Concept"), quote.concept or "-"),
@@ -157,48 +206,50 @@ class QuoteCanvas:
                 _("Event date"),
                 date_format(quote.event_date, "DATE_FORMAT") if quote.event_date else _("To be defined"),
             ),
-            (
-                _("Guests"),
-                f"{quote.guests}"
-                + (_(" x %(n)s days") % {"n": quote.days} if quote.days > 1 else ""),
-            ),
+            (_("Guests"), guests),
             (_("Payment terms"), quote.payment_terms or "-"),
         ]
-        col_w, row_h = CONTENT_W / 3, 34
+        col_w, row_h = CONTENT_W / 3, 32
         for i, (label, value) in enumerate(fields):
             x = MARGIN + (i % 3) * col_w
-            y = self.y - (i // 3) * row_h
-            self.text(label.upper(), x, y, 6.6, color=MUTED, spacing=1.1)
-            for j, line in enumerate(_wrap(value, BOLD, 10.5, col_w - 12)[:2]):
-                self.text(line, x, y - 13 - j * 11, 10.5, bold=True)
-        self.y -= row_h * 2 - 4
+            top = self.y - (i // 3) * row_h
+            # The rule and its label sit at a fixed depth in the cell and the
+            # value stacks upward from them: a two-line value that grew
+            # downward would land on the row underneath.
+            base = top - 20
+            wrapped = _wrap(value, BOLD, 10, col_w - 14)[:2]
+            for j, line in enumerate(reversed(wrapped)):
+                self.text(line, x, base + 4 + j * 10.6, 10, bold=True)
+            self.c.setStrokeColor(LINE)
+            self.c.setLineWidth(0.5)
+            self.c.line(x, base, x + col_w - 18, base)
+            self.text(label.upper(), x, base - 7, 6.4, color=ACCENT, spacing=1.0)
+        self.y -= row_h + 37
 
     def note(self):
         note = _(
             "To confirm and hold the date, transfer the deposit agreed in the payment terms above."
         )
-        lines = _wrap(note, REG, 7.8, CONTENT_W - 20)
-        height = len(lines) * 10 + 12
-        self.band(self.y - height + 6, height, NOTE_BG)
-        self.band(self.y - height + 6, height, ACCENT, x=MARGIN, width=2)
-        y = self.y - 4
+        lines = _wrap(note, REG, 7.6, CONTENT_W - 24)
+        height = len(lines) * 9.6 + 11
+        self.band(self.y - height + 6, height, BAND)
+        self.band(self.y - height + 6, height, ACCENT, x=MARGIN, width=1.8)
+        y = self.y - 3
         for line in lines:
-            self.text(line, MARGIN + 12, y, 7.8, color=MUTED)
-            y -= 10
-        self.y -= height + 8
+            self.text(line, MARGIN + 12, y, 7.6, color=MUTED)
+            y -= 9.6
+        self.y -= height + 5
 
     def table_head(self):
         per_guest = self.quote.pricing_mode == PricingMode.PER_GUEST
-        # Contextual: the column heading and the grand total are different words
-        # in Spanish even though both read "TOTAL" in English.
-        self.text(_("DESCRIPTION"), MARGIN, self.y, 7, color=MUTED, spacing=1.2)
-        self.text_right(pgettext("column heading", "QTY"), COL_QTY, self.y, 7, color=MUTED)
+        self.text(_("DESCRIPTION"), MARGIN, self.y, 6.8, color=ACCENT, spacing=1.3)
+        self.text_right(pgettext("column heading", "QTY"), COL_QTY, self.y, 6.8, color=ACCENT, spacing=0.6)
         if not per_guest:
-            self.text_right(pgettext("column heading", "UNIT"), COL_UNIT, self.y, 7, color=MUTED)
-            self.text_right(pgettext("column heading", "TOTAL"), COL_TOTAL, self.y, 7, color=MUTED)
+            self.text_right(pgettext("column heading", "UNIT"), COL_UNIT, self.y, 6.8, color=ACCENT, spacing=0.6)
+            self.text_right(pgettext("column heading", "TOTAL"), COL_TOTAL, self.y, 6.8, color=ACCENT, spacing=0.6)
         self.y -= 7
-        self.rule(self.y, INK, 0.9)
-        self.y -= 14
+        self.rule(self.y, ACCENT, 0.9)
+        self.y -= 13
 
     def lines(self):
         quote = self.quote
@@ -212,8 +263,9 @@ class QuoteCanvas:
                 continue
 
             self.room(46)
-            self.band(self.y - 4, 15)
-            self.text(str(label).upper(), MARGIN + 7, self.y, 8, bold=True, spacing=1.6)
+            self.band(self.y - 4, 14)
+            self.text(str(label).upper(), MARGIN + 8, self.y, 7.6, bold=True,
+                      color=ACCENT_DEEP, spacing=1.7)
             if not per_guest:
                 subtotal = sum(line.line_total for line in course_lines)
                 self.text_right(_money(subtotal), COL_TOTAL - 7, self.y, 8, bold=True, color=MUTED)
@@ -222,7 +274,7 @@ class QuoteCanvas:
             for line in course_lines:
                 name_lines = _wrap(line.name, BOLD, 9.5, desc_w)
                 desc_lines = _wrap(line.description, REG, 7.8, desc_w) if line.description else []
-                height = len(name_lines) * 11.5 + len(desc_lines) * 9.3 + 5
+                height = len(name_lines) * 11.3 + len(desc_lines) * 9.2 + 4
                 self.room(height + 12)
 
                 y = self.y
@@ -244,39 +296,39 @@ class QuoteCanvas:
             self.y -= 4
 
     def totals(self):
+        """The breakdown the client asked for: what the food costs before the
+        state and the staff take their share, then each of those named."""
         quote = self.quote
         per_guest = quote.pricing_mode == PricingMode.PER_GUEST
+
         rows = []
         if per_guest:
-            rows.append((_("Price per guest"), _money(quote.price_per_guest)))
-            rows.append((_("Guests"), str(quote.guests)))
+            rows.append((_("Price per guest"), _money(quote.price_per_guest), False))
+            rows.append((_("Guests"), str(quote.guests), False))
             if quote.days > 1:
-                rows.append((_("Days"), str(quote.days)))
-        else:
-            rows.append((_("Subtotal (tax included)"), _money(quote.subtotal)))
-        rows.append((_("of which tax, already included"), _money(quote.tax_included)))
+                rows.append((_("Days"), str(quote.days), False))
+        rows.append((_("Subtotal before tax and tip"), _money(quote.taxable_base), True))
+        rows.append((_("Consumption tax 8%"), _money(quote.tax_included), False))
         if quote.charges_tip:
-            rows.append((_("Suggested tip"), _money(quote.tip)))
+            rows.append((_("Suggested tip 10%"), _money(quote.tip), False))
 
-        # Distance from here down to the last ink: 6 lead, the rows, a 2pt gap,
-        # then the total box and the footnote below it. Measured rather than
-        # padded — spending a whole page on three lines of totals is a bad trade.
-        self.room(6 + len(rows) * 15 + 2 + 34 + 8, floor=self.FLOOR_TOTALS)
-        self.y -= 6
-        box_x = MARGIN + CONTENT_W - 250
-        for label, value in rows:
-            self.text(label, box_x, self.y, 9, color=MUTED)
-            self.text_right(value, COL_TOTAL, self.y, 9.5)
+        self.room(8 + len(rows) * 15 + 4 + 34 + 8, floor=self.FLOOR_TOTALS)
+        self.y -= 8
+
+        box_x = MARGIN + CONTENT_W - 258
+        for label, value, strong in rows:
+            self.text(label, box_x, self.y, 8.8, color=INK if strong else MUTED)
+            self.text_right(value, COL_TOTAL, self.y, 9.5, bold=strong)
             self.y -= 15
 
-        self.y -= 2
+        self.y -= 4
         self.band(self.y - 22, 30, ACCENT, x=box_x, width=COL_TOTAL - box_x)
-        self.text(_("TOTAL"), box_x + 10, self.y - 12, 9.5, bold=True, color=WHITE, spacing=1.6)
-        self.text_right(_money(quote.total), COL_TOTAL - 10, self.y - 13, 15, bold=True, color=WHITE)
+        self.text(_("TOTAL"), box_x + 12, self.y - 12, 9.5, bold=True, color=WHITE, spacing=1.8)
+        self.text_right(_money(quote.total), COL_TOTAL - 12, self.y - 13, 15, bold=True, color=WHITE)
         self.y -= 34
 
         footer = _("Prices already include the consumption tax. The tip is voluntary.")
-        self.text_right(footer, COL_TOTAL, self.y, 7.8, color=MUTED)
+        self.text_right(footer, COL_TOTAL, self.y, 7.4, color=MUTED)
         self.y -= 14
 
     def build(self) -> bytes:
