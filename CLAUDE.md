@@ -62,7 +62,22 @@ US29 manage product identity in the UI (#61/PR62),
 US30 update master 'Productos vendidos' sheet (#64/PR65),
 US32 fill 'Datos totales' N/O/S/T from PDF footer (#66/PR68),
 US31 multi-file upload (#63/PR69).
+IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
+
+US33 event quotes (#78): a `quotes` app turns the catalog into event proposals.
+`MenuItem` is the client-facing layer over `catalog.Product` (the POS calls a dish
+`CROQUETAS DE LOMO AHUMADO *4U`; a proposal must not), and its `product` link is
+the only source of cost. `quotes/services.py` composes a menu from a per-guest
+budget, reasoning in cost per guest = price / servings, with quantities rounded up
+(two stations for 30 guests are paid whole). `quotes/pdf.py` renders the document
+the client receives -- prices only, never cost or margin. Prices are quoted with
+the impuesto al consumo inside, so the quote shows the contained tax and does not
+add it again; the tip applies to the pre-tax base. A product carrying no cost is
+treated as unknown, not free, so a quote using it reports no margin at all rather
+than an inflated one. `python manage.py seed_menu --restaurant <id>` builds the
+menu from the catalog; cuts sold by the gram become one-kilo items. Runtime dep
+added: `reportlab` (was dev-only, for PDF test fixtures).
 
 PRODUCT PIVOT (agreed with user): Mesa is now a generic, **multi-tenant SaaS** for any
 restaurant using the Soft Restaurant POS (not just Tres Cuatro Cinco). Each user gets
