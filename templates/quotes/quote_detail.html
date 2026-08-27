@@ -118,7 +118,10 @@
                 <div class="card h-100"><div class="card-body">
                     <div class="text-muted small text-uppercase">{% trans "Event cost" %}</div>
                     <div class="h4 mb-0">{% if quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
-                    <div class="text-muted small">{{ quote.cost_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}</div>
+                    <div class="text-muted small">
+                        {% if quote.is_costed %}{{ quote.cost_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}
+                        {% else %}{% trans "not fully costed" %}{% endif %}
+                    </div>
                 </div></div>
             </div>
             <div class="col-6 col-xl-3">

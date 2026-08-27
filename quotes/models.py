@@ -87,10 +87,17 @@ class MenuItem(models.Model):
 
     @property
     def unit_cost(self) -> Decimal | None:
-        """Cost of one unit of this item, or ``None`` when not mapped yet."""
-        if self.product_id is None or self.product.cost_price is None:
+        """Cost of one unit, or ``None`` when it is not known.
+
+        A product carrying no cost is unknown, not free: counting it as zero
+        would quietly inflate the margin of every quote that uses it.
+        """
+        if self.product_id is None:
             return None
-        return self.product.cost_price * self.product_units
+        cost = self.product.cost_price
+        if cost is None or cost <= ZERO:
+            return None
+        return cost * self.product_units
 
     @property
     def is_mapped(self) -> bool:

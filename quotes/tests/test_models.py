@@ -148,3 +148,27 @@ class TestMenuItem:
 
         assert item.unit_cost is None
         assert item.is_mapped is False
+
+
+@pytest.mark.django_db
+class TestUnknownCost:
+    def test_a_product_without_cost_is_unknown_not_free(self, restaurant, category):
+        """Counting a zero-cost product as free inflates the margin silently."""
+        product = _product(restaurant, category, "DUBONNET", cost=0, sale=166666)
+        item = MenuItem.objects.create(
+            restaurant=restaurant,
+            name="Dubonnet",
+            course=Course.ALCOHOL,
+            price=Decimal("180000"),
+            product=product,
+        )
+
+        assert item.unit_cost is None
+        assert item.is_mapped is True
+
+    def test_a_quote_with_an_unknown_cost_is_not_costed(self, restaurant):
+        quote = _quote(restaurant, guests=1)
+        _line(quote, price=108, cost=40, name="Known")
+        _line(quote, price=180000, cost=None, name="Unknown cost")
+
+        assert quote.is_costed is False
