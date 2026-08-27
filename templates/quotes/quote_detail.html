@@ -40,6 +40,10 @@
                             <label class="form-label" for="guests">{% trans "Guests" %}</label>
                             <input type="number" min="1" class="form-control" id="guests" name="guests" value="{{ quote.guests }}">
                         </div>
+                        <div class="col">
+                            <label class="form-label" for="days">{% trans "Days" %}</label>
+                            <input type="number" min="1" class="form-control" id="days" name="days" value="{{ quote.days }}">
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="payment_terms">{% trans "Payment terms" %}</label>
@@ -114,7 +118,9 @@
                 <div class="card h-100"><div class="card-body">
                     <div class="text-muted small text-uppercase">{% trans "Total" %}</div>
                     <div class="h4 mb-0 text-nowrap">{{ quote.total|floatformat:0|intcomma }}</div>
-                    <div class="text-muted small">{{ quote.total_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}</div>
+                    <div class="text-muted small">
+                        {{ quote.total_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}{% if quote.days > 1 %} &middot; {{ quote.days }} {% trans "days" %}{% endif %}
+                    </div>
                 </div></div>
             </div>
             <div class="col-6 col-xl-3">

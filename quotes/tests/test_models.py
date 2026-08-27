@@ -172,3 +172,48 @@ class TestUnknownCost:
         _line(quote, price=180000, cost=None, name="Unknown cost")
 
         assert quote.is_costed is False
+
+
+@pytest.mark.django_db
+class TestMultiDay:
+    def test_everything_scales_with_the_days(self, restaurant):
+        """A lunch served on two dates is served twice, and costs twice."""
+        quote = _quote(restaurant, guests=12, days=2, charges_tip=False)
+        _line(quote, price=108, cost=40, qty=12)
+
+        one_day = Decimal("108") * 12
+        assert quote.subtotal == one_day * 2
+        assert quote.cost == Decimal("40") * 12 * 2
+        assert quote.covers == 24
+
+    def test_per_guest_mode_multiplies_by_days(self, restaurant):
+        quote = _quote(
+            restaurant,
+            guests=12,
+            days=2,
+            pricing_mode=PricingMode.PER_GUEST,
+            price_per_guest=Decimal("180000"),
+            charges_tip=False,
+        )
+
+        assert quote.subtotal == Decimal("4320000")
+        assert quote.total_per_guest == Decimal("180000")
+
+    def test_margin_is_unchanged_by_the_number_of_days(self, restaurant):
+        """Serving the same menu twice earns twice, at the same rate."""
+        one = _quote(restaurant, number="CA-1", guests=10, days=1)
+        _line(one, price=108, cost=40, qty=10)
+        two = _quote(restaurant, number="CA-2", guests=10, days=2)
+        _line(two, price=108, cost=40, qty=10)
+
+        assert two.total == one.total * 2
+        assert two.profit == one.profit * 2
+        assert two.margin_pct == one.margin_pct
+
+    def test_a_single_day_quote_is_untouched(self, restaurant):
+        quote = _quote(restaurant, guests=1, charges_tip=False)
+        _line(quote, price=108, cost=40)
+
+        assert quote.days == 1
+        assert quote.subtotal == Decimal("108")
+        assert quote.covers == 1
