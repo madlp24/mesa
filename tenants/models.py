@@ -16,6 +16,12 @@ class Restaurant(models.Model):
     slug = models.SlugField(max_length=140, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    #: The restaurant's mark, used as the watermark on quotes it sends out.
+    #: Kept in the row rather than on disk: Heroku's filesystem is ephemeral,
+    #: and a logo is small enough that a bucket would be a lot of machinery
+    #: for one image per tenant.
+    logo = models.BinaryField(null=True, blank=True, editable=False)
+
     class Meta:
         ordering = ["name"]
 

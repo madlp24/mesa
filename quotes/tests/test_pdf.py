@@ -153,3 +153,49 @@ class TestFitsOnePage:
             lowest = min(w["bottom"] for w in page.extract_words())
             footer_top = page.height - 54 - 40  # page bottom margin, then the rule
             assert lowest < footer_top
+
+
+@pytest.mark.django_db
+class TestBranding:
+    def test_the_totals_name_the_pre_tax_subtotal(self, restaurant):
+        """The client asked to see what the food costs before tax and tip."""
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-130", guests=10,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("108000"),
+            charges_tip=False,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Corte", quantity=Decimal("10"),
+            unit_price=Decimal("108000"), unit_cost=Decimal("30000"),
+        )
+
+        text = _text_of(render_quote_pdf(quote))
+
+        assert "1.000.000" in text      # subtotal before tax
+        assert "80.000" in text         # the tax contained in it
+        assert "1.080.000" in text      # total
+
+    def test_a_restaurant_without_a_logo_still_renders(self, restaurant):
+        assert restaurant.logo is None
+        assert render_quote_pdf(_quote_with_lines(restaurant)).startswith(b"%PDF")
+
+    def test_an_unreadable_logo_does_not_break_the_quote(self, restaurant):
+        """A bad image must never cost the client their document."""
+        restaurant.logo = b"not an image at all"
+        restaurant.save()
+
+        assert render_quote_pdf(_quote_with_lines(restaurant)).startswith(b"%PDF")
+
+    def test_a_logo_is_drawn_when_present(self, restaurant):
+        from io import BytesIO as _B
+
+        from PIL import Image
+
+        buf = _B()
+        Image.new("RGBA", (200, 200), (224, 16, 32, 255)).save(buf, "PNG")
+        restaurant.logo = buf.getvalue()
+        restaurant.save()
+
+        data = render_quote_pdf(_quote_with_lines(restaurant))
+
+        assert b"/Image" in data or b"/XObject" in data

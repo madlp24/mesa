@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-27 18:03-0500\n"
+"POT-Creation-Date: 2026-08-27 18:32-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -112,7 +112,7 @@ msgstr "Otros"
 msgid "By consumption"
 msgstr "Por consumo"
 
-#: quotes/models.py:36 quotes/pdf.py:250 templates/quotes/quote_detail.html:57
+#: quotes/models.py:36 quotes/pdf.py:306 templates/quotes/quote_detail.html:57
 #: templates/quotes/quote_detail.html:61
 msgid "Price per guest"
 msgstr "Precio por persona"
@@ -137,55 +137,59 @@ msgstr "Fechas que cubre el evento, cada una servida completa"
 msgid "No client"
 msgstr "Sin cliente"
 
-#: quotes/pdf.py:131
+#: quotes/pdf.py:172
 #, python-format
 msgid "Page %(n)s"
 msgstr "Página %(n)s"
 
-#: quotes/pdf.py:141
-msgid "QUOTE"
-msgstr "COTIZACIÓN"
+#: quotes/pdf.py:185
+msgid "Quotation"
+msgstr "Cotización"
 
-#: quotes/pdf.py:143
+#: quotes/pdf.py:187
 msgid "EVENTS"
 msgstr "EVENTOS"
 
-#: quotes/pdf.py:152 templates/quotes/quote_detail.html:26
-#: templates/quotes/quote_list.html:42
-msgid "Client"
-msgstr "Cliente"
+#: quotes/pdf.py:189
+msgid "No."
+msgstr "N.º"
 
-#: quotes/pdf.py:153 templates/quotes/quote_detail.html:30
-msgid "Concept"
-msgstr "Concepto"
-
-#: quotes/pdf.py:154
-msgid "Quote date"
-msgstr "Fecha de la cotización"
-
-#: quotes/pdf.py:156 templates/quotes/quote_detail.html:35
-msgid "Event date"
-msgstr "Fecha del evento"
-
-#: quotes/pdf.py:157
-msgid "To be defined"
-msgstr "Por definir"
-
-#: quotes/pdf.py:160 quotes/pdf.py:251 templates/quotes/quote_detail.html:40
-#: templates/quotes/quote_detail.html:91 templates/quotes/quote_list.html:44
-msgid "Guests"
-msgstr "Personas"
-
-#: quotes/pdf.py:162
+#: quotes/pdf.py:199
 #, python-format
 msgid " x %(n)s days"
 msgstr " x %(n)s días"
 
-#: quotes/pdf.py:164 templates/quotes/quote_detail.html:49
+#: quotes/pdf.py:202 templates/quotes/quote_detail.html:26
+#: templates/quotes/quote_list.html:42
+msgid "Client"
+msgstr "Cliente"
+
+#: quotes/pdf.py:203 templates/quotes/quote_detail.html:30
+msgid "Concept"
+msgstr "Concepto"
+
+#: quotes/pdf.py:204
+msgid "Quote date"
+msgstr "Fecha de la cotización"
+
+#: quotes/pdf.py:206 templates/quotes/quote_detail.html:35
+msgid "Event date"
+msgstr "Fecha del evento"
+
+#: quotes/pdf.py:207
+msgid "To be defined"
+msgstr "Por definir"
+
+#: quotes/pdf.py:209 quotes/pdf.py:307 templates/quotes/quote_detail.html:40
+#: templates/quotes/quote_detail.html:91 templates/quotes/quote_list.html:44
+msgid "Guests"
+msgstr "Personas"
+
+#: quotes/pdf.py:210 templates/quotes/quote_detail.html:49
 msgid "Payment terms"
 msgstr "Forma de pago"
 
-#: quotes/pdf.py:177
+#: quotes/pdf.py:231
 msgid ""
 "To confirm and hold the date, transfer the deposit agreed in the payment "
 "terms above."
@@ -193,46 +197,46 @@ msgstr ""
 "Para confirmar y separar la fecha, transferir el anticipo acordado en la "
 "forma de pago indicada arriba."
 
-#: quotes/pdf.py:193
+#: quotes/pdf.py:245
 msgid "DESCRIPTION"
 msgstr "DESCRIPCIÓN"
 
-#: quotes/pdf.py:194
+#: quotes/pdf.py:246
 msgctxt "column heading"
 msgid "QTY"
 msgstr "CANT."
 
-#: quotes/pdf.py:196
+#: quotes/pdf.py:248
 msgctxt "column heading"
 msgid "UNIT"
 msgstr "V / UNI"
 
-#: quotes/pdf.py:197
+#: quotes/pdf.py:249
 msgctxt "column heading"
 msgid "TOTAL"
 msgstr "V / TOTAL"
 
-#: quotes/pdf.py:253 templates/quotes/quote_detail.html:44
+#: quotes/pdf.py:309 templates/quotes/quote_detail.html:44
 msgid "Days"
 msgstr "Días"
 
-#: quotes/pdf.py:255 templates/quotes/quote_detail.html:195
-msgid "Subtotal (tax included)"
-msgstr "Subtotal (impuesto incluido)"
+#: quotes/pdf.py:310
+msgid "Subtotal before tax and tip"
+msgstr "Subtotal sin impuesto ni propina"
 
-#: quotes/pdf.py:256
-msgid "of which tax, already included"
-msgstr "del cual impuesto, ya incluido"
+#: quotes/pdf.py:311
+msgid "Consumption tax 8%"
+msgstr "Impuesto al consumo 8%"
 
-#: quotes/pdf.py:258
-msgid "Suggested tip"
-msgstr "Propina sugerida"
+#: quotes/pdf.py:313
+msgid "Suggested tip 10%"
+msgstr "Propina sugerida 10%"
 
-#: quotes/pdf.py:273
+#: quotes/pdf.py:326
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: quotes/pdf.py:277
+#: quotes/pdf.py:330
 msgid "Prices already include the consumption tax. The tip is voluntary."
 msgstr ""
 "Los precios ya incluyen el impuesto al consumo. La propina es voluntaria."
@@ -1158,6 +1162,10 @@ msgstr "Menú"
 #: templates/quotes/quote_detail.html:170
 msgid "lines"
 msgstr "líneas"
+
+#: templates/quotes/quote_detail.html:195
+msgid "Subtotal (tax included)"
+msgstr "Subtotal (impuesto incluido)"
 
 #: templates/quotes/quote_detail.html:199
 msgid "of which tax, already inside"
