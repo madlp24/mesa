@@ -44,6 +44,14 @@ python manage.py migrate
 - Python 3.11+ syntax, type hints where natural, PEP 8, no emojis. Run `ruff check .`
   before committing. Importer deps are added per-story as needed (already present:
   `openpyxl`, `pdfplumber` runtime; `reportlab` dev, only for PDF test fixtures).
+- Lint config lives in `ruff.toml` (added #80/PR81). Mesa runs ruff's DEFAULT rule set
+  (416 rules as of 0.16) and the file's job is to record the opt-outs: `RUF012` is off
+  because it is a Django false positive (`Meta.ordering`/`constraints` and migration
+  `dependencies`/`operations` are read off the class by Django itself), and `FURB157`
+  is off because every monetary `Decimal` is built from a string on purpose. `F403` is
+  re-selected for the settings star-imports; `target-version = "py312"`. Pin is
+  `ruff>=0.16`, no ceiling -- if a ruff upgrade surfaces new findings, fix them or add
+  an ignore WITH a written reason to `ruff.toml`; do not pin the version to hide them.
 
 ## Status (update as work lands)
 DONE + merged: US1 Scaffold (#1), US3 auth (#2/PR22), US4 logout (#3/PR23),
