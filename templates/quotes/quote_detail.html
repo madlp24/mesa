@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% load i18n humanize %}
+
+{% block title %}{{ quote.number }} - Mesa{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="h3 mb-1">{{ quote.number }}</h1>
+        <p class="text-muted mb-0">{{ quote.client_name|default:_("No client yet") }}</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{% url 'quotes:quote_list' %}">{% trans "All quotes" %}</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-header">{% trans "Event" %}</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label" for="client_name">{% trans "Client" %}</label>
+                        <input class="form-control" id="client_name" name="client_name" value="{{ quote.client_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="concept">{% trans "Concept" %}</label>
+                        <input class="form-control" id="concept" name="concept" value="{{ quote.concept }}">
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col">
+                            <label class="form-label" for="event_date">{% trans "Event date" %}</label>
+                            <input type="date" class="form-control" id="event_date" name="event_date"
+                                   value="{{ quote.event_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col">
+                            <label class="form-label" for="guests">{% trans "Guests" %}</label>
+                            <input type="number" min="1" class="form-control" id="guests" name="guests" value="{{ quote.guests }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="payment_terms">{% trans "Payment terms" %}</label>
+                        <input class="form-control" id="payment_terms" name="payment_terms" value="{{ quote.payment_terms }}">
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col">
+                            <label class="form-label" for="pricing_mode">{% trans "Pricing" %}</label>
+                            <select class="form-select" id="pricing_mode" name="pricing_mode">
+                                <option value="consumption" {% if quote.pricing_mode == 'consumption' %}selected{% endif %}>{% trans "By consumption" %}</option>
+                                <option value="per_guest" {% if quote.pricing_mode == 'per_guest' %}selected{% endif %}>{% trans "Price per guest" %}</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label class="form-label" for="price_per_guest">{% trans "Price per guest" %}</label>
+                            <input type="number" step="1000" class="form-control" id="price_per_guest"
+                                   name="price_per_guest" value="{{ quote.price_per_guest|floatformat:0 }}">
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="charges_tip" name="charges_tip"
+                               {% if quote.charges_tip %}checked{% endif %}>
+                        <label class="form-check-label" for="charges_tip">{% trans "Add the 10% tip" %}</label>
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">{% trans "Save" %}</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">{% trans "Compose from a budget" %}</div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    {% trans "Tell it what you want to charge per guest and it builds the menu that fits." %}
+                </p>
+                <form method="post" action="{% url 'quotes:quote_compose' quote.pk %}">
+                    {% csrf_token %}
+                    <div class="row g-2 mb-3">
+                        <div class="col">
+                            <label class="form-label" for="budget_per_guest">{% trans "Per guest" %}</label>
+                            <input type="number" step="5000" class="form-control" id="budget_per_guest"
+                                   name="budget_per_guest" value="{{ quote.price_per_guest|floatformat:0 }}">
+                        </div>
+                        <div class="col">
+                            <label class="form-label" for="compose_guests">{% trans "Guests" %}</label>
+                            <input type="number" min="1" class="form-control" id="compose_guests"
+                                   name="guests" value="{{ quote.guests }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="profile">{% trans "Event type" %}</label>
+                        <select class="form-select" id="profile" name="profile">
+                            {% for value, label in profiles %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="alcohol" name="alcohol" checked>
+                        <label class="form-check-label" for="alcohol">{% trans "Include alcoholic drinks" %}</label>
+                    </div>
+                    <input type="hidden" name="offset" value="0">
+                    <button class="btn btn-outline-primary w-100" type="submit">{% trans "Compose menu" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-xl-3">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-muted small text-uppercase">{% trans "Total" %}</div>
+                    <div class="h4 mb-0">{{ quote.total|floatformat:0|intcomma }}</div>
+                    <div class="text-muted small">{{ quote.total_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}</div>
+                </div></div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-muted small text-uppercase">{% trans "Event cost" %}</div>
+                    <div class="h4 mb-0">{% if quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
+                    <div class="text-muted small">{{ quote.cost_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}</div>
+                </div></div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-muted small text-uppercase">{% trans "Profit" %}</div>
+                    <div class="h4 mb-0">{% if quote.is_costed %}{{ quote.profit|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
+                    <div class="text-muted small">{% trans "after tax and tip" %}</div>
+                </div></div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="card h-100 {% if margin_verdict == 'good' %}border-success{% elif margin_verdict == 'fair' %}border-warning{% elif margin_verdict == 'poor' %}border-danger{% endif %}">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase">{% trans "Margin" %}</div>
+                        <div class="h4 mb-0">
+                            {% if quote.is_costed %}{{ quote.margin_pct|floatformat:1 }}%{% else %}—{% endif %}
+                        </div>
+                        <div class="text-muted small">{% trans "target" %} {{ target_margin|floatformat:0 }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if uncosted_lines %}
+        <div class="alert alert-warning">
+            {% blocktrans count counter=uncosted_lines|length %}
+            {{ counter }} line has no cost behind it, so the margin above is incomplete.
+            {% plural %}
+            {{ counter }} lines have no cost behind them, so the margin above is incomplete.
+            {% endblocktrans %}
+            <a href="{% url 'quotes:menu_list' %}">{% trans "Map them to products" %}</a>.
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <span>{% trans "Menu" %}</span>
+                <span class="text-muted">{{ quote.lines.count }} {% trans "lines" %}</span>
+            </div>
+            {% if courses %}
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for course in courses %}
+                        <tr class="table-light">
+                            <th colspan="4" class="small text-uppercase">{{ course.label }}</th>
+                        </tr>
+                        {% for line in course.lines %}
+                        <tr>
+                            <td>
+                                <div>{{ line.name }}</div>
+                                {% if line.description %}<div class="text-muted small">{{ line.description }}</div>{% endif %}
+                            </td>
+                            <td class="text-end text-muted">{{ line.quantity|floatformat:0 }}</td>
+                            <td class="text-end text-muted">{{ line.unit_price|floatformat:0|intcomma }}</td>
+                            <td class="text-end">{{ line.line_total|floatformat:0|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="border-top">
+                        <tr>
+                            <td colspan="3" class="text-end text-muted">{% trans "Subtotal (tax included)" %}</td>
+                            <td class="text-end">{{ quote.subtotal|floatformat:0|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end text-muted small">{% trans "of which tax, already inside" %}</td>
+                            <td class="text-end text-muted small">{{ quote.tax_included|floatformat:0|intcomma }}</td>
+                        </tr>
+                        {% if quote.charges_tip %}
+                        <tr>
+                            <td colspan="3" class="text-end text-muted">{% trans "Tip 10%" %}</td>
+                            <td class="text-end">{{ quote.tip|floatformat:0|intcomma }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr class="fw-bold">
+                            <td colspan="3" class="text-end">{% trans "Total" %}</td>
+                            <td class="text-end">{{ quote.total|floatformat:0|intcomma }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-body text-center py-5 text-muted">
+                {% trans "No lines yet. Compose a menu from a budget to get started." %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
