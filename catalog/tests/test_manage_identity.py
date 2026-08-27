@@ -1,5 +1,5 @@
 """Tests for UI product-identity management: list, merge, re-point, split (US29)."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -41,7 +41,7 @@ def _sale_item(restaurant, product, external_id, day, qty):
     sale = Sale.objects.create(
         restaurant=restaurant,
         external_id=external_id,
-        occurred_at=datetime(2026, 1, day, 12, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 1, day, 12, tzinfo=UTC),
         total=Decimal("0.00"),
     )
     return SaleItem.objects.create(

@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 import pytest
@@ -26,7 +26,7 @@ def _sell(product, external_id, year, month, day, quantity):
     sale = Sale.objects.create(
         restaurant=product.restaurant,
         external_id=external_id,
-        occurred_at=datetime(year, month, day, 12, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(year, month, day, 12, 0, tzinfo=UTC),
         total=product.sale_price * quantity,
     )
     SaleItem.objects.create(

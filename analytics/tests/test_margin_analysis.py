@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -35,7 +35,7 @@ def _sell(product, external_id, day, quantity):
     sale = Sale.objects.create(
         restaurant=product.restaurant,
         external_id=external_id,
-        occurred_at=datetime(2026, 1, day, 12, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 1, day, 12, 0, tzinfo=UTC),
         total=product.sale_price * quantity,
     )
     SaleItem.objects.create(
@@ -81,7 +81,7 @@ def test_default_sort_is_margin_pct_descending(logged_client, catalog):
 
 @pytest.mark.django_db
 def test_inactive_products_excluded(logged_client, catalog):
-    burger, wine, water = catalog
+    _burger, _wine, water = catalog
     water.is_active = False
     water.save()
 
@@ -122,7 +122,7 @@ def test_product_margins_rejects_unknown_sort_key(restaurant, catalog):
 
 @pytest.mark.django_db
 def test_units_and_total_margin_respect_date_range(logged_client, catalog):
-    burger, wine, water = catalog
+    burger, _wine, _water = catalog
     _sell(burger, "IN", 20, 3)  # in window: units 3, margin 6*3=18
     _sell(burger, "OUT", 5, 7)  # out of window
 

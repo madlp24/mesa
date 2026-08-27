@@ -1,5 +1,5 @@
 """Tests for updating an existing Productos-Vendidos workbook (US23)."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -29,7 +29,7 @@ def _sell(product, ext, year, month, day, qty):
     sale = Sale.objects.create(
         restaurant=product.restaurant,
         external_id=ext,
-        occurred_at=datetime(year, month, day, 12, tzinfo=timezone.utc),
+        occurred_at=datetime(year, month, day, 12, tzinfo=UTC),
         total=product.sale_price * qty,
     )
     SaleItem.objects.create(

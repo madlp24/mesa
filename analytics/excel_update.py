@@ -14,7 +14,7 @@ from openpyxl import load_workbook
 
 from catalog.identity import names_match, normalize_name
 
-from .exports import PRODUCTOS_VENDIDOS_SHEET, MONTHS_ES, _matrix_data, month_label
+from .exports import MONTHS_ES, PRODUCTOS_VENDIDOS_SHEET, _matrix_data, month_label
 
 _GROUP_COL = 1
 _CLAVE_COL = 2

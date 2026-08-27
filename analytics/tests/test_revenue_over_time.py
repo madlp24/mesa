@@ -1,8 +1,7 @@
-from datetime import datetime, timedelta, timezone
-
-import pytest
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
+import pytest
 from django.urls import reverse
 from django.utils import timezone as dj_timezone
 
@@ -55,8 +54,8 @@ def test_revenue_over_time_requires_authentication(client, product):
 
 @pytest.mark.django_db
 def test_revenue_over_time_aggregates_daily_revenue(logged_client, product):
-    day1 = datetime(2026, 1, 10, 12, 0, tzinfo=timezone.utc)
-    day2 = datetime(2026, 1, 11, 12, 0, tzinfo=timezone.utc)
+    day1 = datetime(2026, 1, 10, 12, 0, tzinfo=UTC)
+    day2 = datetime(2026, 1, 11, 12, 0, tzinfo=UTC)
     # Two sales on day1 should sum into a single bucket.
     _add_sale(product, "A", day1, 2)  # revenue 20
     _add_sale(product, "B", day1, 1)  # revenue 10
@@ -75,8 +74,8 @@ def test_revenue_over_time_aggregates_daily_revenue(logged_client, product):
 
 @pytest.mark.django_db
 def test_revenue_over_time_respects_explicit_range(logged_client, product):
-    _add_sale(product, "IN", datetime(2026, 1, 20, 12, 0, tzinfo=timezone.utc), 4)
-    _add_sale(product, "OUT", datetime(2026, 1, 5, 12, 0, tzinfo=timezone.utc), 9)
+    _add_sale(product, "IN", datetime(2026, 1, 20, 12, 0, tzinfo=UTC), 4)
+    _add_sale(product, "OUT", datetime(2026, 1, 5, 12, 0, tzinfo=UTC), 9)
 
     response = logged_client.get(
         reverse("analytics:revenue_over_time"),

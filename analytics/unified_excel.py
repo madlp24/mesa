@@ -250,7 +250,13 @@ def _copy_row_formulas(ws, template: int, target: int) -> None:
 
 def _write_date_columns(ws, row: int, day: datetime.date) -> None:
     ws.cell(row=row, column=_DT_YEAR, value=day.year)
-    ws.cell(row=row, column=_DT_DATE, value=datetime.datetime(day.year, day.month, day.day))
+    # Excel has no concept of a timezone: openpyxl serialises a datetime to a plain
+    # serial number, and a tz-aware one would be rejected. Naive is correct here.
+    ws.cell(
+        row=row,
+        column=_DT_DATE,
+        value=datetime.datetime(day.year, day.month, day.day),  # noqa: DTZ001
+    )
     ws.cell(row=row, column=_DT_DAY, value=day.day)
     ws.cell(row=row, column=_DT_MONTH, value=MONTHS_ES[day.month - 1])
     ws.cell(row=row, column=_DT_WEEKDAY, value=_WEEKDAYS_ES[day.weekday()])

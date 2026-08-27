@@ -27,7 +27,11 @@ def _master(path):
     ws.cell(row=1, column=1, value="Año")
     ws.cell(row=1, column=2, value="Fecha")
     # Two existing daily rows with the same per-row formulas as the real sheet.
-    for r, day in ((2, datetime.datetime(2025, 3, 5)), (3, datetime.datetime(2025, 3, 10))):
+    # Naive on purpose: these go straight into Excel cells, which are timezone-less.
+    for r, day in (
+        (2, datetime.datetime(2025, 3, 5)),  # noqa: DTZ001
+        (3, datetime.datetime(2025, 3, 10)),  # noqa: DTZ001
+    ):
         ws.cell(row=r, column=1, value=day.year)
         ws.cell(row=r, column=2, value=day)
         ws.cell(row=r, column=10, value=f"=N{r}+S{r}")  # J Venta Total

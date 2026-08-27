@@ -1,7 +1,7 @@
 """Production settings (Heroku-friendly)."""
 import dj_database_url
 
-from .base import *  # noqa: F401,F403
+from .base import *  # noqa: F403
 from .base import MIDDLEWARE
 
 DEBUG = False

@@ -1,5 +1,5 @@
 """First-run experience tests (US26): signup naming, empty state, rename."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -48,7 +48,7 @@ def test_dashboard_with_data_hides_cta(logged_client, restaurant):
     )
     sale = Sale.objects.create(
         restaurant=restaurant, external_id="S1",
-        occurred_at=datetime(2026, 6, 1, 12, tzinfo=timezone.utc), total=Decimal("10"),
+        occurred_at=datetime(2026, 6, 1, 12, tzinfo=UTC), total=Decimal("10"),
     )
     SaleItem.objects.create(
         sale=sale, product=product, quantity=1,
