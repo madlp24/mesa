@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-09 18:19-0500\n"
+"POT-Creation-Date: 2026-08-27 09:57-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: analytics/views.py:26
+#: analytics/views.py:26 templates/quotes/menu_list.html:74
 msgid "Name"
 msgstr "Nombre"
 
@@ -24,7 +24,7 @@ msgstr "Nombre"
 msgid "Category"
 msgstr "Categoría"
 
-#: analytics/views.py:28
+#: analytics/views.py:28 templates/quotes/quote_list.html:46
 msgid "Cost"
 msgstr "Costo"
 
@@ -72,13 +72,117 @@ msgstr "Se separó «%(raw)s» en un producto nuevo."
 msgid "Moved “%(raw)s” to “%(name)s”."
 msgstr "Se movió «%(raw)s» a «%(name)s»."
 
-#: config/settings/base.py:83
+#: config/settings/base.py:84
 msgid "English"
 msgstr "Inglés"
 
-#: config/settings/base.py:84
+#: config/settings/base.py:85
 msgid "Spanish"
 msgstr "Español"
+
+#: quotes/models.py:25 templates/quotes/menu_list.html:84
+msgid "Starters"
+msgstr "Entradas"
+
+#: quotes/models.py:26 templates/quotes/menu_list.html:85
+msgid "Mains"
+msgstr "Fuertes"
+
+#: quotes/models.py:27 templates/quotes/menu_list.html:86
+msgid "Sides"
+msgstr "Acompañamientos"
+
+#: quotes/models.py:28 templates/quotes/menu_list.html:87
+msgid "Desserts"
+msgstr "Postres"
+
+#: quotes/models.py:29 templates/quotes/menu_list.html:88
+msgid "Alcoholic drinks"
+msgstr "Bebidas con alcohol"
+
+#: quotes/models.py:30 templates/quotes/menu_list.html:89
+msgid "Soft drinks"
+msgstr "Bebidas sin alcohol"
+
+#: quotes/models.py:31 templates/quotes/menu_list.html:90
+msgid "Other"
+msgstr "Otros"
+
+#: quotes/models.py:35 templates/quotes/quote_detail.html:49
+msgid "By consumption"
+msgstr "Por consumo"
+
+#: quotes/models.py:36 templates/quotes/quote_detail.html:50
+#: templates/quotes/quote_detail.html:54
+msgid "Price per guest"
+msgstr "Precio por persona"
+
+#: quotes/models.py:54
+msgid "Quoted price, tax included"
+msgstr "Precio cotizado, impuesto incluido"
+
+#: quotes/models.py:60
+msgid "How many guests one unit serves"
+msgstr "A cuántas personas alcanza una unidad"
+
+#: quotes/models.py:73
+msgid "Product units consumed by one unit of this item"
+msgstr "Unidades del producto que consume una unidad de este ítem"
+
+#: quotes/models.py:135
+msgid "No client"
+msgstr "Sin cliente"
+
+#: quotes/views.py:21
+msgid "Standing cocktail"
+msgstr "Cóctel de pie"
+
+#: quotes/views.py:22
+msgid "Seated lunch or dinner"
+msgstr "Almuerzo o cena sentados"
+
+#: quotes/views.py:23
+msgid "Steak dinner"
+msgstr "Cena de cortes"
+
+#: quotes/views.py:95
+msgid "50% deposit, 50% on the event"
+msgstr "50% anticipo, 50% en el evento"
+
+#: quotes/views.py:118
+msgid "Quote saved."
+msgstr "Cotización guardada."
+
+#: quotes/views.py:137
+msgid "Enter a price per guest first."
+msgstr "Primero pon un precio por persona."
+
+#: quotes/views.py:147
+#, python-format
+msgid ""
+"That budget does not cover this kind of event. The floor is about %(floor)s "
+"per guest."
+msgstr ""
+"Ese presupuesto no alcanza para este tipo de evento. El mínimo es de unos "
+"%(floor)s por persona."
+
+#: quotes/views.py:157
+#, python-format
+msgid ""
+"The closest menu costs %(cost)s per guest. The floor for this event is about "
+"%(floor)s."
+msgstr ""
+"El menú más cercano cuesta %(cost)s por persona. El mínimo para este evento "
+"es de unos %(floor)s."
+
+#: quotes/views.py:161
+msgid "Menu composed."
+msgstr "Menú armado."
+
+#: quotes/views.py:207
+#, python-format
+msgid "%(name)s updated."
+msgstr "%(name)s actualizado."
 
 #: sales/forms.py:37
 #, python-format
@@ -144,7 +248,7 @@ msgstr "Recuérdame"
 msgid "Don't have an account?"
 msgstr "¿No tienes una cuenta?"
 
-#: templates/account/login.html:58 templates/base.html:91
+#: templates/account/login.html:58 templates/base.html:94
 msgid "Sign up"
 msgstr "Regístrate"
 
@@ -323,27 +427,32 @@ msgstr "Productos"
 msgid "Upload"
 msgstr "Subir"
 
-#: templates/base.html:49 templates/pages/help.html:4
+#: templates/base.html:45 templates/quotes/menu_list.html:14
+#: templates/quotes/quote_list.html:4
+msgid "Quotes"
+msgstr "Cotizaciones"
+
+#: templates/base.html:52 templates/pages/help.html:4
 msgid "Help"
 msgstr "Ayuda"
 
-#: templates/base.html:57 templates/base.html:59
+#: templates/base.html:60 templates/base.html:62
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:75 templates/tenants/settings.html:10
+#: templates/base.html:78 templates/tenants/settings.html:10
 msgid "Restaurant settings"
 msgstr "Ajustes del restaurante"
 
-#: templates/base.html:81
+#: templates/base.html:84
 msgid "Logout"
 msgstr "Cerrar sesión"
 
-#: templates/base.html:88
+#: templates/base.html:91
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/base.html:113
+#: templates/base.html:116
 msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
 msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
@@ -439,7 +548,7 @@ msgstr ""
 "Selecciona dos o más filas y fusiónalas cuando el POS dividió un producto en "
 "duplicados."
 
-#: templates/catalog/product_list.html:25
+#: templates/catalog/product_list.html:25 templates/quotes/menu_list.html:36
 msgid "Product"
 msgstr "Producto"
 
@@ -605,7 +714,9 @@ msgstr "Sube tus reportes"
 msgid ""
 "Drop your Soft Restaurant “Productos Vendidos” exports — PDF or Excel, one "
 "or several at once. Imports are safe to repeat and easy to undo."
-msgstr "Arrastra tus exportaciones “Productos Vendidos” de Soft Restaurant — PDF o Excel, uno o varios a la vez. Reimportar es seguro y deshacer es fácil."
+msgstr ""
+"Arrastra tus exportaciones “Productos Vendidos” de Soft Restaurant — PDF o "
+"Excel, uno o varios a la vez. Reimportar es seguro y deshacer es fácil."
 
 #: templates/pages/landing.html:40
 msgid "Mesa organizes them"
@@ -615,7 +726,9 @@ msgstr "Mesa los organiza"
 msgid ""
 "It reads every line and identifies your products reliably by name — even "
 "when the POS reassigns codes — keeping your catalog clean."
-msgstr "Lee cada línea e identifica tus productos de forma confiable por nombre — aun cuando el POS reasigna códigos — manteniendo tu catálogo limpio."
+msgstr ""
+"Lee cada línea e identifica tus productos de forma confiable por nombre — "
+"aun cuando el POS reasigna códigos — manteniendo tu catálogo limpio."
 
 #: templates/pages/landing.html:47
 msgid "You decide with data"
@@ -625,7 +738,9 @@ msgstr "Decides con datos"
 msgid ""
 "Dashboards, margins and P&L show what to promote, what to reprice, and where "
 "your revenue really comes from."
-msgstr "Los tableros, márgenes y P&L muestran qué impulsar, qué reprecificar y de dónde vienen realmente tus ingresos."
+msgstr ""
+"Los tableros, márgenes y P&L muestran qué impulsar, qué reprecificar y de "
+"dónde vienen realmente tus ingresos."
 
 #: templates/pages/landing.html:56
 msgid "Everything you get"
@@ -634,7 +749,9 @@ msgstr "Todo lo que incluye"
 #: templates/pages/landing.html:58
 msgid ""
 "A focused toolkit around one goal: understanding your restaurant's sales."
-msgstr "Un conjunto de herramientas enfocado en un objetivo: entender las ventas de tu restaurante."
+msgstr ""
+"Un conjunto de herramientas enfocado en un objetivo: entender las ventas de "
+"tu restaurante."
 
 #: templates/pages/landing.html:65
 msgid "Dashboards & KPIs"
@@ -725,6 +842,315 @@ msgstr "Comenzar"
 msgid "Need help?"
 msgstr "¿Necesitas ayuda?"
 
+#: templates/quotes/menu_list.html:4 templates/quotes/menu_list.html:9
+msgid "Quoting menu"
+msgstr "Menú de cotización"
+
+#: templates/quotes/menu_list.html:11
+msgid ""
+"How each dish reads on a proposal, and which product it is served from. The "
+"product is where the cost comes from."
+msgstr ""
+"Cómo se lee cada plato en una propuesta y de qué producto sale. El producto "
+"es de donde viene el costo."
+
+#: templates/quotes/menu_list.html:19
+#, python-format
+msgid ""
+"\n"
+"    %(counter)s item has no product mapped. Quotes using it cannot show a "
+"margin.\n"
+"    "
+msgid_plural ""
+"\n"
+"    %(counter)s items have no product mapped. Quotes using them cannot show "
+"a margin.\n"
+"    "
+msgstr[0] ""
+"\n"
+"%(counter)s ítem no tiene producto mapeado. Las cotizaciones que lo usen no  "
+"pueden mostrar margen.\n"
+"    "
+msgstr[1] ""
+"\n"
+"%(counter)s ítems no tienen producto mapeado. Las cotizaciones que los usen "
+"no  pueden mostrar margen.\n"
+"    "
+
+#: templates/quotes/menu_list.html:32
+msgid "Item"
+msgstr "Ítem"
+
+#: templates/quotes/menu_list.html:33 templates/quotes/menu_list.html:82
+msgid "Course"
+msgstr "Tiempo"
+
+#: templates/quotes/menu_list.html:34 templates/quotes/menu_list.html:94
+msgid "Price"
+msgstr "Precio"
+
+#: templates/quotes/menu_list.html:35 templates/quotes/menu_list.html:98
+msgid "Serves"
+msgstr "Rinde"
+
+#: templates/quotes/menu_list.html:37
+msgid "Unit cost"
+msgstr "Costo unitario"
+
+#: templates/quotes/menu_list.html:55
+msgid "not mapped"
+msgstr "sin mapear"
+
+#: templates/quotes/menu_list.html:65
+msgid "Edit"
+msgstr "Editar"
+
+#: templates/quotes/menu_list.html:78
+msgid "Description"
+msgstr "Descripción"
+
+#: templates/quotes/menu_list.html:102
+msgid "Served from product"
+msgstr "Se sirve del producto"
+
+#: templates/quotes/menu_list.html:104
+msgid "— not mapped —"
+msgstr "— sin mapear —"
+
+#: templates/quotes/menu_list.html:111
+msgid "Product units"
+msgstr "Unidades del producto"
+
+#: templates/quotes/menu_list.html:117
+msgid "Active"
+msgstr "Activo"
+
+#: templates/quotes/menu_list.html:121
+msgid "Save item"
+msgstr "Guardar ítem"
+
+#: templates/quotes/quote_detail.html:10
+msgid "No client yet"
+msgstr "Sin cliente todavía"
+
+#: templates/quotes/quote_detail.html:12
+msgid "All quotes"
+msgstr "Todas las cotizaciones"
+
+#: templates/quotes/quote_detail.html:18 templates/quotes/quote_list.html:43
+msgid "Event"
+msgstr "Evento"
+
+#: templates/quotes/quote_detail.html:23 templates/quotes/quote_list.html:42
+msgid "Client"
+msgstr "Cliente"
+
+#: templates/quotes/quote_detail.html:27
+msgid "Concept"
+msgstr "Concepto"
+
+#: templates/quotes/quote_detail.html:32
+msgid "Event date"
+msgstr "Fecha del evento"
+
+#: templates/quotes/quote_detail.html:37 templates/quotes/quote_detail.html:84
+#: templates/quotes/quote_list.html:44
+msgid "Guests"
+msgstr "Personas"
+
+#: templates/quotes/quote_detail.html:42
+msgid "Payment terms"
+msgstr "Forma de pago"
+
+#: templates/quotes/quote_detail.html:47
+msgid "Pricing"
+msgstr "Modo de precio"
+
+#: templates/quotes/quote_detail.html:62
+msgid "Add the suggested tip"
+msgstr "Sumar la propina sugerida"
+
+#: templates/quotes/quote_detail.html:64 templates/tenants/settings.html:27
+msgid "Save"
+msgstr "Guardar"
+
+#: templates/quotes/quote_detail.html:70
+msgid "Compose from a budget"
+msgstr "Armar por presupuesto"
+
+#: templates/quotes/quote_detail.html:73
+msgid ""
+"Tell it what you want to charge per guest and it builds the menu that fits."
+msgstr "Dile cuánto quieres cobrar por persona y arma el menú que cabe."
+
+#: templates/quotes/quote_detail.html:79
+msgid "Per guest"
+msgstr "Por persona"
+
+#: templates/quotes/quote_detail.html:90
+msgid "Event type"
+msgstr "Tipo de evento"
+
+#: templates/quotes/quote_detail.html:99
+msgid "Include alcoholic drinks"
+msgstr "Incluir bebidas con alcohol"
+
+#: templates/quotes/quote_detail.html:102
+msgid "Compose menu"
+msgstr "Armar menú"
+
+#: templates/quotes/quote_detail.html:112
+#: templates/quotes/quote_detail.html:200 templates/quotes/quote_list.html:45
+msgid "Total"
+msgstr "Total"
+
+#: templates/quotes/quote_detail.html:114
+#: templates/quotes/quote_detail.html:122
+msgid "per guest"
+msgstr "por persona"
+
+#: templates/quotes/quote_detail.html:119
+msgid "Event cost"
+msgstr "Costo del evento"
+
+#: templates/quotes/quote_detail.html:123
+msgid "not fully costed"
+msgstr "costeo incompleto"
+
+#: templates/quotes/quote_detail.html:129
+msgid "Profit"
+msgstr "Utilidad"
+
+#: templates/quotes/quote_detail.html:131
+msgid "after tax and tip"
+msgstr "después de impuesto y propina"
+
+#: templates/quotes/quote_detail.html:137 templates/quotes/quote_list.html:47
+msgid "Margin"
+msgstr "Margen"
+
+#: templates/quotes/quote_detail.html:141
+msgid "target"
+msgstr "objetivo"
+
+#: templates/quotes/quote_detail.html:149
+#, python-format
+msgid ""
+"\n"
+"            %(counter)s line has no cost behind it, so the margin above is "
+"incomplete.\n"
+"            "
+msgid_plural ""
+"\n"
+"            %(counter)s lines have no cost behind them, so the margin above "
+"is incomplete.\n"
+"            "
+msgstr[0] ""
+"\n"
+"%(counter)s línea no tiene costo detrás, así que el margen de arriba está  "
+"incompleto.\n"
+"            "
+msgstr[1] ""
+"\n"
+"%(counter)s líneas no tienen costo detrás, así que el margen de arriba está  "
+"incompleto.\n"
+"            "
+
+#: templates/quotes/quote_detail.html:154
+msgid "Map them to products"
+msgstr "Mapéalos a productos"
+
+#: templates/quotes/quote_detail.html:160
+msgid "Menu"
+msgstr "Menú"
+
+#: templates/quotes/quote_detail.html:161
+msgid "lines"
+msgstr "líneas"
+
+#: templates/quotes/quote_detail.html:186
+msgid "Subtotal (tax included)"
+msgstr "Subtotal (impuesto incluido)"
+
+#: templates/quotes/quote_detail.html:190
+msgid "of which tax, already inside"
+msgstr "del cual impuesto, ya incluido"
+
+#: templates/quotes/quote_detail.html:195
+msgid "Tip"
+msgstr "Propina"
+
+#: templates/quotes/quote_detail.html:208
+msgid "No lines yet. Compose a menu from a budget to get started."
+msgstr "Todavía no hay líneas. Arma un menú por presupuesto para empezar."
+
+#: templates/quotes/quote_list.html:9
+msgid "Event quotes"
+msgstr "Cotizaciones de eventos"
+
+#: templates/quotes/quote_list.html:11
+msgid ""
+"Build a quote from your catalog and see what the event leaves before you "
+"send it."
+msgstr ""
+"Arma la cotización desde tu catálogo y mira qué te deja el evento antes de "
+"enviarla."
+
+#: templates/quotes/quote_list.html:14
+msgid "New quote"
+msgstr "Nueva cotización"
+
+#: templates/quotes/quote_list.html:19
+msgid "Your quoting menu is empty. Run"
+msgstr "Tu menú de cotización está vacío. Corre"
+
+#: templates/quotes/quote_list.html:20
+msgid "to build it from your catalog."
+msgstr "para armarlo desde tu catálogo."
+
+#: templates/quotes/quote_list.html:25
+#, python-format
+msgid ""
+"\n"
+"        %(counter)s menu item has no product behind it, so quotes using it "
+"cannot show a margin.\n"
+"        "
+msgid_plural ""
+"\n"
+"        %(counter)s menu items have no product behind them, so quotes using "
+"them cannot show a margin.\n"
+"        "
+msgstr[0] ""
+"\n"
+"        %(counter)s ítem del menú no tiene producto detrás, así que las "
+"cotizaciones que lo usen no pueden mostrar margen.\n"
+"        "
+msgstr[1] ""
+"\n"
+"        %(counter)s ítems del menú no tienen producto detrás, así que las "
+"cotizaciones que los usen no pueden mostrar margen.\n"
+"        "
+
+#: templates/quotes/quote_list.html:31
+msgid "Fix the menu"
+msgstr "Arreglar el menú"
+
+#: templates/quotes/quote_list.html:41
+msgid "Number"
+msgstr "Número"
+
+#: templates/quotes/quote_list.html:67
+msgid "not costed"
+msgstr "sin costear"
+
+#: templates/quotes/quote_list.html:79
+msgid "No quotes yet."
+msgstr "Todavía no hay cotizaciones."
+
+#: templates/quotes/quote_list.html:80
+msgid "Build your first quote"
+msgstr "Arma tu primera cotización"
+
 #: templates/sales/upload.html:4
 msgid "Upload report"
 msgstr "Subir reporte"
@@ -803,10 +1229,6 @@ msgstr "Ajustes"
 msgid "Update how your restaurant is named across Mesa."
 msgstr "Actualiza cómo se llama tu restaurante en Mesa."
 
-#: templates/tenants/settings.html:27
-msgid "Save"
-msgstr "Guardar"
-
 #: tenants/forms.py:17 tenants/forms.py:35
 msgid "Restaurant name"
 msgstr "Nombre del restaurante"
@@ -818,62 +1240,3 @@ msgstr "p. ej. La Parrilla"
 #: tenants/views.py:19
 msgid "Restaurant settings saved."
 msgstr "Ajustes del restaurante guardados."
-
-#~ msgid "From sales reports to decisions"
-#~ msgstr "De los reportes de venta a las decisiones"
-
-#~ msgid ""
-#~ "Upload your Soft Restaurant reports and Mesa turns them into the numbers "
-#~ "that drive decisions — so you see what's working, what to promote, and "
-#~ "what to reconsider."
-#~ msgstr ""
-#~ "Sube tus reportes de Soft Restaurant y Mesa los convierte en los números "
-#~ "que guían decisiones — para que veas qué funciona, qué impulsar y qué "
-#~ "reconsiderar."
-
-#~ msgid ""
-#~ "Mesa turns your Soft Restaurant “Productos Vendidos” exports into "
-#~ "dashboards, margin and P&L analysis, and clean Excel."
-#~ msgstr ""
-#~ "Mesa convierte tus exportaciones “Productos Vendidos” de Soft Restaurant "
-#~ "en tableros, análisis de margen y P&L, y Excel listo para usar."
-
-#~ msgid "Restaurant business intelligence"
-#~ msgstr "Inteligencia de negocio para restaurantes"
-
-#~ msgid "What Mesa does"
-#~ msgstr "Qué hace Mesa"
-
-#~ msgid ""
-#~ "Every restaurant on the Soft Restaurant POS gets its own private "
-#~ "workspace. Upload a report and your numbers update automatically."
-#~ msgstr ""
-#~ "Cada restaurante con el POS Soft Restaurant tiene su propio espacio "
-#~ "privado. Sube un reporte y tus números se actualizan automáticamente."
-
-#~ msgid "Built with"
-#~ msgstr "Construido con"
-
-#~ msgid "Report imported successfully."
-#~ msgstr "Reporte importado correctamente."
-
-#~ msgid "Upload a report"
-#~ msgstr "Sube un reporte"
-
-#~ msgid "Sales imported"
-#~ msgstr "Ventas importadas"
-
-#~ msgid "Product lines"
-#~ msgstr "Líneas de producto"
-
-#~ msgid "Skipped as duplicate"
-#~ msgstr "Omitidas por duplicado"
-
-#~ msgid "Rows skipped (unreadable)"
-#~ msgstr "Filas omitidas (ilegibles)"
-
-#~ msgid "Current restaurant"
-#~ msgstr "Restaurante actual"
-
-#~ msgid "Bogot&aacute;, Colombia"
-#~ msgstr "Bogot&aacute;, Colombia"

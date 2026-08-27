@@ -59,7 +59,7 @@
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="charges_tip" name="charges_tip"
                                {% if quote.charges_tip %}checked{% endif %}>
-                        <label class="form-check-label" for="charges_tip">{% trans "Add the 10% tip" %}</label>
+                        <label class="form-check-label" for="charges_tip">{% trans "Add the suggested tip" %} (10%)</label>
                     </div>
                     <button class="btn btn-primary w-100" type="submit">{% trans "Save" %}</button>
                 </form>
@@ -110,14 +110,14 @@
             <div class="col-6 col-xl-3">
                 <div class="card h-100"><div class="card-body">
                     <div class="text-muted small text-uppercase">{% trans "Total" %}</div>
-                    <div class="h4 mb-0">{{ quote.total|floatformat:0|intcomma }}</div>
+                    <div class="h4 mb-0 text-nowrap">{{ quote.total|floatformat:0|intcomma }}</div>
                     <div class="text-muted small">{{ quote.total_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}</div>
                 </div></div>
             </div>
             <div class="col-6 col-xl-3">
                 <div class="card h-100"><div class="card-body">
                     <div class="text-muted small text-uppercase">{% trans "Event cost" %}</div>
-                    <div class="h4 mb-0">{% if quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
+                    <div class="h4 mb-0 text-nowrap">{% if quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
                     <div class="text-muted small">
                         {% if quote.is_costed %}{{ quote.cost_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}
                         {% else %}{% trans "not fully costed" %}{% endif %}
@@ -127,7 +127,7 @@
             <div class="col-6 col-xl-3">
                 <div class="card h-100"><div class="card-body">
                     <div class="text-muted small text-uppercase">{% trans "Profit" %}</div>
-                    <div class="h4 mb-0">{% if quote.is_costed %}{{ quote.profit|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
+                    <div class="h4 mb-0 text-nowrap">{% if quote.is_costed %}{{ quote.profit|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
                     <div class="text-muted small">{% trans "after tax and tip" %}</div>
                 </div></div>
             </div>
@@ -135,7 +135,7 @@
                 <div class="card h-100 {% if margin_verdict == 'good' %}border-success{% elif margin_verdict == 'fair' %}border-warning{% elif margin_verdict == 'poor' %}border-danger{% endif %}">
                     <div class="card-body">
                         <div class="text-muted small text-uppercase">{% trans "Margin" %}</div>
-                        <div class="h4 mb-0">
+                        <div class="h4 mb-0 text-nowrap">
                             {% if quote.is_costed %}{{ quote.margin_pct|floatformat:1 }}%{% else %}—{% endif %}
                         </div>
                         <div class="text-muted small">{% trans "target" %} {{ target_margin|floatformat:0 }}%</div>
@@ -192,7 +192,7 @@
                         </tr>
                         {% if quote.charges_tip %}
                         <tr>
-                            <td colspan="3" class="text-end text-muted">{% trans "Tip 10%" %}</td>
+                            <td colspan="3" class="text-end text-muted">{% trans "Tip" %} 10%</td>
                             <td class="text-end">{{ quote.tip|floatformat:0|intcomma }}</td>
                         </tr>
                         {% endif %}
