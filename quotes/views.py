@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 from catalog.models import Product
 
 from . import services
-from .models import Course, MenuItem, PricingMode, Quote
+from .models import Course, MenuItem, PricingMode, Quote, QuoteLine
 from .pdf import render_quote_pdf
 
 #: Margin to judge a quote against, taken from events this restaurant already billed.
@@ -176,6 +176,35 @@ def quote_pdf(request: HttpRequest, pk: int) -> HttpResponse:
     filename = f"{quote.number}-{slugify(quote.client_name) or 'quote'}.pdf"
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
+
+
+@login_required
+@require_POST
+def quote_add_charge(request: HttpRequest, pk: int) -> HttpResponse:
+    """Add a charge billed on top of the per-guest price."""
+    quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    name = request.POST.get("name", "").strip()
+    amount = _decimal(request.POST.get("amount"))
+    quantity = _decimal(request.POST.get("quantity"), "1") or Decimal("1")
+
+    if not name or amount <= 0:
+        messages.error(request, _("A charge needs a name and an amount."))
+        return redirect("quotes:quote_detail", pk=quote.pk)
+
+    QuoteLine.objects.create(
+        quote=quote, course=Course.OTHER, name=name, quantity=quantity,
+        unit_price=amount, unit_cost=Decimal("0"), add_on=True, position=900,
+    )
+    messages.success(request, _("%(name)s added.") % {"name": name})
+    return redirect("quotes:quote_detail", pk=quote.pk)
+
+
+@login_required
+@require_POST
+def quote_remove_charge(request: HttpRequest, pk: int, line_id: int) -> HttpResponse:
+    quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    quote.lines.filter(pk=line_id, add_on=True).delete()
+    return redirect("quotes:quote_detail", pk=quote.pk)
 
 
 @login_required
