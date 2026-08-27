@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "sales.apps.SalesConfig",
     "analytics.apps.AnalyticsConfig",
     "pages.apps.PagesConfig",
+    "quotes.apps.QuotesConfig",
 ]
 
 MIDDLEWARE = [
