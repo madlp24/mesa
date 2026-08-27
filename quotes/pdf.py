@@ -156,7 +156,11 @@ class QuoteCanvas:
                 _("Event date"),
                 date_format(quote.event_date, "DATE_FORMAT") if quote.event_date else _("To be defined"),
             ),
-            (_("Guests"), str(quote.guests)),
+            (
+                _("Guests"),
+                f"{quote.guests}"
+                + (_(" x %(n)s days") % {"n": quote.days} if quote.days > 1 else ""),
+            ),
             (_("Payment terms"), quote.payment_terms or "-"),
         ]
         col_w, row_h = CONTENT_W / 3, 34
@@ -245,6 +249,8 @@ class QuoteCanvas:
         if per_guest:
             rows.append((_("Price per guest"), _money(quote.price_per_guest)))
             rows.append((_("Guests"), str(quote.guests)))
+            if quote.days > 1:
+                rows.append((_("Days"), str(quote.days)))
         else:
             rows.append((_("Subtotal (tax included)"), _money(quote.subtotal)))
         rows.append((_("of which tax, already included"), _money(quote.tax_included)))

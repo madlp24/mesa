@@ -111,6 +111,7 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
         quote.concept = request.POST.get("concept", "").strip()
         quote.event_date = parse_date(request.POST.get("event_date", "") or "")
         quote.guests = max(1, int(_decimal(request.POST.get("guests"), "1")))
+        quote.days = max(1, int(_decimal(request.POST.get("days"), "1")))
         quote.payment_terms = request.POST.get("payment_terms", "").strip()
         quote.charges_tip = request.POST.get("charges_tip") == "on"
         quote.price_per_guest = _decimal(request.POST.get("price_per_guest"))

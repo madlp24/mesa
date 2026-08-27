@@ -113,6 +113,9 @@ class Quote(models.Model):
     concept = models.CharField(max_length=200, blank=True)
     event_date = models.DateField(null=True, blank=True)
     guests = models.PositiveIntegerField(default=1)
+    days = models.PositiveIntegerField(
+        default=1, help_text=_("Dates the event runs over, each one served in full")
+    )
     pricing_mode = models.CharField(
         max_length=20, choices=PricingMode.choices, default=PricingMode.CONSUMPTION
     )
@@ -142,10 +145,17 @@ class Quote(models.Model):
 
     @property
     def subtotal(self) -> Decimal:
-        """What the quote charges before the tip, tax already inside."""
-        if self.pricing_mode == PricingMode.PER_GUEST:
-            return self.price_per_guest * self.guests
-        return self.lines_total
+        """What the quote charges before the tip, tax already inside.
+
+        A two-day event is served twice, so everything scales by ``days`` --
+        the ``DÍAS`` column the spreadsheet used to carry.
+        """
+        base = (
+            self.price_per_guest * self.guests
+            if self.pricing_mode == PricingMode.PER_GUEST
+            else self.lines_total
+        )
+        return base * self.days
 
     @property
     def taxable_base(self) -> Decimal:
@@ -169,7 +179,7 @@ class Quote(models.Model):
     @property
     def cost(self) -> Decimal:
         """Food cost of the event, from the mapped products."""
-        return sum((line.line_cost for line in self.lines.all()), ZERO)
+        return sum((line.line_cost for line in self.lines.all()), ZERO) * self.days
 
     @property
     def is_costed(self) -> bool:
@@ -187,12 +197,17 @@ class Quote(models.Model):
         return (self.profit / base * 100) if base else ZERO
 
     @property
+    def covers(self) -> int:
+        """Meals served across the whole event: guests on each of the days."""
+        return self.guests * self.days
+
+    @property
     def cost_per_guest(self) -> Decimal:
-        return self.cost / self.guests if self.guests else ZERO
+        return self.cost / self.covers if self.covers else ZERO
 
     @property
     def total_per_guest(self) -> Decimal:
-        return self.total / self.guests if self.guests else ZERO
+        return self.total / self.covers if self.covers else ZERO
 
 
 class QuoteLine(models.Model):
