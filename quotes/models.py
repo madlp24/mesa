@@ -124,6 +124,9 @@ class Quote(models.Model):
     #: Conditions the client has to read: what a package includes, what is
     #: contingent on accepting another quote, what the restaurant brings.
     notes = models.TextField(blank=True)
+    #: Off, the menu prints as a list of dishes. A corporate client agreeing a
+    #: price per head is buying the menu, not counting the portions behind it.
+    show_quantities = models.BooleanField(default=True)
     tip_rate = models.DecimalField(max_digits=4, decimal_places=3, default=DEFAULT_TIP_RATE)
     charges_tip = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -364,3 +364,42 @@ class TestQuoteNotes:
 
         assert "Primera condición del evento." in text
         assert "Segunda condición del evento." in text
+
+
+@pytest.mark.django_db
+class TestHiddenQuantities:
+    def _quote(self, restaurant, show):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-122", client_name="Mateo", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("150000"),
+            charges_tip=False, show_quantities=show,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Picanha americana · 6 kg",
+            quantity=Decimal("6"), unit_price=Decimal("300000"), unit_cost=Decimal("73441"),
+        )
+        return quote
+
+    def test_quantities_are_printed_by_default(self, restaurant):
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(self._quote(restaurant, show=True)))
+
+        assert "CANT." in text
+
+    def test_they_can_be_left_off(self, restaurant):
+        """A per-head price buys the menu, not a count of portions."""
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(self._quote(restaurant, show=False)))
+
+        assert "CANT." not in text
+        assert "Picanha americana · 6 kg" in text
+
+    def test_hiding_them_does_not_change_the_money(self, restaurant):
+        shown = self._quote(restaurant, show=True)
+        assert shown.total == Decimal("6000000")
+
+        shown.show_quantities = False
+        shown.save()
+        shown.refresh_from_db()
+
+        assert shown.total == Decimal("6000000")

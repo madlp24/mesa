@@ -256,7 +256,8 @@ class QuoteCanvas:
     def table_head(self):
         per_guest = self.quote.pricing_mode == PricingMode.PER_GUEST
         self.text(_("DESCRIPTION"), MARGIN, self.y, 6.8, color=ACCENT, spacing=1.3)
-        self.text_right(pgettext("column heading", "QTY"), COL_QTY, self.y, 6.8, color=ACCENT, spacing=0.6)
+        if self.quote.show_quantities:
+            self.text_right(pgettext("column heading", "QTY"), COL_QTY, self.y, 6.8, color=ACCENT, spacing=0.6)
         if not per_guest:
             self.text_right(pgettext("column heading", "UNIT"), COL_UNIT, self.y, 6.8, color=ACCENT, spacing=0.6)
             self.text_right(pgettext("column heading", "TOTAL"), COL_TOTAL, self.y, 6.8, color=ACCENT, spacing=0.6)
@@ -302,7 +303,8 @@ class QuoteCanvas:
                     self.text(text, MARGIN, y + 1, 7.8, color=MUTED)
                     y -= 9.6
 
-                self.text_right(f"{line.quantity:,.0f}".replace(",", "."), COL_QTY, self.y, 9.5)
+                if quote.show_quantities:
+                    self.text_right(f"{line.quantity:,.0f}".replace(",", "."), COL_QTY, self.y, 9.5)
                 if not per_guest:
                     self.text_right(_money(line.unit_price), COL_UNIT, self.y, 9.5)
                     self.text_right(_money(line.line_total), COL_TOTAL, self.y, 9.5, bold=True)
