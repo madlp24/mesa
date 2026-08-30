@@ -121,6 +121,9 @@ class Quote(models.Model):
     )
     price_per_guest = models.DecimalField(max_digits=12, decimal_places=2, default=ZERO)
     payment_terms = models.CharField(max_length=200, blank=True)
+    #: Conditions the client has to read: what a package includes, what is
+    #: contingent on accepting another quote, what the restaurant brings.
+    notes = models.TextField(blank=True)
     tip_rate = models.DecimalField(max_digits=4, decimal_places=3, default=DEFAULT_TIP_RATE)
     charges_tip = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

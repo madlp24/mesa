@@ -237,10 +237,13 @@ class QuoteCanvas:
         self.y -= row_h + 27 + self.gap(10)
 
     def note(self):
-        note = _(
+        """The quote's own conditions when it has them, the standing one when not."""
+        note = self.quote.notes.strip() or _(
             "To confirm and hold the date, transfer the deposit agreed in the payment terms above."
         )
-        lines = _wrap(note, REG, 7.6, CONTENT_W - 24)
+        lines = []
+        for paragraph in note.splitlines():
+            lines.extend(_wrap(paragraph, REG, 7.6, CONTENT_W - 24) if paragraph.strip() else [""])
         height = len(lines) * 9.6 + 11
         self.band(self.y - height + 6, height, BAND)
         self.band(self.y - height + 6, height, ACCENT, x=MARGIN, width=1.8)

@@ -63,6 +63,11 @@
                                    name="price_per_guest" value="{{ quote.price_per_guest|floatformat:0 }}">
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="notes">{% trans "Conditions" %}</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"
+                                  placeholder="{% trans 'What the price includes, what depends on accepting another quote…' %}">{{ quote.notes }}</textarea>
+                    </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="charges_tip" name="charges_tip"
                                {% if quote.charges_tip %}checked{% endif %}>

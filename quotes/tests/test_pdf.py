@@ -333,3 +333,34 @@ class TestChargesOnThePdf:
         dishes, totals = text.split("Alquiler del espacio", 1)
         assert "Picanha" in dishes          # the charge sits after the menu
         assert "TOTAL" in totals
+
+
+@pytest.mark.django_db
+class TestQuoteNotes:
+    def test_the_quote_conditions_replace_the_standing_note(self, restaurant):
+        quote = _quote_with_lines(restaurant)
+        quote.notes = "Aceptando ambas cotizaciones se incluye el servicio de 1 mesero."
+        quote.save()
+
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(quote))
+
+        assert "se incluye el servicio de 1 mesero" in text
+        assert "transferir el anticipo" not in text
+
+    def test_without_conditions_the_standing_note_is_kept(self, restaurant):
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(_quote_with_lines(restaurant)))
+
+        assert "transferir el anticipo" in text
+
+    def test_several_paragraphs_are_kept_apart(self, restaurant):
+        quote = _quote_with_lines(restaurant)
+        quote.notes = "Primera condición del evento.\nSegunda condición del evento."
+        quote.save()
+
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(quote))
+
+        assert "Primera condición del evento." in text
+        assert "Segunda condición del evento." in text
