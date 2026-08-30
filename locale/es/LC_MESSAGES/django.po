@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-30 12:58-0500\n"
+"POT-Creation-Date: 2026-08-30 13:09-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -112,7 +112,7 @@ msgstr "Otros"
 msgid "By consumption"
 msgstr "Por consumo"
 
-#: quotes/models.py:36 quotes/pdf.py:323 templates/quotes/quote_detail.html:57
+#: quotes/models.py:36 quotes/pdf.py:325 templates/quotes/quote_detail.html:57
 #: templates/quotes/quote_detail.html:61
 msgid "Price per guest"
 msgstr "Precio por persona"
@@ -133,7 +133,7 @@ msgstr "Unidades del producto que consume una unidad de este ítem"
 msgid "Dates the event runs over, each one served in full"
 msgstr "Fechas que cubre el evento, cada una servida completa"
 
-#: quotes/models.py:141
+#: quotes/models.py:144
 msgid "No client"
 msgstr "Sin cliente"
 
@@ -180,8 +180,8 @@ msgstr "Fecha del evento"
 msgid "To be defined"
 msgstr "Por definir"
 
-#: quotes/pdf.py:216 quotes/pdf.py:324 templates/quotes/quote_detail.html:40
-#: templates/quotes/quote_detail.html:143 templates/quotes/quote_list.html:44
+#: quotes/pdf.py:216 quotes/pdf.py:326 templates/quotes/quote_detail.html:40
+#: templates/quotes/quote_detail.html:148 templates/quotes/quote_list.html:44
 msgid "Guests"
 msgstr "Personas"
 
@@ -201,42 +201,42 @@ msgstr ""
 msgid "DESCRIPTION"
 msgstr "DESCRIPCIÓN"
 
-#: quotes/pdf.py:259
+#: quotes/pdf.py:260
 msgctxt "column heading"
 msgid "QTY"
 msgstr "CANT."
 
-#: quotes/pdf.py:261
+#: quotes/pdf.py:262
 msgctxt "column heading"
 msgid "UNIT"
 msgstr "V / UNI"
 
-#: quotes/pdf.py:262
+#: quotes/pdf.py:263
 msgctxt "column heading"
 msgid "TOTAL"
 msgstr "V / TOTAL"
 
-#: quotes/pdf.py:326 templates/quotes/quote_detail.html:44
+#: quotes/pdf.py:328 templates/quotes/quote_detail.html:44
 msgid "Days"
 msgstr "Días"
 
-#: quotes/pdf.py:332
+#: quotes/pdf.py:334
 msgid "Subtotal before tax and tip"
 msgstr "Subtotal sin impuesto ni propina"
 
-#: quotes/pdf.py:333
+#: quotes/pdf.py:335
 msgid "Consumption tax 8%"
 msgstr "Impuesto al consumo 8%"
 
-#: quotes/pdf.py:335
+#: quotes/pdf.py:337
 msgid "Suggested tip 10%"
 msgstr "Propina sugerida 10%"
 
-#: quotes/pdf.py:348
+#: quotes/pdf.py:350
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: quotes/pdf.py:352
+#: quotes/pdf.py:354
 msgid "Prices already include the consumption tax. The tip is voluntary."
 msgstr ""
 "Los precios ya incluyen el impuesto al consumo. La propina es voluntaria."
@@ -257,15 +257,15 @@ msgstr "Cena de cortes"
 msgid "50% deposit, 50% on the event"
 msgstr "50% anticipo, 50% en el evento"
 
-#: quotes/views.py:125
+#: quotes/views.py:126
 msgid "Quote saved."
 msgstr "Cotización guardada."
 
-#: quotes/views.py:144
+#: quotes/views.py:145
 msgid "Enter a price per guest first."
 msgstr "Primero pon un precio por persona."
 
-#: quotes/views.py:154
+#: quotes/views.py:155
 #, python-format
 msgid ""
 "That budget does not cover this kind of event. The floor is about %(floor)s "
@@ -274,7 +274,7 @@ msgstr ""
 "Ese presupuesto no alcanza para este tipo de evento. El mínimo es de unos "
 "%(floor)s por persona."
 
-#: quotes/views.py:164
+#: quotes/views.py:165
 #, python-format
 msgid ""
 "The closest menu costs %(cost)s per guest. The floor for this event is about "
@@ -283,20 +283,20 @@ msgstr ""
 "El menú más cercano cuesta %(cost)s por persona. El mínimo para este evento "
 "es de unos %(floor)s."
 
-#: quotes/views.py:168
+#: quotes/views.py:169
 msgid "Menu composed."
 msgstr "Menú armado."
 
-#: quotes/views.py:192
+#: quotes/views.py:193
 msgid "A charge needs a name and an amount."
 msgstr "Un cargo necesita nombre y monto."
 
-#: quotes/views.py:199
+#: quotes/views.py:200
 #, python-format
 msgid "%(name)s added."
 msgstr "%(name)s agregado."
 
-#: quotes/views.py:253
+#: quotes/views.py:254
 #, python-format
 msgid "%(name)s updated."
 msgstr "%(name)s actualizado."
@@ -1075,18 +1075,22 @@ msgid "What the price includes, what depends on accepting another quote…"
 msgstr "Qué incluye el precio, qué depende de aceptar otra cotización…"
 
 #: templates/quotes/quote_detail.html:74
+msgid "Show quantities on the PDF"
+msgstr "Mostrar cantidades en el PDF"
+
+#: templates/quotes/quote_detail.html:79
 msgid "Add the suggested tip"
 msgstr "Sumar la propina sugerida"
 
-#: templates/quotes/quote_detail.html:76 templates/tenants/settings.html:27
+#: templates/quotes/quote_detail.html:81 templates/tenants/settings.html:27
 msgid "Save"
 msgstr "Guardar"
 
-#: templates/quotes/quote_detail.html:82
+#: templates/quotes/quote_detail.html:87
 msgid "Charges on top"
 msgstr "Cargos aparte"
 
-#: templates/quotes/quote_detail.html:85
+#: templates/quotes/quote_detail.html:90
 msgid ""
 "The room, corkage, extra staff — anything that is not part of the per-guest "
 "price."
@@ -1094,94 +1098,94 @@ msgstr ""
 "El espacio, el descorche, personal adicional — todo lo que no va en el "
 "precio por persona."
 
-#: templates/quotes/quote_detail.html:97
+#: templates/quotes/quote_detail.html:102
 msgid "Remove"
 msgstr "Quitar"
 
-#: templates/quotes/quote_detail.html:107
+#: templates/quotes/quote_detail.html:112
 msgid "Charge"
 msgstr "Cargo"
 
-#: templates/quotes/quote_detail.html:109
+#: templates/quotes/quote_detail.html:114
 msgid "Venue rental"
 msgstr "Alquiler del espacio"
 
-#: templates/quotes/quote_detail.html:112
+#: templates/quotes/quote_detail.html:117
 msgid "Amount"
 msgstr "Monto"
 
-#: templates/quotes/quote_detail.html:117
+#: templates/quotes/quote_detail.html:122
 msgid "Qty"
 msgstr "Cant."
 
-#: templates/quotes/quote_detail.html:122
+#: templates/quotes/quote_detail.html:127
 msgid "Add charge"
 msgstr "Agregar cargo"
 
-#: templates/quotes/quote_detail.html:129
+#: templates/quotes/quote_detail.html:134
 msgid "Compose from a budget"
 msgstr "Armar por presupuesto"
 
-#: templates/quotes/quote_detail.html:132
+#: templates/quotes/quote_detail.html:137
 msgid ""
 "Tell it what you want to charge per guest and it builds the menu that fits."
 msgstr "Dile cuánto quieres cobrar por persona y arma el menú que cabe."
 
-#: templates/quotes/quote_detail.html:138
+#: templates/quotes/quote_detail.html:143
 msgid "Per guest"
 msgstr "Por persona"
 
-#: templates/quotes/quote_detail.html:149
+#: templates/quotes/quote_detail.html:154
 msgid "Event type"
 msgstr "Tipo de evento"
 
-#: templates/quotes/quote_detail.html:158
+#: templates/quotes/quote_detail.html:163
 msgid "Include alcoholic drinks"
 msgstr "Incluir bebidas con alcohol"
 
-#: templates/quotes/quote_detail.html:161
+#: templates/quotes/quote_detail.html:166
 msgid "Compose menu"
 msgstr "Armar menú"
 
-#: templates/quotes/quote_detail.html:171
-#: templates/quotes/quote_detail.html:267 templates/quotes/quote_list.html:45
+#: templates/quotes/quote_detail.html:176
+#: templates/quotes/quote_detail.html:272 templates/quotes/quote_list.html:45
 msgid "Total"
 msgstr "Total"
 
-#: templates/quotes/quote_detail.html:174
-#: templates/quotes/quote_detail.html:183
+#: templates/quotes/quote_detail.html:179
+#: templates/quotes/quote_detail.html:188
 msgid "per guest"
 msgstr "por persona"
 
-#: templates/quotes/quote_detail.html:174
+#: templates/quotes/quote_detail.html:179
 msgid "days"
 msgstr "días"
 
-#: templates/quotes/quote_detail.html:180
+#: templates/quotes/quote_detail.html:185
 msgid "Event cost"
 msgstr "Costo del evento"
 
-#: templates/quotes/quote_detail.html:184
+#: templates/quotes/quote_detail.html:189
 msgid "not fully costed"
 msgstr "costeo incompleto"
 
-#: templates/quotes/quote_detail.html:190
+#: templates/quotes/quote_detail.html:195
 msgid "Profit"
 msgstr "Utilidad"
 
-#: templates/quotes/quote_detail.html:192
+#: templates/quotes/quote_detail.html:197
 msgid "after tax and tip"
 msgstr "después de impuesto y propina"
 
-#: templates/quotes/quote_detail.html:198 templates/quotes/quote_list.html:47
+#: templates/quotes/quote_detail.html:203 templates/quotes/quote_list.html:47
 msgid "Margin"
 msgstr "Margen"
 
-#: templates/quotes/quote_detail.html:202
+#: templates/quotes/quote_detail.html:207
 msgid "target"
 msgstr "objetivo"
 
-#: templates/quotes/quote_detail.html:210
+#: templates/quotes/quote_detail.html:215
 #, python-format
 msgid ""
 "\n"
@@ -1204,31 +1208,31 @@ msgstr[1] ""
 "incompleto.\n"
 "            "
 
-#: templates/quotes/quote_detail.html:215
+#: templates/quotes/quote_detail.html:220
 msgid "Map them to products"
 msgstr "Mapéalos a productos"
 
-#: templates/quotes/quote_detail.html:221
+#: templates/quotes/quote_detail.html:226
 msgid "Menu"
 msgstr "Menú"
 
-#: templates/quotes/quote_detail.html:222
+#: templates/quotes/quote_detail.html:227
 msgid "lines"
 msgstr "líneas"
 
-#: templates/quotes/quote_detail.html:253
+#: templates/quotes/quote_detail.html:258
 msgid "Subtotal (tax included)"
 msgstr "Subtotal (impuesto incluido)"
 
-#: templates/quotes/quote_detail.html:257
+#: templates/quotes/quote_detail.html:262
 msgid "of which tax, already inside"
 msgstr "del cual impuesto, ya incluido"
 
-#: templates/quotes/quote_detail.html:262
+#: templates/quotes/quote_detail.html:267
 msgid "Tip"
 msgstr "Propina"
 
-#: templates/quotes/quote_detail.html:275
+#: templates/quotes/quote_detail.html:280
 msgid "No lines yet. Compose a menu from a budget to get started."
 msgstr "Todavía no hay líneas. Arma un menú por presupuesto para empezar."
 
