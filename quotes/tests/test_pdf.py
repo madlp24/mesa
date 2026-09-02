@@ -403,3 +403,30 @@ class TestHiddenQuantities:
         shown.refresh_from_db()
 
         assert shown.total == Decimal("6000000")
+
+
+@pytest.mark.django_db
+class TestDiscountOnThePdf:
+    def test_a_discount_reads_as_a_negative_line(self, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-162", client_name="Mateo", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("150000"),
+            charges_tip=False,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Picanha", quantity=Decimal("6"),
+            unit_price=Decimal("300000"), unit_cost=Decimal("73441"),
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.OTHER, name="Descuento comercial",
+            quantity=Decimal("1"), unit_price=Decimal("-1000000"),
+            unit_cost=Decimal("0"), add_on=True,
+        )
+
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(quote))
+
+        assert "Descuento comercial" in text
+        assert "-1.000.000" in text
+        assert "5.000.000" in text
+        assert quote.total == Decimal("5000000")

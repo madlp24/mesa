@@ -189,7 +189,8 @@ def quote_add_charge(request: HttpRequest, pk: int) -> HttpResponse:
     amount = _decimal(request.POST.get("amount"))
     quantity = _decimal(request.POST.get("quantity"), "1") or Decimal("1")
 
-    if not name or amount <= 0:
+    # A negative amount is a discount: the same line, the other direction.
+    if not name or amount == 0:
         messages.error(request, _("A charge needs a name and an amount."))
         return redirect("quotes:quote_detail", pk=quote.pk)
 
