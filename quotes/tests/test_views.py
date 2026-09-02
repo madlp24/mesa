@@ -217,12 +217,12 @@ class TestCharges:
         assert line.unit_price == Decimal("1000000")
         assert line.unit_cost == Decimal("0")
 
-    def test_a_charge_without_an_amount_is_rejected(self, logged_client, restaurant):
+    def test_a_charge_without_a_name_is_rejected(self, logged_client, restaurant):
         quote = Quote.objects.create(restaurant=restaurant, number="CA-151")
 
         logged_client.post(
             reverse("quotes:quote_add_charge", args=[quote.pk]),
-            {"name": "Sin monto", "amount": "0", "quantity": "1"},
+            {"name": "", "amount": "500000", "quantity": "1"},
         )
 
         assert not quote.lines.exists()
@@ -262,3 +262,32 @@ class TestCharges:
 
         assert response.status_code == 404
         assert not theirs.lines.exists()
+
+
+@pytest.mark.django_db
+class TestDiscounts:
+    def test_a_negative_amount_is_a_discount(self, logged_client, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-160", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("150000"),
+            charges_tip=False,
+        )
+
+        logged_client.post(
+            reverse("quotes:quote_add_charge", args=[quote.pk]),
+            {"name": "Descuento comercial", "amount": "-1000000", "quantity": "1"},
+        )
+        quote.refresh_from_db()
+
+        assert quote.add_ons_total == Decimal("-1000000")
+        assert quote.total == Decimal("5000000")
+
+    def test_a_zero_amount_is_still_rejected(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-161")
+
+        logged_client.post(
+            reverse("quotes:quote_add_charge", args=[quote.pk]),
+            {"name": "Nada", "amount": "0", "quantity": "1"},
+        )
+
+        assert not quote.lines.exists()
