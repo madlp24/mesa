@@ -1131,7 +1131,9 @@ msgstr "Cargos aparte"
 msgid ""
 "Staff, rentals, transport. With an amount it is charged; without one it is "
 "listed as included. A negative amount is a discount."
-msgstr "Personal, alquileres, transporte. Con monto se cobra; sin monto se lista como incluido. Un monto negativo es un descuento."
+msgstr ""
+"Personal, alquileres, transporte. Con monto se cobra; sin monto se lista "
+"como incluido. Un monto negativo es un descuento."
 
 #: templates/quotes/quote_detail.html:110
 #: templates/quotes/quote_detail.html:311

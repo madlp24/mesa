@@ -104,7 +104,7 @@
                         <span>{{ line.name }}{% if line.quantity != 1 %} <span class="text-muted">x{{ line.quantity|floatformat:0 }}</span>{% endif %}</span>
                         <span class="d-flex align-items-center gap-2">
                             <span>{{ line.line_total|floatformat:0|intcomma }}</span>
-                            <form method="post" action="{% url 'quotes:quote_remove_charge' quote.pk line.pk %}">
+                            <form method="post" action="{% url 'quotes:quote_remove_line' quote.pk line.pk %}">
                                 {% csrf_token %}
                                 <button class="btn btn-sm btn-link text-danger p-0" type="submit"
                                         aria-label="{% trans 'Remove' %} {{ line.name }}">&times;</button>
