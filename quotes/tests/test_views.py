@@ -719,3 +719,24 @@ class TestOneOffDish:
 
         assert response.status_code == 404
         assert not theirs.lines.exists()
+
+
+@pytest.mark.django_db
+class TestNewQuoteDefaults:
+    def test_a_new_quote_prices_per_guest(self, logged_client, restaurant):
+        """Every quote the house sends is agreed at a figure per head."""
+        logged_client.get(reverse("quotes:quote_create"))
+        quote = Quote.objects.get(restaurant=restaurant)
+
+        assert quote.pricing_mode == PricingMode.PER_GUEST
+
+    def test_by_consumption_is_still_available(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-250", guests=10)
+
+        logged_client.post(
+            reverse("quotes:quote_detail", args=[quote.pk]),
+            {"client_name": "X", "guests": "10", "pricing_mode": "consumption"},
+        )
+        quote.refresh_from_db()
+
+        assert quote.pricing_mode == PricingMode.CONSUMPTION
