@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 from catalog.models import Product
 
 from . import services
-from .models import Course, MenuItem, PricingMode, Quote, QuoteLine
+from .models import Course, MenuItem, PricingMode, Quote, QuoteLine, Venue
 from .pdf import render_quote_pdf
 
 #: Margin to judge a quote against, taken from events this restaurant already billed.
@@ -115,6 +115,9 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
         quote.payment_terms = request.POST.get("payment_terms", "").strip()
         quote.notes = request.POST.get("notes", "").strip()
         quote.show_quantities = request.POST.get("show_quantities") == "on"
+        venue = request.POST.get("venue")
+        if venue in Venue.values:
+            quote.venue = venue
         quote.charges_tip = request.POST.get("charges_tip") == "on"
         quote.price_per_guest = _decimal(request.POST.get("price_per_guest"))
         quote.pricing_mode = (
@@ -126,7 +129,12 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
         messages.success(request, _("Quote saved."))
         return redirect("quotes:quote_detail", pk=quote.pk)
 
-    return render(request, "quotes/quote_detail.html", _quote_context(quote))
+    context = _quote_context(quote)
+    context["services"] = MenuItem.objects.filter(
+        restaurant=request.restaurant, course=Course.SERVICE, is_active=True
+    ).order_by("name")
+    context["venues"] = Venue.choices
+    return render(request, "quotes/quote_detail.html", context)
 
 
 @login_required
@@ -199,6 +207,30 @@ def quote_add_charge(request: HttpRequest, pk: int) -> HttpResponse:
         unit_price=amount, unit_cost=Decimal("0"), add_on=True, position=900,
     )
     messages.success(request, _("%(name)s added.") % {"name": name})
+    return redirect("quotes:quote_detail", pk=quote.pk)
+
+
+@login_required
+@require_POST
+def quote_add_service(request: HttpRequest, pk: int) -> HttpResponse:
+    """Put a saved service on the quote: staff, a rental, the transport.
+
+    The price and the cost come from the service itself, so whoever is quoting
+    picks from a list instead of remembering figures.
+    """
+    quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    service = get_object_or_404(
+        MenuItem, pk=request.POST.get("service"), restaurant=request.restaurant,
+        course=Course.SERVICE,
+    )
+    quantity = _decimal(request.POST.get("quantity"), "1") or Decimal(1)
+
+    QuoteLine.objects.create(
+        quote=quote, menu_item=service, course=Course.SERVICE, name=service.name,
+        description=service.description, quantity=quantity, unit_price=service.price,
+        unit_cost=service.unit_cost, add_on=True, position=900,
+    )
+    messages.success(request, _("%(name)s added.") % {"name": service.name})
     return redirect("quotes:quote_detail", pk=quote.pk)
 
 

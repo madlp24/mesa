@@ -21,6 +21,14 @@ DEFAULT_TIP_RATE = Decimal("0.10")
 ZERO = Decimal(0)
 
 
+class Venue(models.TextChoices):
+    """Where the event happens, which is what decides how it is quoted."""
+
+    IN_HOUSE = "in_house", _("At the restaurant")
+    OFF_SITE = "off_site", _("Event away from the restaurant")
+    GRILL = "grill", _("Grill away from the restaurant")
+
+
 class Course(models.TextChoices):
     STARTERS = "starters", _("Starters")
     MAINS = "mains", _("Mains")
@@ -28,6 +36,8 @@ class Course(models.TextChoices):
     DESSERTS = "desserts", _("Desserts")
     ALCOHOL = "alcohol", _("Alcoholic drinks")
     SOFT = "soft", _("Soft drinks")
+    #: Staff, rentals, transport. Never a dish, always billed on top.
+    SERVICE = "service", _("Services")
     OTHER = "other", _("Other")
 
 
@@ -132,6 +142,7 @@ class Quote(models.Model):
     days = models.PositiveIntegerField(
         default=1, help_text=_("Dates the event runs over, each one served in full")
     )
+    venue = models.CharField(max_length=20, choices=Venue.choices, default=Venue.IN_HOUSE)
     pricing_mode = models.CharField(
         max_length=20, choices=PricingMode.choices, default=PricingMode.CONSUMPTION
     )
@@ -160,6 +171,10 @@ class Quote(models.Model):
         return f"{self.number} - {self.client_name or _('No client')}"
 
     # -- what the client pays -------------------------------------------------
+
+    @property
+    def is_off_site(self) -> bool:
+        return self.venue in (Venue.OFF_SITE, Venue.GRILL)
 
     @property
     def food_lines(self):

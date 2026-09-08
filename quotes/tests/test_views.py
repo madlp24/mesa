@@ -5,7 +5,7 @@ import pytest
 from django.urls import reverse
 
 from catalog.models import Category, Product
-from quotes.models import Course, MenuItem, PricingMode, Quote, QuoteLine
+from quotes.models import Course, MenuItem, PricingMode, Quote, QuoteLine, Venue
 from tenants.models import Restaurant
 
 
@@ -328,3 +328,96 @@ class TestManualCostForm:
 
         assert item.manual_cost is None
         assert item.unit_cost is None
+
+
+@pytest.mark.django_db
+class TestSavedServices:
+    def _service(self, restaurant, name="Cocinero", price="400000", cost="180000"):
+        return MenuItem.objects.create(
+            restaurant=restaurant, name=name, course=Course.SERVICE,
+            price=Decimal(price), manual_cost=Decimal(cost),
+        )
+
+    def test_a_saved_service_lands_with_its_price_and_cost(self, logged_client, restaurant):
+        service = self._service(restaurant)
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-170", guests=40)
+
+        logged_client.post(
+            reverse("quotes:quote_add_service", args=[quote.pk]),
+            {"service": str(service.pk), "quantity": "2"},
+        )
+        line = quote.lines.get()
+
+        assert line.add_on is True
+        assert line.unit_price == Decimal("400000")
+        assert line.unit_cost == Decimal("180000")
+        assert line.line_total == Decimal("800000")
+
+    def test_a_service_carries_its_cost_into_the_margin(self, logged_client, restaurant):
+        service = self._service(restaurant)
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-171", guests=10,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("100000"),
+            charges_tip=False,
+        )
+        QuoteLine.objects.create(
+            quote=quote, name="Corte", quantity=Decimal("10"),
+            unit_price=Decimal("100000"), unit_cost=Decimal("25000"),
+        )
+
+        logged_client.post(
+            reverse("quotes:quote_add_service", args=[quote.pk]),
+            {"service": str(service.pk), "quantity": "1"},
+        )
+        quote.refresh_from_db()
+
+        assert quote.total == Decimal("1400000")
+        assert quote.cost == Decimal("430000")   # 250.000 de comida + 180.000 del cocinero
+
+    def test_only_services_can_be_added_this_way(self, logged_client, restaurant):
+        dish = MenuItem.objects.create(
+            restaurant=restaurant, name="Picanha", course=Course.MAINS, price=Decimal("126000")
+        )
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-172")
+
+        response = logged_client.post(
+            reverse("quotes:quote_add_service", args=[quote.pk]),
+            {"service": str(dish.pk), "quantity": "1"},
+        )
+
+        assert response.status_code == 404
+        assert not quote.lines.exists()
+
+    def test_another_tenant_service_cannot_be_used(self, logged_client, restaurant):
+        other = Restaurant.objects.create(name="Other", slug="other-svc")
+        theirs = self._service(other, name="Mesero ajeno")
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-173")
+
+        response = logged_client.post(
+            reverse("quotes:quote_add_service", args=[quote.pk]),
+            {"service": str(theirs.pk), "quantity": "1"},
+        )
+
+        assert response.status_code == 404
+
+
+@pytest.mark.django_db
+class TestVenue:
+    def test_the_venue_is_saved(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-180", guests=40)
+
+        logged_client.post(
+            reverse("quotes:quote_detail", args=[quote.pk]),
+            {"client_name": "Mateo", "guests": "40", "pricing_mode": "per_guest",
+             "venue": "grill"},
+        )
+        quote.refresh_from_db()
+
+        assert quote.venue == Venue.GRILL
+        assert quote.is_off_site is True
+
+    def test_a_quote_starts_at_the_restaurant(self, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-181")
+
+        assert quote.venue == Venue.IN_HOUSE
+        assert quote.is_off_site is False
