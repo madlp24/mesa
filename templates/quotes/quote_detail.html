@@ -23,6 +23,14 @@
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
+                        <label class="form-label" for="venue">{% trans "Where" %}</label>
+                        <select class="form-select" id="venue" name="venue">
+                            {% for value, label in venues %}
+                            <option value="{{ value }}" {% if quote.venue == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label" for="client_name">{% trans "Client" %}</label>
                         <input class="form-control" id="client_name" name="client_name" value="{{ quote.client_name }}">
                     </div>
@@ -105,6 +113,27 @@
                     </li>
                     {% endfor %}
                 </ul>
+                {% endif %}
+                {% if services %}
+                <form method="post" action="{% url 'quotes:quote_add_service' quote.pk %}" class="row g-2 align-items-end mb-3 pb-3 border-bottom">
+                    {% csrf_token %}
+                    <div class="col-8">
+                        <label class="form-label small" for="service">{% trans "Saved service" %}</label>
+                        <select class="form-select form-select-sm" id="service" name="service">
+                            {% for s in services %}
+                            <option value="{{ s.pk }}">{{ s.name }} — {{ s.price|floatformat:0|intcomma }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small" for="service_qty">{% trans "Qty" %}</label>
+                        <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
+                               id="service_qty" name="quantity">
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-outline-primary btn-sm w-100" type="submit">{% trans "Add service" %}</button>
+                    </div>
+                </form>
                 {% endif %}
                 <form method="post" action="{% url 'quotes:quote_add_charge' quote.pk %}" class="row g-2 align-items-end">
                     {% csrf_token %}
