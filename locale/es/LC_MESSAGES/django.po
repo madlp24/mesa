@@ -1104,16 +1104,10 @@ msgid "Charges on top"
 msgstr "Cargos aparte"
 
 #: templates/quotes/quote_detail.html:90
-#, fuzzy
-#| msgid ""
-#| "The room, corkage, extra staff — anything that is not part of the per-"
-#| "guest price."
 msgid ""
 "The room, corkage, extra staff — anything that is not part of the per-guest "
 "price. A negative amount is a discount."
-msgstr ""
-"El espacio, el descorche, personal adicional — todo lo que no va en el "
-"precio por persona."
+msgstr "El espacio, el descorche, personal adicional — todo lo que no va en el precio por persona. Un monto negativo es un descuento."
 
 #: templates/quotes/quote_detail.html:102
 msgid "Remove"
