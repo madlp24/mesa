@@ -269,7 +269,7 @@ class QuoteCanvas:
         quote = self.quote
         per_guest = quote.pricing_mode == PricingMode.PER_GUEST
         desc_w = COL_QTY - MARGIN - 66
-        all_lines = quote.food_lines
+        all_lines = quote.food_lines + quote.included_lines
 
         for value, label in Course.choices:
             course_lines = [line for line in all_lines if line.course == value]
@@ -326,7 +326,7 @@ class QuoteCanvas:
             rows.append((_("Guests"), str(quote.guests), False))
             if quote.days > 1:
                 rows.append((_("Days"), str(quote.days), False))
-        for line in quote.add_on_lines:
+        for line in quote.charged_add_ons:
             label = line.name
             if line.quantity != 1:
                 label = f"{label}  x{line.quantity:,.0f}".replace(",", ".")

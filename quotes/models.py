@@ -186,6 +186,20 @@ class Quote(models.Model):
         return [line for line in self.lines.all() if line.add_on]
 
     @property
+    def charged_add_ons(self):
+        """Add-ons that move money, and so belong in the totals."""
+        return [line for line in self.add_on_lines if line.line_total]
+
+    @property
+    def included_lines(self):
+        """Add-ons priced at nothing: what the quote throws in.
+
+        The house has always written these as a list -- "Personal: 5 cocineros,
+        8 meseros" -- so they print with the menu, not with the money.
+        """
+        return [line for line in self.add_on_lines if not line.line_total]
+
+    @property
     def lines_total(self) -> Decimal:
         return sum((line.line_total for line in self.food_lines), ZERO)
 

@@ -13,5 +13,7 @@ urlpatterns = [
     path("<int:pk>/pdf/", views.quote_pdf, name="quote_pdf"),
     path("<int:pk>/charges/", views.quote_add_charge, name="quote_add_charge"),
     path("<int:pk>/services/", views.quote_add_service, name="quote_add_service"),
-    path("<int:pk>/charges/<int:line_id>/remove/", views.quote_remove_charge, name="quote_remove_charge"),
+    path("<int:pk>/dishes/", views.quote_add_dish, name="quote_add_dish"),
+    path("<int:pk>/lines/", views.quote_update_lines, name="quote_update_lines"),
+    path("<int:pk>/lines/<int:line_id>/remove/", views.quote_remove_line, name="quote_remove_line"),
 ]
