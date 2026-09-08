@@ -644,3 +644,78 @@ class TestServicesTypedIn:
 
         assert saved.price == Decimal(0)
         assert quote.included_lines[0].name == "Personal: 2 cocineros"
+
+
+@pytest.mark.django_db
+class TestOneOffDish:
+    """A corporate event is cooked off the menu; the menu should not fill up."""
+
+    def _write(self, client, quote, **extra):
+        data = {"name": "Morcilla", "course": "starters", "description": "",
+                "price": "200000", "quantity": "4"}
+        data.update(extra)
+        return client.post(reverse("quotes:quote_add_custom_dish", args=[quote.pk]), data)
+
+    def test_it_lands_on_the_quote(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-230", guests=40)
+
+        self._write(logged_client, quote)
+        line = quote.lines.get()
+
+        assert line.name == "Morcilla"
+        assert line.add_on is False
+        assert line.course == Course.STARTERS
+        assert line.quantity == Decimal("4")
+        assert line.unit_price == Decimal("200000")
+
+    def test_it_stays_off_the_menu_by_default(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-231", guests=40)
+
+        self._write(logged_client, quote)
+
+        assert not MenuItem.objects.filter(restaurant=restaurant, name="Morcilla").exists()
+
+    def test_it_can_be_kept_on_the_menu(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-232", guests=40)
+
+        self._write(logged_client, quote, cost="70000", remember="on")
+        kept = MenuItem.objects.get(restaurant=restaurant, name="Morcilla")
+
+        assert kept.course == Course.STARTERS
+        assert kept.price == Decimal("200000")
+        assert kept.manual_cost == Decimal("70000")
+
+    def test_a_typed_cost_reaches_the_margin(self, logged_client, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-233", guests=40, charges_tip=False
+        )
+
+        self._write(logged_client, quote, cost="70000")
+        quote.refresh_from_db()
+
+        assert quote.is_costed is True
+        assert quote.cost == Decimal("280000")
+
+    def test_without_a_cost_the_quote_reports_no_margin(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-234", guests=40)
+
+        self._write(logged_client, quote)
+        quote.refresh_from_db()
+
+        assert quote.is_costed is False
+
+    def test_a_dish_needs_a_name(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-235", guests=40)
+
+        self._write(logged_client, quote, name="")
+
+        assert not quote.lines.exists()
+
+    def test_another_tenant_quote_is_out_of_reach(self, logged_client):
+        other = Restaurant.objects.create(name="Other", slug="other-custom")
+        theirs = Quote.objects.create(restaurant=other, number="CA-500")
+
+        response = self._write(logged_client, theirs)
+
+        assert response.status_code == 404
+        assert not theirs.lines.exists()

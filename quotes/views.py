@@ -134,6 +134,7 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
         restaurant=request.restaurant, course=Course.SERVICE, is_active=True
     ).order_by("name")
     context["venues"] = Venue.choices
+    context["courses"] = Course.choices
     catalogo = MenuItem.objects.filter(
         restaurant=request.restaurant, is_active=True
     ).exclude(course=Course.SERVICE).order_by("course", "name")
@@ -280,6 +281,47 @@ def quote_add_dish(request: HttpRequest, pk: int) -> HttpResponse:
         line.save(update_fields=["quantity"])
 
     messages.success(request, _("%(name)s added.") % {"name": dish.name})
+    return redirect("quotes:quote_detail", pk=quote.pk)
+
+
+@login_required
+@require_POST
+def quote_add_custom_dish(request: HttpRequest, pk: int) -> HttpResponse:
+    """A dish written for this quote alone.
+
+    Corporate events are cooked off the menu: a morcilla, a chicharrón al
+    barril, things the restaurant does not sell over the counter and has no
+    reason to carry in its catalogue afterwards. Written here they stay on the
+    quote; ticking "remember" is what puts them on the menu.
+    """
+    quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    name = request.POST.get("name", "").strip()
+    if not name:
+        messages.error(request, _("A dish needs a name."))
+        return redirect("quotes:quote_detail", pk=quote.pk)
+
+    course = request.POST.get("course")
+    if course not in Course.values:
+        course = Course.STARTERS
+    description = request.POST.get("description", "").strip()
+    price = _decimal(request.POST.get("price"))
+    cost = _decimal(request.POST.get("cost")) if request.POST.get("cost") else None
+    quantity = _decimal(request.POST.get("quantity"), "1") or Decimal(1)
+
+    remembered = None
+    if request.POST.get("remember") == "on":
+        remembered, _created = MenuItem.objects.update_or_create(
+            restaurant=request.restaurant, name=name,
+            defaults=dict(description=description, course=course, price=price,
+                          manual_cost=cost, servings=Decimal(1), is_active=True),
+        )
+
+    QuoteLine.objects.create(
+        quote=quote, menu_item=remembered, course=course, name=name,
+        description=description, quantity=quantity, unit_price=price,
+        unit_cost=cost, position=quote.lines.count(),
+    )
+    messages.success(request, _("%(name)s added.") % {"name": name})
     return redirect("quotes:quote_detail", pk=quote.pk)
 
 
