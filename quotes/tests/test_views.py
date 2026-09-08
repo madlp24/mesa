@@ -520,3 +520,61 @@ class TestBuildingByHand:
 
         assert response.status_code == 404
         assert not quote.lines.exists()
+
+
+@pytest.mark.django_db
+class TestQuoteDetailRenders:
+    """The page has to render with every kind of line on it, not just dishes.
+
+    A stale `{% url %}` inside the add-on loop shipped to production because no
+    test had ever rendered the page with an add-on on the quote.
+    """
+
+    def test_it_renders_with_charges_and_inclusions(self, logged_client, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-210", client_name="Mateo", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("150000"),
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Picanha", quantity=Decimal("6"),
+            unit_price=Decimal("300000"), unit_cost=Decimal("73441"),
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.SERVICE, name="Transporte de parrilla",
+            quantity=Decimal("1"), unit_price=Decimal("550000"),
+            unit_cost=Decimal(0), add_on=True,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.SERVICE, name="Personal: 2 cocineros",
+            quantity=Decimal("1"), unit_price=Decimal(0), unit_cost=Decimal(0),
+            add_on=True,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.SERVICE, name="Descuento comercial",
+            quantity=Decimal("1"), unit_price=Decimal("-500000"),
+            unit_cost=Decimal(0), add_on=True,
+        )
+
+        response = logged_client.get(reverse("quotes:quote_detail", args=[quote.pk]))
+
+        assert response.status_code == 200
+        body = response.content.decode()
+        assert "Transporte de parrilla" in body
+        assert "Personal: 2 cocineros" in body
+        assert "Descuento comercial" in body
+
+    def test_it_renders_an_empty_quote(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-211")
+
+        assert logged_client.get(reverse("quotes:quote_detail", args=[quote.pk])).status_code == 200
+
+    def test_the_menu_page_renders(self, logged_client, restaurant):
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Cocinero", course=Course.SERVICE,
+            price=Decimal("400000"), manual_cost=Decimal("180000"),
+        )
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Picanha", course=Course.MAINS, price=Decimal("126000")
+        )
+
+        assert logged_client.get(reverse("quotes:menu_list")).status_code == 200
