@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 10:51-0500\n"
+"POT-Creation-Date: 2026-09-08 11:06-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -282,11 +282,11 @@ msgstr "50% anticipo, 50% en el evento"
 msgid "Quote saved."
 msgstr "Cotización guardada."
 
-#: quotes/views.py:153
+#: quotes/views.py:161
 msgid "Enter a price per guest first."
 msgstr "Primero pon un precio por persona."
 
-#: quotes/views.py:163
+#: quotes/views.py:171
 #, python-format
 msgid ""
 "That budget does not cover this kind of event. The floor is about %(floor)s "
@@ -295,7 +295,7 @@ msgstr ""
 "Ese presupuesto no alcanza para este tipo de evento. El mínimo es de unos "
 "%(floor)s por persona."
 
-#: quotes/views.py:173
+#: quotes/views.py:181
 #, python-format
 msgid ""
 "The closest menu costs %(cost)s per guest. The floor for this event is about "
@@ -304,20 +304,24 @@ msgstr ""
 "El menú más cercano cuesta %(cost)s por persona. El mínimo para este evento "
 "es de unos %(floor)s."
 
-#: quotes/views.py:177
+#: quotes/views.py:185
 msgid "Menu composed."
 msgstr "Menú armado."
 
-#: quotes/views.py:202
-msgid "A charge needs a name and an amount."
-msgstr "Un cargo necesita nombre y monto."
+#: quotes/views.py:211
+msgid "A charge needs a name."
+msgstr "Un cargo necesita nombre."
 
-#: quotes/views.py:209 quotes/views.py:233
+#: quotes/views.py:218 quotes/views.py:242 quotes/views.py:269
 #, python-format
 msgid "%(name)s added."
 msgstr "%(name)s agregado."
 
-#: quotes/views.py:289
+#: quotes/views.py:288
+msgid "Quote updated."
+msgstr "Cotización actualizada."
+
+#: quotes/views.py:344
 #, python-format
 msgid "%(name)s updated."
 msgstr "%(name)s actualizado."
@@ -1039,7 +1043,7 @@ msgstr "Costo unitario"
 msgid "not mapped"
 msgstr "sin mapear"
 
-#: templates/quotes/menu_list.html:60
+#: templates/quotes/menu_list.html:60 templates/quotes/quote_detail.html:298
 msgid "no cost"
 msgstr "sin costo"
 
@@ -1125,13 +1129,12 @@ msgstr "Cargos aparte"
 
 #: templates/quotes/quote_detail.html:98
 msgid ""
-"The room, corkage, extra staff — anything that is not part of the per-guest "
-"price. A negative amount is a discount."
-msgstr ""
-"El espacio, el descorche, personal adicional — todo lo que no va en el "
-"precio por persona. Un monto negativo es un descuento."
+"Staff, rentals, transport. With an amount it is charged; without one it is "
+"listed as included. A negative amount is a discount."
+msgstr "Personal, alquileres, transporte. Con monto se cobra; sin monto se lista como incluido. Un monto negativo es un descuento."
 
 #: templates/quotes/quote_detail.html:110
+#: templates/quotes/quote_detail.html:311
 msgid "Remove"
 msgstr "Quitar"
 
@@ -1141,6 +1144,7 @@ msgstr "Servicio guardado"
 
 #: templates/quotes/quote_detail.html:129
 #: templates/quotes/quote_detail.html:151
+#: templates/quotes/quote_detail.html:270
 msgid "Qty"
 msgstr "Cant."
 
@@ -1157,8 +1161,8 @@ msgid "Venue rental"
 msgstr "Alquiler del espacio"
 
 #: templates/quotes/quote_detail.html:146
-msgid "Amount"
-msgstr "Monto"
+msgid "Amount (optional)"
+msgstr "Monto (opcional)"
 
 #: templates/quotes/quote_detail.html:156
 msgid "Add charge"
@@ -1190,7 +1194,7 @@ msgid "Compose menu"
 msgstr "Armar menú"
 
 #: templates/quotes/quote_detail.html:205
-#: templates/quotes/quote_detail.html:301 templates/quotes/quote_list.html:45
+#: templates/quotes/quote_detail.html:348 templates/quotes/quote_list.html:45
 msgid "Total"
 msgstr "Total"
 
@@ -1254,27 +1258,43 @@ msgstr[1] ""
 msgid "Map them to products"
 msgstr "Mapéalos a productos"
 
-#: templates/quotes/quote_detail.html:255
+#: templates/quotes/quote_detail.html:258
+msgid "Add a dish"
+msgstr "Agregar plato"
+
+#: templates/quotes/quote_detail.html:275
+msgid "Add"
+msgstr "Agregar"
+
+#: templates/quotes/quote_detail.html:280
 msgid "Menu"
 msgstr "Menú"
 
-#: templates/quotes/quote_detail.html:256
+#: templates/quotes/quote_detail.html:281
 msgid "lines"
 msgstr "líneas"
 
-#: templates/quotes/quote_detail.html:287
+#: templates/quotes/quote_detail.html:304
+msgid "Quantity of"
+msgstr "Cantidad de"
+
+#: templates/quotes/quote_detail.html:320
+msgid "Save quantities"
+msgstr "Guardar cantidades"
+
+#: templates/quotes/quote_detail.html:331
 msgid "Subtotal (tax included)"
 msgstr "Subtotal (impuesto incluido)"
 
-#: templates/quotes/quote_detail.html:291
+#: templates/quotes/quote_detail.html:336
 msgid "of which tax, already inside"
 msgstr "del cual impuesto, ya incluido"
 
-#: templates/quotes/quote_detail.html:296
+#: templates/quotes/quote_detail.html:342
 msgid "Tip"
 msgstr "Propina"
 
-#: templates/quotes/quote_detail.html:309
+#: templates/quotes/quote_detail.html:358
 msgid "No lines yet. Compose a menu from a budget to get started."
 msgstr "Todavía no hay líneas. Arma un menú por presupuesto para empezar."
 

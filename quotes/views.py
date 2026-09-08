@@ -134,6 +134,14 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
         restaurant=request.restaurant, course=Course.SERVICE, is_active=True
     ).order_by("name")
     context["venues"] = Venue.choices
+    catalogo = MenuItem.objects.filter(
+        restaurant=request.restaurant, is_active=True
+    ).exclude(course=Course.SERVICE).order_by("course", "name")
+    context["dish_groups"] = [
+        (label, [i for i in catalogo if i.course == value])
+        for value, label in Course.choices
+        if any(i.course == value for i in catalogo)
+    ]
     return render(request, "quotes/quote_detail.html", context)
 
 
@@ -197,14 +205,15 @@ def quote_add_charge(request: HttpRequest, pk: int) -> HttpResponse:
     amount = _decimal(request.POST.get("amount"))
     quantity = _decimal(request.POST.get("quantity"), "1") or Decimal("1")
 
-    # A negative amount is a discount: the same line, the other direction.
-    if not name or amount == 0:
-        messages.error(request, _("A charge needs a name and an amount."))
+    # A negative amount is a discount. No amount at all is an inclusion: the
+    # quote lists it without charging for it, the way the house always has.
+    if not name:
+        messages.error(request, _("A charge needs a name."))
         return redirect("quotes:quote_detail", pk=quote.pk)
 
     QuoteLine.objects.create(
-        quote=quote, course=Course.OTHER, name=name, quantity=quantity,
-        unit_price=amount, unit_cost=Decimal("0"), add_on=True, position=900,
+        quote=quote, course=Course.SERVICE, name=name, quantity=quantity,
+        unit_price=amount, unit_cost=Decimal(0), add_on=True, position=900,
     )
     messages.success(request, _("%(name)s added.") % {"name": name})
     return redirect("quotes:quote_detail", pk=quote.pk)
@@ -236,9 +245,55 @@ def quote_add_service(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 @require_POST
-def quote_remove_charge(request: HttpRequest, pk: int, line_id: int) -> HttpResponse:
+def quote_add_dish(request: HttpRequest, pk: int) -> HttpResponse:
+    """Put a dish on the quote, straight from the menu."""
     quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
-    quote.lines.filter(pk=line_id, add_on=True).delete()
+    dish = get_object_or_404(
+        MenuItem, pk=request.POST.get("dish"), restaurant=request.restaurant
+    )
+    quantity = _decimal(request.POST.get("quantity"), "1") or Decimal(1)
+
+    line, created = QuoteLine.objects.get_or_create(
+        quote=quote, menu_item=dish, add_on=False,
+        defaults=dict(
+            course=dish.course, name=dish.name, description=dish.description,
+            quantity=quantity, unit_price=dish.price, unit_cost=dish.unit_cost,
+            position=quote.lines.count(),
+        ),
+    )
+    if not created:
+        # Adding a dish already on the quote means more of it, not a second row.
+        line.quantity += quantity
+        line.save(update_fields=["quantity"])
+
+    messages.success(request, _("%(name)s added.") % {"name": dish.name})
+    return redirect("quotes:quote_detail", pk=quote.pk)
+
+
+@login_required
+@require_POST
+def quote_update_lines(request: HttpRequest, pk: int) -> HttpResponse:
+    """Save every quantity at once, so the page is one form and one button."""
+    quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    for line in quote.lines.all():
+        raw = request.POST.get(f"qty-{line.pk}")
+        if raw is None:
+            continue
+        quantity = _decimal(raw, "0")
+        if quantity <= 0:
+            line.delete()
+        elif quantity != line.quantity:
+            line.quantity = quantity
+            line.save(update_fields=["quantity"])
+    messages.success(request, _("Quote updated."))
+    return redirect("quotes:quote_detail", pk=quote.pk)
+
+
+@login_required
+@require_POST
+def quote_remove_line(request: HttpRequest, pk: int, line_id: int) -> HttpResponse:
+    quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    quote.lines.filter(pk=line_id).delete()
     return redirect("quotes:quote_detail", pk=quote.pk)
 
 

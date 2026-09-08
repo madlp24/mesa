@@ -430,3 +430,39 @@ class TestDiscountOnThePdf:
         assert "-1.000.000" in text
         assert "5.000.000" in text
         assert quote.total == Decimal("5000000")
+
+
+@pytest.mark.django_db
+class TestInclusions:
+    def test_an_inclusion_prints_with_the_menu_and_not_with_the_money(self, restaurant):
+        """"Personal: 2 cocineros" belongs beside the dishes, not in the totals."""
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-200", client_name="Mateo", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("150000"),
+            charges_tip=False,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Picanha", quantity=Decimal("6"),
+            unit_price=Decimal("300000"), unit_cost=Decimal("73441"),
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.SERVICE, name="Personal: 2 cocineros",
+            quantity=Decimal("1"), unit_price=Decimal(0), unit_cost=Decimal(0),
+            add_on=True, position=900,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.SERVICE, name="Transporte de parrilla",
+            quantity=Decimal("1"), unit_price=Decimal("550000"), unit_cost=Decimal(0),
+            add_on=True, position=901,
+        )
+
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(quote))
+
+        assert "Personal: 2 cocineros" in text
+        assert "Transporte de parrilla" in text
+        # the inclusion sits above the totals block, the charge inside it
+        antes, despues = text.split("Precio por persona", 1)
+        assert "Personal: 2 cocineros" in antes
+        assert "Transporte de parrilla" in despues
+        assert quote.total == Decimal("6550000")
