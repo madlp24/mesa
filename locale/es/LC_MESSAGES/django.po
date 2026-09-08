@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-30 13:09-0500\n"
+"POT-Creation-Date: 2026-09-08 10:42-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: analytics/views.py:26 templates/quotes/menu_list.html:74
+#: analytics/views.py:26 templates/quotes/menu_list.html:75
 msgid "Name"
 msgstr "Nombre"
 
@@ -24,7 +24,8 @@ msgstr "Nombre"
 msgid "Category"
 msgstr "Categoría"
 
-#: analytics/views.py:28 templates/quotes/quote_list.html:46
+#: analytics/views.py:28 templates/quotes/menu_list.html:112
+#: templates/quotes/quote_list.html:46
 msgid "Cost"
 msgstr "Costo"
 
@@ -80,31 +81,31 @@ msgstr "Inglés"
 msgid "Spanish"
 msgstr "Español"
 
-#: quotes/models.py:25 templates/quotes/menu_list.html:84
+#: quotes/models.py:25 templates/quotes/menu_list.html:85
 msgid "Starters"
 msgstr "Entradas"
 
-#: quotes/models.py:26 templates/quotes/menu_list.html:85
+#: quotes/models.py:26 templates/quotes/menu_list.html:86
 msgid "Mains"
 msgstr "Fuertes"
 
-#: quotes/models.py:27 templates/quotes/menu_list.html:86
+#: quotes/models.py:27 templates/quotes/menu_list.html:87
 msgid "Sides"
 msgstr "Acompañamientos"
 
-#: quotes/models.py:28 templates/quotes/menu_list.html:87
+#: quotes/models.py:28 templates/quotes/menu_list.html:88
 msgid "Desserts"
 msgstr "Postres"
 
-#: quotes/models.py:29 templates/quotes/menu_list.html:88
+#: quotes/models.py:29 templates/quotes/menu_list.html:89
 msgid "Alcoholic drinks"
 msgstr "Bebidas con alcohol"
 
-#: quotes/models.py:30 templates/quotes/menu_list.html:89
+#: quotes/models.py:30 templates/quotes/menu_list.html:90
 msgid "Soft drinks"
 msgstr "Bebidas sin alcohol"
 
-#: quotes/models.py:31 templates/quotes/menu_list.html:90
+#: quotes/models.py:31 templates/quotes/menu_list.html:91
 msgid "Other"
 msgstr "Otros"
 
@@ -129,11 +130,15 @@ msgstr "A cuántas personas alcanza una unidad"
 msgid "Product units consumed by one unit of this item"
 msgstr "Unidades del producto que consume una unidad de este ítem"
 
-#: quotes/models.py:117
+#: quotes/models.py:83
+msgid "Cost of one unit, for what the POS does not sell"
+msgstr "Costo de una unidad, para lo que el POS no vende"
+
+#: quotes/models.py:133
 msgid "Dates the event runs over, each one served in full"
 msgstr "Fechas que cubre el evento, cada una servida completa"
 
-#: quotes/models.py:144
+#: quotes/models.py:160
 msgid "No client"
 msgstr "Sin cliente"
 
@@ -287,16 +292,16 @@ msgstr ""
 msgid "Menu composed."
 msgstr "Menú armado."
 
-#: quotes/views.py:193
+#: quotes/views.py:194
 msgid "A charge needs a name and an amount."
 msgstr "Un cargo necesita nombre y monto."
 
-#: quotes/views.py:200
+#: quotes/views.py:201
 #, python-format
 msgid "%(name)s added."
 msgstr "%(name)s agregado."
 
-#: quotes/views.py:254
+#: quotes/views.py:257
 #, python-format
 msgid "%(name)s updated."
 msgstr "%(name)s actualizado."
@@ -998,15 +1003,15 @@ msgstr[1] ""
 msgid "Item"
 msgstr "Ítem"
 
-#: templates/quotes/menu_list.html:33 templates/quotes/menu_list.html:82
+#: templates/quotes/menu_list.html:33 templates/quotes/menu_list.html:83
 msgid "Course"
 msgstr "Tiempo"
 
-#: templates/quotes/menu_list.html:34 templates/quotes/menu_list.html:94
+#: templates/quotes/menu_list.html:34 templates/quotes/menu_list.html:95
 msgid "Price"
 msgstr "Precio"
 
-#: templates/quotes/menu_list.html:35 templates/quotes/menu_list.html:98
+#: templates/quotes/menu_list.html:35 templates/quotes/menu_list.html:99
 msgid "Serves"
 msgstr "Rinde"
 
@@ -1018,31 +1023,39 @@ msgstr "Costo unitario"
 msgid "not mapped"
 msgstr "sin mapear"
 
-#: templates/quotes/menu_list.html:65
+#: templates/quotes/menu_list.html:60
+msgid "no cost"
+msgstr "sin costo"
+
+#: templates/quotes/menu_list.html:66
 msgid "Edit"
 msgstr "Editar"
 
-#: templates/quotes/menu_list.html:78
+#: templates/quotes/menu_list.html:79
 msgid "Description"
 msgstr "Descripción"
 
-#: templates/quotes/menu_list.html:102
+#: templates/quotes/menu_list.html:103
 msgid "Served from product"
 msgstr "Se sirve del producto"
 
-#: templates/quotes/menu_list.html:104
+#: templates/quotes/menu_list.html:105
 msgid "— not mapped —"
 msgstr "— sin mapear —"
 
-#: templates/quotes/menu_list.html:111
+#: templates/quotes/menu_list.html:116
+msgid "from the POS"
+msgstr "del POS"
+
+#: templates/quotes/menu_list.html:119
 msgid "Product units"
 msgstr "Unidades del producto"
 
-#: templates/quotes/menu_list.html:117
+#: templates/quotes/menu_list.html:125
 msgid "Active"
 msgstr "Activo"
 
-#: templates/quotes/menu_list.html:121
+#: templates/quotes/menu_list.html:129
 msgid "Save item"
 msgstr "Guardar ítem"
 
@@ -1091,9 +1104,13 @@ msgid "Charges on top"
 msgstr "Cargos aparte"
 
 #: templates/quotes/quote_detail.html:90
+#, fuzzy
+#| msgid ""
+#| "The room, corkage, extra staff — anything that is not part of the per-"
+#| "guest price."
 msgid ""
 "The room, corkage, extra staff — anything that is not part of the per-guest "
-"price."
+"price. A negative amount is a discount."
 msgstr ""
 "El espacio, el descorche, personal adicional — todo lo que no va en el "
 "precio por persona."

@@ -291,3 +291,40 @@ class TestDiscounts:
         )
 
         assert not quote.lines.exists()
+
+
+@pytest.mark.django_db
+class TestManualCostForm:
+    def test_a_cost_can_be_typed_for_an_unmapped_item(self, logged_client, restaurant):
+        item = MenuItem.objects.create(
+            restaurant=restaurant, name="Cocinero", course=Course.OTHER,
+            price=Decimal("400000"),
+        )
+
+        logged_client.post(
+            reverse("quotes:menu_item_edit", args=[item.pk]),
+            {"name": "Cocinero", "course": "other", "price": "400000",
+             "servings": "1", "product": "", "product_units": "1",
+             "manual_cost": "180000", "is_active": "on"},
+        )
+        item.refresh_from_db()
+
+        assert item.manual_cost == Decimal("180000")
+        assert item.unit_cost == Decimal("180000")
+
+    def test_clearing_the_field_makes_the_cost_unknown_again(self, logged_client, restaurant):
+        item = MenuItem.objects.create(
+            restaurant=restaurant, name="Morcilla", course=Course.STARTERS,
+            price=Decimal("200000"), manual_cost=Decimal("50000"),
+        )
+
+        logged_client.post(
+            reverse("quotes:menu_item_edit", args=[item.pk]),
+            {"name": "Morcilla", "course": "starters", "price": "200000",
+             "servings": "1", "product": "", "product_units": "1",
+             "manual_cost": "", "is_active": "on"},
+        )
+        item.refresh_from_db()
+
+        assert item.manual_cost is None
+        assert item.unit_cost is None

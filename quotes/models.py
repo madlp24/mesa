@@ -72,6 +72,16 @@ class MenuItem(models.Model):
         default=Decimal(1),
         help_text=_("Product units consumed by one unit of this item"),
     )
+    #: For what the POS never sells: a cook's shift, a grill on loan, a dish
+    #: cooked only at events. Without it these carry no cost, and every quote
+    #: that uses them reports no margin at all.
+    manual_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text=_("Cost of one unit, for what the POS does not sell"),
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -89,19 +99,25 @@ class MenuItem(models.Model):
     def unit_cost(self) -> Decimal | None:
         """Cost of one unit, or ``None`` when it is not known.
 
-        A product carrying no cost is unknown, not free: counting it as zero
-        would quietly inflate the margin of every quote that uses it.
+        The POS is believed first, since its cost moves with what is actually
+        being bought; a cost typed by hand covers what the POS never sells.
+        Absent both, the cost is unknown -- not zero, which would quietly
+        inflate the margin of every quote that used the item.
         """
-        if self.product_id is None:
-            return None
-        cost = self.product.cost_price
-        if cost is None or cost <= ZERO:
-            return None
-        return cost * self.product_units
+        if self.product_id is not None:
+            cost = self.product.cost_price
+            if cost is not None and cost > ZERO:
+                return cost * self.product_units
+        return self.manual_cost
 
     @property
     def is_mapped(self) -> bool:
         return self.product_id is not None
+
+    @property
+    def is_costed(self) -> bool:
+        """Whether a quote using this item can report a margin."""
+        return self.unit_cost is not None
 
 
 class Quote(models.Model):

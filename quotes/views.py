@@ -249,6 +249,8 @@ def menu_item_edit(request: HttpRequest, pk: int) -> HttpResponse:
     item.price = _decimal(request.POST.get("price"), str(item.price))
     item.servings = _decimal(request.POST.get("servings"), "1") or Decimal(1)
     item.product_units = _decimal(request.POST.get("product_units"), "1") or Decimal(1)
+    raw_cost = (request.POST.get("manual_cost") or "").strip()
+    item.manual_cost = _decimal(raw_cost) if raw_cost else None
     item.is_active = request.POST.get("is_active") == "on"
     item.save()
 

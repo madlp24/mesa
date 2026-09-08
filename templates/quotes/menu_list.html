@@ -56,7 +56,8 @@
                         {% endif %}
                     </td>
                     <td class="text-end">
-                        {% if item.unit_cost %}{{ item.unit_cost|floatformat:0|intcomma }}{% else %}—{% endif %}
+                        {% if item.unit_cost %}{{ item.unit_cost|floatformat:0|intcomma }}
+                        {% else %}<span class="badge text-bg-danger">{% trans "no cost" %}</span>{% endif %}
                     </td>
                     <td class="text-end">
                         <button class="btn btn-sm btn-outline-secondary" type="button"
@@ -106,6 +107,13 @@
                                     <option value="{{ product.pk }}" {% if item.product_id == product.pk %}selected{% endif %}>{{ product.name }}</option>
                                     {% endfor %}
                                 </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small" for="cost-{{ item.pk }}">{% trans "Cost" %}</label>
+                                <input type="number" step="100" class="form-control form-control-sm"
+                                       id="cost-{{ item.pk }}" name="manual_cost"
+                                       value="{{ item.manual_cost|default_if_none:''|floatformat:0 }}"
+                                       placeholder="{% trans 'from the POS' %}">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label small" for="units-{{ item.pk }}">{% trans "Product units" %}</label>
