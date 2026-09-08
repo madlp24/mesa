@@ -28,6 +28,70 @@
         </form>
       </div>
     </div>
+
+    <div class="card mt-4">
+      <div class="card-header">{% trans "Who can use this restaurant" %}</div>
+      <ul class="list-group list-group-flush">
+        {% for member in members %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            {{ member.user.get_username }}
+            {% if member.user.email %}<span class="text-muted small">· {{ member.user.email }}</span>{% endif %}
+            {% if member.user == request.user %}<span class="badge text-bg-secondary ms-1">{% trans "you" %}</span>{% endif %}
+          </span>
+          {% if member.user != request.user %}
+          <form method="post" action="{% url 'tenants:remove_member' member.pk %}">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-link text-danger p-0" type="submit">{% trans "Remove" %}</button>
+          </form>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="card-body border-top">
+        <p class="text-muted small">
+          {% trans "Invite someone and send them the link. Whoever opens it joins this restaurant instead of starting an empty one of their own." %}
+        </p>
+        <form method="post" action="{% url 'tenants:invite' %}" class="row g-2 align-items-end">
+          {% csrf_token %}
+          <div class="col-sm-8">
+            <label class="form-label small" for="invite_email">{% trans "Their email (just so you remember who it was for)" %}</label>
+            <input type="email" class="form-control form-control-sm" id="invite_email" name="email">
+          </div>
+          <div class="col-sm-4">
+            <button class="btn btn-primary btn-sm w-100" type="submit">{% trans "Create invitation" %}</button>
+          </div>
+        </form>
+      </div>
+      {% if invitations %}
+      <ul class="list-group list-group-flush border-top">
+        {% for invitation in invitations %}
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div class="flex-grow-1 min-w-0">
+              <div class="small">
+                {{ invitation.email|default:_("Anyone with the link") }}
+                {% if invitation.is_expired %}
+                <span class="badge text-bg-danger">{% trans "expired" %}</span>
+                {% else %}
+                <span class="text-muted">· {% trans "valid until" %} {{ invitation.expires_at|date:"j M Y" }}</span>
+                {% endif %}
+              </div>
+              <input class="form-control form-control-sm font-monospace mt-1" readonly
+                     onclick="this.select()"
+                     value="{{ request.scheme }}://{{ request.get_host }}{{ invitation.path }}"
+                     aria-label="{% trans 'Invitation link' %}">
+            </div>
+            <form method="post" action="{% url 'tenants:revoke_invitation' invitation.pk %}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-link text-danger p-0" type="submit">{% trans "Cancel" %}</button>
+            </form>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Join" %} {{ invitation.restaurant.name }} - Mesa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-xl-5 text-center py-5">
+    <h1 class="h3 mb-2">{{ invitation.restaurant.name }}</h1>
+    <p class="text-muted mb-4">
+      {% blocktrans with name=invitation.restaurant.name %}
+      You have been invited to work in {{ name }}. Sign in, or create an account, and you
+      will land straight in it.
+      {% endblocktrans %}
+    </p>
+    <div class="d-flex gap-2 justify-content-center">
+      <a class="btn btn-primary" href="{% url 'account_signup' %}?next={{ request.path|urlencode }}">
+        {% trans "Create an account" %}
+      </a>
+      <a class="btn btn-outline-secondary" href="{% url 'account_login' %}?next={{ request.path|urlencode }}">
+        {% trans "I already have one" %}
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

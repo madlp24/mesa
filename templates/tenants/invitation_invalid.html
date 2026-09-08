@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Invitation" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-xl-5 text-center py-5">
+    <h1 class="h3 mb-3">{% trans "This invitation is no longer valid" %}</h1>
+    <p class="text-muted">
+      {% trans "It was cancelled, already used, or it expired. Ask whoever sent it for a new link." %}
+    </p>
+    <a class="btn btn-outline-secondary" href="{% url 'pages:landing' %}">{% trans "Go to Mesa" %}</a>
+  </div>
+</div>
+{% endblock %}
