@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 11:48-0500\n"
+"POT-Creation-Date: 2026-09-08 14:32-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -155,7 +155,7 @@ msgstr "Costo de una unidad, para lo que el POS no vende"
 msgid "Dates the event runs over, each one served in full"
 msgstr "Fechas que cubre el evento, cada una servida completa"
 
-#: quotes/models.py:171
+#: quotes/models.py:173
 msgid "No client"
 msgstr "Sin cliente"
 
@@ -630,7 +630,7 @@ msgstr "SKU"
 msgid "Merge into selected"
 msgstr "Fusionar en el seleccionado"
 
-#: templates/catalog/merge_confirm.html:34
+#: templates/catalog/merge_confirm.html:34 templates/tenants/settings.html:87
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1145,7 +1145,7 @@ msgstr ""
 "precio vacío se lista como incluido. Un precio negativo es un descuento."
 
 #: templates/quotes/quote_detail.html:110
-#: templates/quotes/quote_detail.html:383
+#: templates/quotes/quote_detail.html:383 templates/tenants/settings.html:45
 msgid "Remove"
 msgstr "Quitar"
 
@@ -1293,7 +1293,9 @@ msgstr "O escribe un plato que no está en el menú"
 msgid ""
 "On a per-guest quote the dish prices do not change the total — leave them "
 "empty if you only want the menu listed."
-msgstr "En una cotización por persona los precios de los platos no cambian el total — déjalos vacíos si solo quieres listar el menú."
+msgstr ""
+"En una cotización por persona los precios de los platos no cambian el total "
+"— déjalos vacíos si solo quieres listar el menú."
 
 #: templates/quotes/quote_detail.html:307
 msgid "Dish"
@@ -1480,6 +1482,46 @@ msgstr "¿Deshacer esta importación? Se eliminarán las ventas que creó."
 msgid "Undo"
 msgstr "Deshacer"
 
+#: templates/tenants/invitation_invalid.html:4
+msgid "Invitation"
+msgstr "Invitación"
+
+#: templates/tenants/invitation_invalid.html:9
+msgid "This invitation is no longer valid"
+msgstr "Esta invitación ya no sirve"
+
+#: templates/tenants/invitation_invalid.html:11
+msgid ""
+"It was cancelled, already used, or it expired. Ask whoever sent it for a new "
+"link."
+msgstr "Fue cancelada, ya se usó, o venció. Pídele un enlace nuevo a quien te la mandó."
+
+#: templates/tenants/invitation_invalid.html:13
+msgid "Go to Mesa"
+msgstr "Ir a Mesa"
+
+#: templates/tenants/invitation_landing.html:4
+msgid "Join"
+msgstr "Entrar a"
+
+#: templates/tenants/invitation_landing.html:11
+#, python-format
+msgid ""
+"\n"
+"      You have been invited to work in %(name)s. Sign in, or create an "
+"account, and you\n"
+"      will land straight in it.\n"
+"      "
+msgstr ""
+
+#: templates/tenants/invitation_landing.html:18
+msgid "Create an account"
+msgstr "Crear una cuenta"
+
+#: templates/tenants/invitation_landing.html:21
+msgid "I already have one"
+msgstr "Ya tengo una"
+
 #: templates/tenants/settings.html:4
 msgid "Settings"
 msgstr "Ajustes"
@@ -1487,6 +1529,44 @@ msgstr "Ajustes"
 #: templates/tenants/settings.html:11
 msgid "Update how your restaurant is named across Mesa."
 msgstr "Actualiza cómo se llama tu restaurante en Mesa."
+
+#: templates/tenants/settings.html:33
+msgid "Who can use this restaurant"
+msgstr "Quién puede usar este restaurante"
+
+#: templates/tenants/settings.html:40
+msgid "you"
+msgstr "tú"
+
+#: templates/tenants/settings.html:53
+msgid ""
+"Invite someone and send them the link. Whoever opens it joins this "
+"restaurant instead of starting an empty one of their own."
+msgstr "Invita a alguien y mándale el enlace. Quien lo abra entra a este restaurante en vez de empezar uno vacío propio."
+
+#: templates/tenants/settings.html:58
+msgid "Their email (just so you remember who it was for)"
+msgstr "Su correo (solo para que recuerdes de quién era)"
+
+#: templates/tenants/settings.html:62
+msgid "Create invitation"
+msgstr "Crear invitación"
+
+#: templates/tenants/settings.html:73
+msgid "Anyone with the link"
+msgstr "Cualquiera con el enlace"
+
+#: templates/tenants/settings.html:75
+msgid "expired"
+msgstr "vencida"
+
+#: templates/tenants/settings.html:77
+msgid "valid until"
+msgstr "válida hasta"
+
+#: templates/tenants/settings.html:83
+msgid "Invitation link"
+msgstr "Enlace de invitación"
 
 #: tenants/forms.py:17 tenants/forms.py:35
 msgid "Restaurant name"
@@ -1496,6 +1576,33 @@ msgstr "Nombre del restaurante"
 msgid "e.g. La Parrilla"
 msgstr "p. ej. La Parrilla"
 
-#: tenants/views.py:19
+#: tenants/views.py:22
 msgid "Restaurant settings saved."
 msgstr "Ajustes del restaurante guardados."
+
+#: tenants/views.py:52
+#, python-format
+msgid "Invitation ready. Copy the link and send it to %(who)s."
+msgstr "Invitación lista. Copia el enlace y mándaselo a %(who)s."
+
+#: tenants/views.py:53
+msgid "them"
+msgstr "esa persona"
+
+#: tenants/views.py:65
+msgid "Invitation cancelled."
+msgstr "Invitación cancelada."
+
+#: tenants/views.py:76
+msgid "You cannot remove yourself."
+msgstr "No puedes quitarte a ti mismo."
+
+#: tenants/views.py:81
+#, python-format
+msgid "%(name)s no longer has access."
+msgstr "%(name)s ya no tiene acceso."
+
+#: tenants/views.py:97
+#, python-format
+msgid "You are now working in %(name)s."
+msgstr "Ahora estás trabajando en %(name)s."

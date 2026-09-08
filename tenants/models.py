@@ -1,4 +1,9 @@
+import secrets
+from datetime import timedelta
+
 from django.conf import settings
+from django.urls import reverse
+from django.utils import timezone
 from django.db import models
 from django.utils.text import slugify
 
@@ -58,3 +63,61 @@ class Membership(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.restaurant}"
+
+
+class Invitation(models.Model):
+    """A link that puts someone into an existing restaurant.
+
+    Signing up provisions a restaurant of your own, which is right for the first
+    person and wrong for everyone after them: the second person to join a
+    restaurant ends up alone in an empty copy, often under the same name, and
+    nothing on screen says so. An invitation is how somebody joins a workspace
+    that already exists.
+
+    The link is the invitation. There is no mail server here, and a restaurant
+    owner sends it over WhatsApp anyway.
+    """
+
+    restaurant = models.ForeignKey(
+        Restaurant, on_delete=models.CASCADE, related_name="invitations"
+    )
+    token = models.CharField(max_length=64, unique=True, editable=False)
+    #: Only a label for whoever is looking at the list; nothing is sent to it.
+    email = models.EmailField(blank=True)
+    invited_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        related_name="invitations_sent",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    accepted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="invitations_accepted",
+    )
+
+    DAYS_VALID = 14
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.email or self.token[:8]} -> {self.restaurant}"
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=self.DAYS_VALID)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self) -> bool:
+        return timezone.now() >= self.expires_at
+
+    @property
+    def is_open(self) -> bool:
+        return self.accepted_at is None and not self.is_expired
+
+    def path(self) -> str:
+        return reverse("accept_invitation", args=[self.token])
