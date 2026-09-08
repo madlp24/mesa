@@ -466,3 +466,34 @@ class TestInclusions:
         assert "Personal: 2 cocineros" in antes
         assert "Transporte de parrilla" in despues
         assert quote.total == Decimal("6550000")
+
+
+@pytest.mark.django_db
+class TestPricelessMenu:
+    def test_a_per_guest_quote_prints_the_menu_without_prices(self, restaurant):
+        """Mateo's shape: dishes written with no price, one figure for the lot."""
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-240", client_name="Mateo", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("150000"),
+            charges_tip=False, show_quantities=False,
+        )
+        for course, name in [
+            (Course.STARTERS, "Longaniza artesanal"),
+            (Course.STARTERS, "Morcilla"),
+            (Course.MAINS, "Picanha · 6 kg"),
+            (Course.SIDES, "Maduro con queso"),
+        ]:
+            QuoteLine.objects.create(
+                quote=quote, course=course, name=name, quantity=Decimal("1"),
+                unit_price=Decimal(0), unit_cost=None,
+            )
+
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(quote))
+
+        for name in ("Longaniza artesanal", "Morcilla", "Picanha · 6 kg", "Maduro con queso"):
+            assert name in text
+        assert "150.000" in text
+        assert "6.000.000" in text
+        assert "CANT." not in text
+        assert quote.total == Decimal("6000000")

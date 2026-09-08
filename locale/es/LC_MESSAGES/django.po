@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 11:35-0500\n"
+"POT-Creation-Date: 2026-09-08 11:48-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -26,7 +26,7 @@ msgstr "Categoría"
 
 #: analytics/views.py:28 templates/quotes/menu_list.html:112
 #: templates/quotes/quote_detail.html:134
-#: templates/quotes/quote_detail.html:325 templates/quotes/quote_list.html:46
+#: templates/quotes/quote_detail.html:329 templates/quotes/quote_list.html:46
 msgid "Cost"
 msgstr "Costo"
 
@@ -1030,13 +1030,13 @@ msgid "Item"
 msgstr "Ítem"
 
 #: templates/quotes/menu_list.html:33 templates/quotes/menu_list.html:83
-#: templates/quotes/quote_detail.html:309
+#: templates/quotes/quote_detail.html:312
 msgid "Course"
 msgstr "Tiempo"
 
 #: templates/quotes/menu_list.html:34 templates/quotes/menu_list.html:95
 #: templates/quotes/quote_detail.html:129
-#: templates/quotes/quote_detail.html:321
+#: templates/quotes/quote_detail.html:324
 msgid "Price"
 msgstr "Precio"
 
@@ -1052,7 +1052,7 @@ msgstr "Costo unitario"
 msgid "not mapped"
 msgstr "sin mapear"
 
-#: templates/quotes/menu_list.html:60 templates/quotes/quote_detail.html:366
+#: templates/quotes/menu_list.html:60 templates/quotes/quote_detail.html:370
 msgid "no cost"
 msgstr "sin costo"
 
@@ -1060,7 +1060,7 @@ msgstr "sin costo"
 msgid "Edit"
 msgstr "Editar"
 
-#: templates/quotes/menu_list.html:79 templates/quotes/quote_detail.html:317
+#: templates/quotes/menu_list.html:79 templates/quotes/quote_detail.html:320
 msgid "Description"
 msgstr "Descripción"
 
@@ -1145,7 +1145,7 @@ msgstr ""
 "precio vacío se lista como incluido. Un precio negativo es un descuento."
 
 #: templates/quotes/quote_detail.html:110
-#: templates/quotes/quote_detail.html:379
+#: templates/quotes/quote_detail.html:383
 msgid "Remove"
 msgstr "Quitar"
 
@@ -1162,14 +1162,15 @@ msgid "included"
 msgstr ""
 
 #: templates/quotes/quote_detail.html:136
-#: templates/quotes/quote_detail.html:327
+#: templates/quotes/quote_detail.html:326
+#: templates/quotes/quote_detail.html:331
 msgid "optional"
 msgstr "opcional"
 
 #: templates/quotes/quote_detail.html:139
 #: templates/quotes/quote_detail.html:166
 #: templates/quotes/quote_detail.html:286
-#: templates/quotes/quote_detail.html:330
+#: templates/quotes/quote_detail.html:334
 msgid "Qty"
 msgstr "Cant."
 
@@ -1216,7 +1217,7 @@ msgid "Compose menu"
 msgstr "Armar menú"
 
 #: templates/quotes/quote_detail.html:221
-#: templates/quotes/quote_detail.html:416 templates/quotes/quote_list.html:45
+#: templates/quotes/quote_detail.html:420 templates/quotes/quote_list.html:45
 msgid "Total"
 msgstr "Total"
 
@@ -1288,51 +1289,57 @@ msgstr "Agregar plato"
 msgid "Or write a dish that is not on the menu"
 msgstr "O escribe un plato que no está en el menú"
 
-#: templates/quotes/quote_detail.html:304
+#: templates/quotes/quote_detail.html:301
+msgid ""
+"On a per-guest quote the dish prices do not change the total — leave them "
+"empty if you only want the menu listed."
+msgstr "En una cotización por persona los precios de los platos no cambian el total — déjalos vacíos si solo quieres listar el menú."
+
+#: templates/quotes/quote_detail.html:307
 msgid "Dish"
 msgstr "Plato"
 
-#: templates/quotes/quote_detail.html:306
+#: templates/quotes/quote_detail.html:309
 msgid "Morcilla, chicharrón al barril…"
 msgstr "Morcilla, chicharrón al barril…"
 
-#: templates/quotes/quote_detail.html:338
+#: templates/quotes/quote_detail.html:342
 msgid "Add it to the menu too — otherwise it stays on this quote only"
 msgstr "Agregarlo también al menú — si no, queda solo en esta cotización"
 
-#: templates/quotes/quote_detail.html:343
+#: templates/quotes/quote_detail.html:347
 msgid "Add dish"
 msgstr "Agregar plato"
 
-#: templates/quotes/quote_detail.html:348
+#: templates/quotes/quote_detail.html:352
 msgid "Menu"
 msgstr "Menú"
 
-#: templates/quotes/quote_detail.html:349
+#: templates/quotes/quote_detail.html:353
 msgid "lines"
 msgstr "líneas"
 
-#: templates/quotes/quote_detail.html:372
+#: templates/quotes/quote_detail.html:376
 msgid "Quantity of"
 msgstr "Cantidad de"
 
-#: templates/quotes/quote_detail.html:388
+#: templates/quotes/quote_detail.html:392
 msgid "Save quantities"
 msgstr "Guardar cantidades"
 
-#: templates/quotes/quote_detail.html:399
+#: templates/quotes/quote_detail.html:403
 msgid "Subtotal (tax included)"
 msgstr "Subtotal (impuesto incluido)"
 
-#: templates/quotes/quote_detail.html:404
+#: templates/quotes/quote_detail.html:408
 msgid "of which tax, already inside"
 msgstr "del cual impuesto, ya incluido"
 
-#: templates/quotes/quote_detail.html:410
+#: templates/quotes/quote_detail.html:414
 msgid "Tip"
 msgstr "Propina"
 
-#: templates/quotes/quote_detail.html:426
+#: templates/quotes/quote_detail.html:430
 msgid "No lines yet. Compose a menu from a budget to get started."
 msgstr "Todavía no hay líneas. Arma un menú por presupuesto para empezar."
 
