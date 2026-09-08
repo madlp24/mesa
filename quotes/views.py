@@ -211,10 +211,23 @@ def quote_add_charge(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, _("A charge needs a name."))
         return redirect("quotes:quote_detail", pk=quote.pk)
 
+    cost = _decimal(request.POST.get("cost")) if request.POST.get("cost") else None
+
     QuoteLine.objects.create(
         quote=quote, course=Course.SERVICE, name=name, quantity=quantity,
-        unit_price=amount, unit_cost=Decimal(0), add_on=True, position=900,
+        unit_price=amount, unit_cost=cost if cost is not None else Decimal(0),
+        add_on=True, position=900,
     )
+
+    if request.POST.get("remember") == "on":
+        # The list of services builds itself out of what has been typed, so
+        # nobody has to sit down and enter a catalogue before quoting.
+        MenuItem.objects.update_or_create(
+            restaurant=request.restaurant, name=name,
+            defaults=dict(course=Course.SERVICE, price=amount, manual_cost=cost,
+                          servings=Decimal(1), is_active=True),
+        )
+
     messages.success(request, _("%(name)s added.") % {"name": name})
     return redirect("quotes:quote_detail", pk=quote.pk)
 
