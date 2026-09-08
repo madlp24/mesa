@@ -143,8 +143,10 @@ class Quote(models.Model):
         default=1, help_text=_("Dates the event runs over, each one served in full")
     )
     venue = models.CharField(max_length=20, choices=Venue.choices, default=Venue.IN_HOUSE)
+    #: Events are agreed at a figure per head, not totted up dish by dish. Every
+    #: quote the house has actually sent works that way, so a new one starts there.
     pricing_mode = models.CharField(
-        max_length=20, choices=PricingMode.choices, default=PricingMode.CONSUMPTION
+        max_length=20, choices=PricingMode.choices, default=PricingMode.PER_GUEST
     )
     price_per_guest = models.DecimalField(max_digits=12, decimal_places=2, default=ZERO)
     payment_terms = models.CharField(max_length=200, blank=True)

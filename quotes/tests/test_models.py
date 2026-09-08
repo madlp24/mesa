@@ -24,6 +24,12 @@ def _product(restaurant, category, name, cost, sale):
 
 
 def _quote(restaurant, **kwargs):
+    """A quote priced off its lines unless the test says otherwise.
+
+    New quotes price per guest, so a test about line arithmetic has to say so
+    rather than lean on whatever the default happens to be.
+    """
+    kwargs.setdefault("pricing_mode", PricingMode.CONSUMPTION)
     return Quote.objects.create(
         restaurant=restaurant, number=kwargs.pop("number", "CA-119"), **kwargs
     )

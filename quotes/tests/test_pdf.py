@@ -23,8 +23,10 @@ def _text_of(data: bytes) -> str:
 
 
 def _quote_with_lines(restaurant):
+    """Priced off its lines, so the PDF prints the unit and total columns."""
     quote = Quote.objects.create(
-        restaurant=restaurant, number="CA-119", client_name="Laura", guests=20
+        restaurant=restaurant, number="CA-119", client_name="Laura", guests=20,
+        pricing_mode=PricingMode.CONSUMPTION,
     )
     QuoteLine.objects.create(
         quote=quote, course=Course.MAINS, name="Picanha americana",
