@@ -291,6 +291,58 @@
                         <button class="btn btn-primary btn-sm w-100" type="submit">{% trans "Add" %}</button>
                     </div>
                 </form>
+
+                <button class="btn btn-link btn-sm p-0 mt-2" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#custom-dish"
+                        aria-expanded="false" aria-controls="custom-dish">
+                    {% trans "Or write a dish that is not on the menu" %}
+                </button>
+                <form method="post" action="{% url 'quotes:quote_add_custom_dish' quote.pk %}"
+                      class="row g-2 align-items-end collapse mt-1" id="custom-dish">
+                    {% csrf_token %}
+                    <div class="col-md-6">
+                        <label class="form-label small" for="cd_name">{% trans "Dish" %}</label>
+                        <input class="form-control form-control-sm" id="cd_name" name="name"
+                               placeholder="{% trans 'Morcilla, chicharrón al barril…' %}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="cd_course">{% trans "Course" %}</label>
+                        <select class="form-select form-select-sm" id="cd_course" name="course">
+                            {% for value, label in courses %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small" for="cd_desc">{% trans "Description" %}</label>
+                        <input class="form-control form-control-sm" id="cd_desc" name="description">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small" for="cd_price">{% trans "Price" %}</label>
+                        <input type="number" step="1000" class="form-control form-control-sm" id="cd_price" name="price">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small" for="cd_cost">{% trans "Cost" %}</label>
+                        <input type="number" step="1000" class="form-control form-control-sm"
+                               id="cd_cost" name="cost" placeholder="{% trans 'optional' %}">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small" for="cd_qty">{% trans "Qty" %}</label>
+                        <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
+                               id="cd_qty" name="quantity">
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cd_remember" name="remember">
+                            <label class="form-check-label small" for="cd_remember">
+                                {% trans "Add it to the menu too — otherwise it stays on this quote only" %}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-outline-primary btn-sm w-100" type="submit">{% trans "Add dish" %}</button>
+                    </div>
+                </form>
             </div>
             <div class="card-header d-flex justify-content-between">
                 <span>{% trans "Menu" %}</span>
