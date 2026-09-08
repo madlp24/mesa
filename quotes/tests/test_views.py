@@ -578,3 +578,69 @@ class TestQuoteDetailRenders:
         )
 
         assert logged_client.get(reverse("quotes:menu_list")).status_code == 200
+
+
+@pytest.mark.django_db
+class TestServicesTypedIn:
+    """Prices are typed as the service is added; the list builds itself."""
+
+    def _add(self, client, quote, **extra):
+        data = {"name": "Mesero", "amount": "200000", "quantity": "2"}
+        data.update(extra)
+        return client.post(reverse("quotes:quote_add_charge", args=[quote.pk]), data)
+
+    def test_the_typed_price_lands_on_the_quote(self, logged_client, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-220", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("150000"),
+            charges_tip=False,
+        )
+
+        self._add(logged_client, quote)
+        quote.refresh_from_db()
+
+        assert quote.add_ons_total == Decimal("400000")
+        assert quote.total == Decimal("6400000")
+
+    def test_a_typed_cost_counts_in_the_margin(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-221", guests=40)
+
+        self._add(logged_client, quote, cost="90000")
+        line = quote.lines.get()
+
+        assert line.unit_cost == Decimal("90000")
+
+    def test_remembering_it_makes_it_reusable(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-222", guests=40)
+
+        self._add(logged_client, quote, cost="90000", remember="on")
+        saved = MenuItem.objects.get(restaurant=restaurant, name="Mesero")
+
+        assert saved.course == Course.SERVICE
+        assert saved.price == Decimal("200000")
+        assert saved.manual_cost == Decimal("90000")
+
+    def test_not_remembering_leaves_no_trace(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-223", guests=40)
+
+        self._add(logged_client, quote)
+
+        assert not MenuItem.objects.filter(restaurant=restaurant, name="Mesero").exists()
+
+    def test_typing_it_again_updates_the_remembered_price(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-224", guests=40)
+
+        self._add(logged_client, quote, remember="on")
+        self._add(logged_client, quote, amount="250000", remember="on")
+
+        assert MenuItem.objects.get(restaurant=restaurant, name="Mesero").price == Decimal("250000")
+
+    def test_a_service_without_a_price_is_still_remembered(self, logged_client, restaurant):
+        """"Personal: 2 cocineros" is worth remembering even at nothing."""
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-225", guests=40)
+
+        self._add(logged_client, quote, name="Personal: 2 cocineros", amount="", remember="on")
+        saved = MenuItem.objects.get(restaurant=restaurant, name="Personal: 2 cocineros")
+
+        assert saved.price == Decimal(0)
+        assert quote.included_lines[0].name == "Personal: 2 cocineros"

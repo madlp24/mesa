@@ -95,7 +95,7 @@
             <div class="card-header">{% trans "Charges on top" %}</div>
             <div class="card-body">
                 <p class="text-muted small">
-                    {% trans "Staff, rentals, transport. With an amount it is charged; without one it is listed as included. A negative amount is a discount." %}
+                    {% trans "Staff, rentals, transport. Type it with its price; leave the price empty and it is listed as included. A negative price is a discount." %}
                 </p>
                 {% if quote.add_on_lines %}
                 <ul class="list-group list-group-flush mb-3">
@@ -114,14 +114,51 @@
                     {% endfor %}
                 </ul>
                 {% endif %}
+                <form method="post" action="{% url 'quotes:quote_add_charge' quote.pk %}" class="row g-2 align-items-end">
+                    {% csrf_token %}
+                    <div class="col-12">
+                        <label class="form-label small" for="charge_name">{% trans "Service or charge" %}</label>
+                        <input class="form-control form-control-sm" id="charge_name" name="name"
+                               list="service-names" autocomplete="off"
+                               placeholder="{% trans 'Waiter, bartender, cook, grill rental…' %}">
+                        <datalist id="service-names">
+                            {% for s in services %}<option value="{{ s.name }}"></option>{% endfor %}
+                        </datalist>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small" for="charge_amount">{% trans "Price" %}</label>
+                        <input type="number" step="1000" class="form-control form-control-sm"
+                               id="charge_amount" name="amount" placeholder="{% trans 'included' %}">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small" for="charge_cost">{% trans "Cost" %}</label>
+                        <input type="number" step="1000" class="form-control form-control-sm"
+                               id="charge_cost" name="cost" placeholder="{% trans 'optional' %}">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small" for="charge_qty">{% trans "Qty" %}</label>
+                        <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
+                               id="charge_qty" name="quantity">
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remember" name="remember" checked>
+                            <label class="form-check-label small" for="remember">{% trans "Remember it for next time" %}</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary btn-sm w-100" type="submit">{% trans "Add" %}</button>
+                    </div>
+                </form>
+
                 {% if services %}
-                <form method="post" action="{% url 'quotes:quote_add_service' quote.pk %}" class="row g-2 align-items-end mb-3 pb-3 border-bottom">
+                <form method="post" action="{% url 'quotes:quote_add_service' quote.pk %}" class="row g-2 align-items-end mt-3 pt-3 border-top">
                     {% csrf_token %}
                     <div class="col-8">
-                        <label class="form-label small" for="service">{% trans "Saved service" %}</label>
+                        <label class="form-label small" for="service">{% trans "Or reuse one" %}</label>
                         <select class="form-select form-select-sm" id="service" name="service">
                             {% for s in services %}
-                            <option value="{{ s.pk }}">{{ s.name }} — {{ s.price|floatformat:0|intcomma }}</option>
+                            <option value="{{ s.pk }}">{{ s.name }}{% if s.price %} — {{ s.price|floatformat:0|intcomma }}{% endif %}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -131,31 +168,10 @@
                                id="service_qty" name="quantity">
                     </div>
                     <div class="col-12">
-                        <button class="btn btn-outline-primary btn-sm w-100" type="submit">{% trans "Add service" %}</button>
+                        <button class="btn btn-outline-secondary btn-sm w-100" type="submit">{% trans "Add saved service" %}</button>
                     </div>
                 </form>
                 {% endif %}
-                <form method="post" action="{% url 'quotes:quote_add_charge' quote.pk %}" class="row g-2 align-items-end">
-                    {% csrf_token %}
-                    <div class="col-12">
-                        <label class="form-label small" for="charge_name">{% trans "Charge" %}</label>
-                        <input class="form-control form-control-sm" id="charge_name" name="name"
-                               placeholder="{% trans 'Venue rental' %}">
-                    </div>
-                    <div class="col-7">
-                        <label class="form-label small" for="charge_amount">{% trans "Amount (optional)" %}</label>
-                        <input type="number" step="1000" class="form-control form-control-sm"
-                               id="charge_amount" name="amount">
-                    </div>
-                    <div class="col-5">
-                        <label class="form-label small" for="charge_qty">{% trans "Qty" %}</label>
-                        <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
-                               id="charge_qty" name="quantity">
-                    </div>
-                    <div class="col-12">
-                        <button class="btn btn-outline-secondary btn-sm w-100" type="submit">{% trans "Add charge" %}</button>
-                    </div>
-                </form>
             </div>
         </div>
 
