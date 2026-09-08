@@ -276,3 +276,45 @@ class TestChargesOnTop:
         self._venue(quote)
 
         assert quote.is_costed is False
+
+
+@pytest.mark.django_db
+class TestManualCost:
+    def test_it_covers_what_the_pos_does_not_sell(self, restaurant):
+        """A cook's shift is never a POS product, but it costs money."""
+        item = MenuItem.objects.create(
+            restaurant=restaurant, name="Cocinero", course=Course.OTHER,
+            price=Decimal("400000"), manual_cost=Decimal("180000"),
+        )
+
+        assert item.unit_cost == Decimal("180000")
+        assert item.is_costed is True
+        assert item.is_mapped is False
+
+    def test_the_pos_wins_when_both_are_there(self, restaurant, category):
+        """The POS cost moves with what is actually being bought."""
+        product = _product(restaurant, category, "PICANHA", cost=30845, sale=116667)
+        item = MenuItem.objects.create(
+            restaurant=restaurant, name="Picanha", course=Course.MAINS,
+            price=Decimal("126000"), product=product, manual_cost=Decimal("99999"),
+        )
+
+        assert item.unit_cost == Decimal("30845")
+
+    def test_a_hand_cost_rescues_a_product_the_pos_never_costed(self, restaurant, category):
+        product = _product(restaurant, category, "DUBONNET", cost=0, sale=166666)
+        item = MenuItem.objects.create(
+            restaurant=restaurant, name="Dubonnet", course=Course.ALCOHOL,
+            price=Decimal("180000"), product=product, manual_cost=Decimal("60000"),
+        )
+
+        assert item.unit_cost == Decimal("60000")
+
+    def test_neither_leaves_the_cost_unknown(self, restaurant):
+        item = MenuItem.objects.create(
+            restaurant=restaurant, name="Morcilla", course=Course.STARTERS,
+            price=Decimal("200000"),
+        )
+
+        assert item.unit_cost is None
+        assert item.is_costed is False
