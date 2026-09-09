@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-09 16:55-0500\n"
+"POT-Creation-Date: 2026-09-09 17:06-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -303,11 +303,19 @@ msgstr "50% anticipo, 50% en el evento"
 msgid "Quote saved."
 msgstr "Cotización guardada."
 
-#: quotes/views.py:190
+#: quotes/views.py:178
+msgid "Only for a grill away from the restaurant"
+msgstr "Solo para asado por fuera del restaurante"
+
+#: quotes/views.py:179
+msgid "Only at the restaurant"
+msgstr "Solo en el restaurante"
+
+#: quotes/views.py:205
 msgid "Enter a price per guest first."
 msgstr "Primero pon un precio por persona."
 
-#: quotes/views.py:203
+#: quotes/views.py:218
 #, python-format
 msgid ""
 "That budget does not cover this kind of event. The floor is about %(floor)s "
@@ -316,7 +324,7 @@ msgstr ""
 "Ese presupuesto no alcanza para este tipo de evento. El mínimo es de unos "
 "%(floor)s por persona."
 
-#: quotes/views.py:215
+#: quotes/views.py:230
 #, python-format
 msgid ""
 "The closest menu costs %(cost)s per guest. The floor for this event is about "
@@ -325,29 +333,29 @@ msgstr ""
 "El menú más cercano cuesta %(cost)s por persona. El mínimo para este evento "
 "es de unos %(floor)s."
 
-#: quotes/views.py:219
+#: quotes/views.py:234
 msgid "Menu composed."
 msgstr "Menú armado."
 
-#: quotes/views.py:246
+#: quotes/views.py:261
 msgid "A charge needs a name."
 msgstr "Un cargo necesita nombre."
 
-#: quotes/views.py:266 quotes/views.py:291 quotes/views.py:319
-#: quotes/views.py:361
+#: quotes/views.py:281 quotes/views.py:306 quotes/views.py:334
+#: quotes/views.py:376
 #, python-format
 msgid "%(name)s added."
 msgstr "%(name)s agregado."
 
-#: quotes/views.py:337
+#: quotes/views.py:352
 msgid "A dish needs a name."
 msgstr "Un plato necesita nombre."
 
-#: quotes/views.py:396
+#: quotes/views.py:411
 msgid "Quote updated."
 msgstr "Cotización actualizada."
 
-#: quotes/views.py:456
+#: quotes/views.py:471
 #, python-format
 msgid "%(name)s updated."
 msgstr "%(name)s actualizado."

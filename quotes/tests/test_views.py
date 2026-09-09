@@ -1046,3 +1046,78 @@ class TestCostTypedOnTheLine:
         line.refresh_from_db()
 
         assert (line.quantity, line.unit_cost) == (Decimal("6"), Decimal("73441"))
+
+
+@pytest.mark.django_db
+class TestVenueDishesComeFirst:
+    """Scattered alphabetically among 173 others they may as well be hidden."""
+
+    def _menu(self, restaurant):
+        from quotes.models import Availability
+
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Aguacate relleno", course=Course.STARTERS,
+            price=Decimal("30000"), availability=Availability.BOTH)
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Zuchini asado", course=Course.STARTERS,
+            price=Decimal("28000"), availability=Availability.BOTH)
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Morcilla artesanal", course=Course.STARTERS,
+            price=Decimal("200000"), availability=Availability.OFF_SITE)
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Nigiris de zabuton", course=Course.STARTERS,
+            price=Decimal("60000"), availability=Availability.IN_HOUSE)
+
+    def _dropdown(self, client, quote):
+        body = client.get(reverse("quotes:quote_detail", args=[quote.pk])).content.decode()
+        start = body.index('id="dish"')
+        return body[start:body.index("</select>", start)]
+
+    def test_the_grill_dishes_head_the_list(self, logged_client, restaurant):
+        self._menu(restaurant)
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-320", venue=Venue.GRILL
+        )
+
+        dropdown = self._dropdown(logged_client, quote)
+
+        assert dropdown.index("Morcilla artesanal") < dropdown.index("Aguacate relleno")
+        assert "Nigiris de zabuton" not in dropdown
+
+    def test_they_sit_under_a_band_of_their_own(self, logged_client, restaurant):
+        self._menu(restaurant)
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-321", venue=Venue.GRILL
+        )
+
+        dropdown = self._dropdown(logged_client, quote)
+        primera = dropdown[dropdown.index("<optgroup"):dropdown.index("</optgroup>")]
+
+        assert "Morcilla artesanal" in primera
+        assert "Aguacate relleno" not in primera
+
+    def test_a_restaurant_quote_leads_with_its_own(self, logged_client, restaurant):
+        self._menu(restaurant)
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-322", venue=Venue.IN_HOUSE
+        )
+
+        dropdown = self._dropdown(logged_client, quote)
+
+        assert dropdown.index("Nigiris de zabuton") < dropdown.index("Aguacate relleno")
+        assert "Morcilla artesanal" not in dropdown
+
+    def test_without_venue_dishes_the_courses_lead(self, logged_client, restaurant):
+        from quotes.models import Availability
+
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Solo común", course=Course.MAINS,
+            price=Decimal("50000"), availability=Availability.BOTH)
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-323", venue=Venue.GRILL
+        )
+
+        dropdown = self._dropdown(logged_client, quote)
+
+        assert dropdown.count("<optgroup") == 1
+        assert "Solo común" in dropdown

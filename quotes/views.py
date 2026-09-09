@@ -165,11 +165,26 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
         else MenuItem.objects.filter(restaurant=request.restaurant, is_active=True)
         .exclude(course=Course.SERVICE).count() - catalogo.count()
     )
-    context["dish_groups"] = [
-        (label, [i for i in catalogo if i.course == value])
+    # The dishes that only exist for this kind of event get their own band at the
+    # top. Scattered alphabetically through 173 others they may as well be hidden,
+    # which is what the person quoting said about them.
+    propios = Availability.OFF_SITE if quote.is_off_site else Availability.IN_HOUSE
+    destacados = [i for i in catalogo if i.availability == propios]
+    resto = [i for i in catalogo if i.availability != propios]
+
+    grupos = []
+    if destacados:
+        grupos.append((
+            _("Only for a grill away from the restaurant") if quote.is_off_site
+            else _("Only at the restaurant"),
+            destacados,
+        ))
+    grupos += [
+        (label, [i for i in resto if i.course == value])
         for value, label in Course.choices
-        if any(i.course == value for i in catalogo)
+        if any(i.course == value for i in resto)
     ]
+    context["dish_groups"] = grupos
     return render(request, "quotes/quote_detail.html", context)
 
 
