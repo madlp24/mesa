@@ -181,14 +181,30 @@ class QuoteCanvas:
         self.c.showPage()
         self.page += 1
 
+    #: The wordmark shrinks rather than run into "Quotation", down to a size
+    #: where it still reads as the masthead and not as body copy.
+    MASTHEAD_MAX = 17
+    MASTHEAD_MIN = 10.5
+
+    def _masthead_type(self, name):
+        """Largest size and spacing that keep the name clear of the title."""
+        title = stringWidth(_("Quotation"), SERIF, 21)
+        room = CONTENT_W - title - 24
+        size = self.MASTHEAD_MAX
+        while size > self.MASTHEAD_MIN:
+            spacing = 2.6 * size / self.MASTHEAD_MAX
+            if stringWidth(name, SERIF_BOLD, size) + spacing * len(name) <= room:
+                return size, spacing
+            size -= 0.5
+        return self.MASTHEAD_MIN, 0.8
+
     def masthead(self):
         """The house mark on the left, what the document is on the right."""
         self.band(self.y - 2, 2.5, ACCENT)
         self.y -= 30
-        self.text(
-            self.quote.restaurant.name.upper(), MARGIN, self.y, 17,
-            bold=True, color=INK, spacing=2.6, serif=True,
-        )
+        name = self.quote.restaurant.name.upper()
+        size, spacing = self._masthead_type(name)
+        self.text(name, MARGIN, self.y, size, bold=True, color=INK, spacing=spacing, serif=True)
         self.text_right(_("Quotation"), MARGIN + CONTENT_W, self.y + 2, 21, color=ACCENT, serif=True)
         self.y -= 12
         self.text(_("EVENTS"), MARGIN, self.y, 7, color=MUTED, spacing=2.2)
