@@ -15,13 +15,15 @@
     </div>
 </div>
 
-<div class="row g-4">
+<!-- One form, several buttons. Adding a dish or a charge carries the event
+     fields along with it, so nothing typed above is lost on the redirect. -->
+<form method="post" class="row g-4">
+{% csrf_token %}
     <div class="col-lg-5">
         <div class="card mb-4">
             <div class="card-header">{% trans "Event" %}</div>
             <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
+                <div>
                     <div class="mb-3">
                         <label class="form-label" for="venue">{% trans "Where" %}</label>
                         <select class="form-select" id="venue" name="venue">
@@ -87,7 +89,7 @@
                         <label class="form-check-label" for="charges_tip">{% trans "Add the suggested tip" %} (10%)</label>
                     </div>
                     <button class="btn btn-primary w-100" type="submit">{% trans "Save" %}</button>
-                </form>
+                </div>
             </div>
         </div>
 
@@ -104,21 +106,18 @@
                         <span>{{ line.name }}{% if line.quantity != 1 %} <span class="text-muted">x{{ line.quantity|floatformat:0 }}</span>{% endif %}</span>
                         <span class="d-flex align-items-center gap-2">
                             <span>{{ line.line_total|floatformat:0|intcomma }}</span>
-                            <form method="post" action="{% url 'quotes:quote_remove_line' quote.pk line.pk %}">
-                                {% csrf_token %}
                                 <button class="btn btn-sm btn-link text-danger p-0" type="submit"
+                                        formaction="{% url 'quotes:quote_remove_line' quote.pk line.pk %}"
                                         aria-label="{% trans 'Remove' %} {{ line.name }}">&times;</button>
-                            </form>
                         </span>
                     </li>
                     {% endfor %}
                 </ul>
                 {% endif %}
-                <form method="post" action="{% url 'quotes:quote_add_charge' quote.pk %}" class="row g-2 align-items-end">
-                    {% csrf_token %}
+                <div class="row g-2 align-items-end">
                     <div class="col-12">
                         <label class="form-label small" for="charge_name">{% trans "Service or charge" %}</label>
-                        <input class="form-control form-control-sm" id="charge_name" name="name"
+                        <input class="form-control form-control-sm" id="charge_name" name="charge_name"
                                list="service-names" autocomplete="off"
                                placeholder="{% trans 'Waiter, bartender, cook, grill rental…' %}">
                         <datalist id="service-names">
@@ -128,32 +127,32 @@
                     <div class="col-4">
                         <label class="form-label small" for="charge_amount">{% trans "Price" %}</label>
                         <input type="number" step="1000" class="form-control form-control-sm"
-                               id="charge_amount" name="amount" placeholder="{% trans 'included' %}">
+                               id="charge_amount" name="charge_amount" placeholder="{% trans 'included' %}">
                     </div>
                     <div class="col-4">
                         <label class="form-label small" for="charge_cost">{% trans "Cost" %}</label>
                         <input type="number" step="1000" class="form-control form-control-sm"
-                               id="charge_cost" name="cost" placeholder="{% trans 'optional' %}">
+                               id="charge_cost" name="charge_cost" placeholder="{% trans 'optional' %}">
                     </div>
                     <div class="col-4">
                         <label class="form-label small" for="charge_qty">{% trans "Qty" %}</label>
                         <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
-                               id="charge_qty" name="quantity">
+                               id="charge_qty" name="charge_quantity">
                     </div>
                     <div class="col-12">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="remember" name="remember" checked>
+                            <input class="form-check-input" type="checkbox" id="remember" name="charge_remember" checked>
                             <label class="form-check-label small" for="remember">{% trans "Remember it for next time" %}</label>
                         </div>
                     </div>
                     <div class="col-12">
-                        <button class="btn btn-primary btn-sm w-100" type="submit">{% trans "Add" %}</button>
+                        <button class="btn btn-primary btn-sm w-100" type="submit"
+                                formaction="{% url 'quotes:quote_add_dish' quote.pk %}">{% trans "Add" %}</button>
                     </div>
-                </form>
+                </div>
 
                 {% if services %}
-                <form method="post" action="{% url 'quotes:quote_add_service' quote.pk %}" class="row g-2 align-items-end mt-3 pt-3 border-top">
-                    {% csrf_token %}
+                <div class="row g-2 align-items-end mt-3 pt-3 border-top">
                     <div class="col-8">
                         <label class="form-label small" for="service">{% trans "Or reuse one" %}</label>
                         <select class="form-select form-select-sm" id="service" name="service">
@@ -165,12 +164,13 @@
                     <div class="col-4">
                         <label class="form-label small" for="service_qty">{% trans "Qty" %}</label>
                         <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
-                               id="service_qty" name="quantity">
+                               id="service_qty" name="service_quantity">
                     </div>
                     <div class="col-12">
-                        <button class="btn btn-outline-secondary btn-sm w-100" type="submit">{% trans "Add saved service" %}</button>
+                        <button class="btn btn-outline-secondary btn-sm w-100" type="submit"
+                                formaction="{% url 'quotes:quote_add_service' quote.pk %}">{% trans "Add saved service" %}</button>
                     </div>
-                </form>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -181,8 +181,7 @@
                 <p class="text-muted small">
                     {% trans "Tell it what you want to charge per guest and it builds the menu that fits." %}
                 </p>
-                <form method="post" action="{% url 'quotes:quote_compose' quote.pk %}">
-                    {% csrf_token %}
+                <div>
                     <div class="row g-2 mb-3">
                         <div class="col">
                             <label class="form-label" for="budget_per_guest">{% trans "Per guest" %}</label>
@@ -192,7 +191,7 @@
                         <div class="col">
                             <label class="form-label" for="compose_guests">{% trans "Guests" %}</label>
                             <input type="number" min="1" class="form-control" id="compose_guests"
-                                   name="guests" value="{{ quote.guests }}">
+                                   name="compose_guests" value="{{ quote.guests }}">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -208,8 +207,9 @@
                         <label class="form-check-label" for="alcohol">{% trans "Include alcoholic drinks" %}</label>
                     </div>
                     <input type="hidden" name="offset" value="0">
-                    <button class="btn btn-outline-primary w-100" type="submit">{% trans "Compose menu" %}</button>
-                </form>
+                    <button class="btn btn-outline-primary w-100" type="submit"
+                            formaction="{% url 'quotes:quote_compose' quote.pk %}">{% trans "Compose menu" %}</button>
+                </div>
             </div>
         </div>
     </div>
@@ -268,8 +268,7 @@
 
         <div class="card">
             <div class="card-body border-bottom">
-                <form method="post" action="{% url 'quotes:quote_add_dish' quote.pk %}" class="row g-2 align-items-end">
-                    {% csrf_token %}
+                <div class="row g-2 align-items-end">
                     <div class="col-md-8">
                         <label class="form-label small" for="dish">
                             {% trans "Add a dish" %}
@@ -290,12 +289,13 @@
                     <div class="col-md-2">
                         <label class="form-label small" for="dish_qty">{% trans "Qty" %}</label>
                         <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
-                               id="dish_qty" name="quantity">
+                               id="dish_qty" name="dish_quantity">
                     </div>
                     <div class="col-md-2">
-                        <button class="btn btn-primary btn-sm w-100" type="submit">{% trans "Add" %}</button>
+                        <button class="btn btn-primary btn-sm w-100" type="submit"
+                            formaction="{% url 'quotes:quote_add_charge' quote.pk %}">{% trans "Add" %}</button>
                     </div>
-                </form>
+                </div>
 
                 <button class="btn btn-link btn-sm p-0 mt-2" type="button"
                         data-bs-toggle="collapse" data-bs-target="#custom-dish"
@@ -305,17 +305,15 @@
                 <p class="text-muted small mb-0 mt-1">
                     {% trans "On a per-guest quote the dish prices do not change the total — leave them empty if you only want the menu listed." %}
                 </p>
-                <form method="post" action="{% url 'quotes:quote_add_custom_dish' quote.pk %}"
-                      class="row g-2 align-items-end collapse mt-1" id="custom-dish">
-                    {% csrf_token %}
+                <div class="row g-2 align-items-end collapse mt-1" id="custom-dish">
                     <div class="col-md-6">
                         <label class="form-label small" for="cd_name">{% trans "Dish" %}</label>
-                        <input class="form-control form-control-sm" id="cd_name" name="name"
+                        <input class="form-control form-control-sm" id="cd_name" name="cd_name"
                                placeholder="{% trans 'Morcilla, chicharrón al barril…' %}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small" for="cd_course">{% trans "Course" %}</label>
-                        <select class="form-select form-select-sm" id="cd_course" name="course">
+                        <select class="form-select form-select-sm" id="cd_course" name="cd_course">
                             {% for value, label in courses %}
                             <option value="{{ value }}">{{ label }}</option>
                             {% endfor %}
@@ -323,43 +321,43 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label small" for="cd_desc">{% trans "Description" %}</label>
-                        <input class="form-control form-control-sm" id="cd_desc" name="description">
+                        <input class="form-control form-control-sm" id="cd_desc" name="cd_description">
                     </div>
                     <div class="col-4">
                         <label class="form-label small" for="cd_price">{% trans "Price" %}</label>
                         <input type="number" step="1000" class="form-control form-control-sm"
-                               id="cd_price" name="price" placeholder="{% trans 'optional' %}">
+                               id="cd_price" name="cd_price" placeholder="{% trans 'optional' %}">
                     </div>
                     <div class="col-4">
                         <label class="form-label small" for="cd_cost">{% trans "Cost" %}</label>
                         <input type="number" step="1000" class="form-control form-control-sm"
-                               id="cd_cost" name="cost" placeholder="{% trans 'optional' %}">
+                               id="cd_cost" name="cd_cost" placeholder="{% trans 'optional' %}">
                     </div>
                     <div class="col-4">
                         <label class="form-label small" for="cd_qty">{% trans "Qty" %}</label>
                         <input type="number" step="1" min="1" value="1" class="form-control form-control-sm"
-                               id="cd_qty" name="quantity">
+                               id="cd_qty" name="cd_quantity">
                     </div>
                     <div class="col-12">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="cd_remember" name="remember">
+                            <input class="form-check-input" type="checkbox" id="cd_remember" name="cd_remember">
                             <label class="form-check-label small" for="cd_remember">
                                 {% trans "Add it to the menu too — otherwise it stays on this quote only" %}
                             </label>
                         </div>
                     </div>
                     <div class="col-12">
-                        <button class="btn btn-outline-primary btn-sm w-100" type="submit">{% trans "Add dish" %}</button>
+                        <button class="btn btn-outline-primary btn-sm w-100" type="submit"
+                                formaction="{% url 'quotes:quote_add_custom_dish' quote.pk %}">{% trans "Add dish" %}</button>
                     </div>
-                </form>
+                </div>
             </div>
             <div class="card-header d-flex justify-content-between">
                 <span>{% trans "Menu" %}</span>
                 <span class="text-muted">{{ quote.food_lines|length }} {% trans "lines" %}</span>
             </div>
             {% if courses %}
-            <form method="post" action="{% url 'quotes:quote_update_lines' quote.pk %}">
-            {% csrf_token %}
+            <div>
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <tbody>
@@ -394,7 +392,8 @@
                     <tfoot class="border-top">
                         <tr>
                             <td colspan="5" class="text-end">
-                                <button class="btn btn-sm btn-outline-secondary" type="submit">{% trans "Save quantities" %}</button>
+                                <button class="btn btn-sm btn-outline-secondary" type="submit"
+                                    formaction="{% url 'quotes:quote_update_lines' quote.pk %}">{% trans "Save quantities" %}</button>
                             </td>
                         </tr>
                         {% for line in quote.charged_add_ons %}
@@ -429,7 +428,7 @@
                     </tfoot>
                 </table>
             </div>
-            </form>
+            </div>
             {% else %}
             <div class="card-body text-center py-5 text-muted">
                 {% trans "No lines yet. Compose a menu from a budget to get started." %}
@@ -437,5 +436,5 @@
             {% endif %}
         </div>
     </div>
-</div>
+</form>
 {% endblock %}
