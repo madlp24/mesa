@@ -25,8 +25,12 @@
             <div class="card-body">
                 <div>
                     <div class="mb-3">
-                        <label class="form-label" for="venue">{% trans "Where" %}</label>
-                        <select class="form-select" id="venue" name="venue">
+                        <label class="form-label" for="venue">
+                            {% trans "Where" %}
+                            <span class="text-muted small">{% trans "— changes which dishes are offered" %}</span>
+                        </label>
+                        <select class="form-select" id="venue" name="venue"
+                                onchange="this.form.submit()">
                             {% for value, label in venues %}
                             <option value="{{ value }}" {% if quote.venue == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
@@ -273,8 +277,17 @@
                         <label class="form-label small" for="dish">
                             {% trans "Add a dish" %}
                             <span class="text-muted">
-                                — {% if quote.is_off_site %}{% trans "menu for events away from the restaurant" %}{% else %}{% trans "restaurant menu" %}{% endif %}
+                                — {% if showing_whole_menu %}{% trans "the whole menu" %}
+                                {% elif quote.is_off_site %}{% trans "menu for events away from the restaurant" %}
+                                {% else %}{% trans "restaurant menu" %}{% endif %}
                             </span>
+                            {% if showing_whole_menu %}
+                            <a class="small" href="{% url 'quotes:quote_detail' quote.pk %}">{% trans "only this venue" %}</a>
+                            {% elif hidden_by_venue %}
+                            <a class="small" href="{% url 'quotes:quote_detail' quote.pk %}?menu=all">
+                                {% blocktrans count counter=hidden_by_venue %}show the {{ counter }} hidden dish{% plural %}show the {{ counter }} hidden dishes{% endblocktrans %}
+                            </a>
+                            {% endif %}
                         </label>
                         <select class="form-select form-select-sm" id="dish" name="dish">
                             {% for label, items in dish_groups %}
@@ -363,7 +376,7 @@
                     <tbody>
                         {% for course in courses %}
                         <tr class="table-light">
-                            <th colspan="5" class="small text-uppercase">{{ course.label }}</th>
+                            <th colspan="6" class="small text-uppercase">{{ course.label }}</th>
                         </tr>
                         {% for line in course.lines %}
                         <tr>
@@ -379,6 +392,13 @@
                                        aria-label="{% trans 'Quantity of' %} {{ line.name }}">
                             </td>
                             <td class="text-end text-muted">{{ line.unit_price|floatformat:0|intcomma }}</td>
+                            <td style="width:7rem">
+                                <input type="number" step="100" name="cost-{{ line.pk }}"
+                                       value="{{ line.unit_cost|default_if_none:''|floatformat:0 }}"
+                                       class="form-control form-control-sm text-end {% if line.unit_cost is None %}border-warning{% endif %}"
+                                       placeholder="{% trans 'cost' %}"
+                                       aria-label="{% trans 'Cost of' %} {{ line.name }}">
+                            </td>
                             <td class="text-end">{{ line.line_total|floatformat:0|intcomma }}</td>
                             <td class="text-end" style="width:2.5rem">
                                 <button class="btn btn-sm btn-link text-danger p-0" type="submit"
@@ -391,37 +411,37 @@
                     </tbody>
                     <tfoot class="border-top">
                         <tr>
-                            <td colspan="5" class="text-end">
+                            <td colspan="6" class="text-end">
                                 <button class="btn btn-sm btn-outline-secondary" type="submit"
                                     formaction="{% url 'quotes:quote_update_lines' quote.pk %}">{% trans "Save quantities" %}</button>
                             </td>
                         </tr>
                         {% for line in quote.charged_add_ons %}
                         <tr>
-                            <td colspan="3" class="text-end text-muted">{{ line.name }}{% if line.quantity != 1 %} x{{ line.quantity|floatformat:0 }}{% endif %}</td>
+                            <td colspan="4" class="text-end text-muted">{{ line.name }}{% if line.quantity != 1 %} x{{ line.quantity|floatformat:0 }}{% endif %}</td>
                             <td class="text-end">{{ line.line_total|floatformat:0|intcomma }}</td>
                             <td></td>
                         </tr>
                         {% endfor %}
                         <tr>
-                            <td colspan="3" class="text-end text-muted">{% trans "Subtotal (tax included)" %}</td>
+                            <td colspan="4" class="text-end text-muted">{% trans "Subtotal (tax included)" %}</td>
                             <td class="text-end">{{ quote.subtotal|floatformat:0|intcomma }}</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td colspan="3" class="text-end text-muted small">{% trans "of which tax, already inside" %}</td>
+                            <td colspan="4" class="text-end text-muted small">{% trans "of which tax, already inside" %}</td>
                             <td class="text-end text-muted small">{{ quote.tax_included|floatformat:0|intcomma }}</td>
                             <td></td>
                         </tr>
                         {% if quote.charges_tip %}
                         <tr>
-                            <td colspan="3" class="text-end text-muted">{% trans "Tip" %} 10%</td>
+                            <td colspan="4" class="text-end text-muted">{% trans "Tip" %} 10%</td>
                             <td class="text-end">{{ quote.tip|floatformat:0|intcomma }}</td>
                             <td></td>
                         </tr>
                         {% endif %}
                         <tr class="fw-bold">
-                            <td colspan="3" class="text-end">{% trans "Total" %}</td>
+                            <td colspan="4" class="text-end">{% trans "Total" %}</td>
                             <td class="text-end">{{ quote.total|floatformat:0|intcomma }}</td>
                             <td></td>
                         </tr>

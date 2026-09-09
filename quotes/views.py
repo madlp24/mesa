@@ -150,11 +150,20 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
     # Not "courses": that key already holds the quote's lines grouped by course,
     # and overwriting it emptied the menu table.
     context["course_choices"] = Course.choices
-    # Only what can be served where this event happens.
+    # Only what can be served where this event happens -- unless the whole menu
+    # is asked for, since the classification is the owner's and may be wrong or
+    # simply not done yet. Nobody should be stuck unable to quote a dish.
+    show_all = request.GET.get("menu") == "all"
     catalogo = (
-        MenuItem.for_venue(request.restaurant, quote.is_off_site)
-        .exclude(course=Course.SERVICE)
-        .order_by("course", "name")
+        MenuItem.objects.filter(restaurant=request.restaurant, is_active=True)
+        if show_all
+        else MenuItem.for_venue(request.restaurant, quote.is_off_site)
+    ).exclude(course=Course.SERVICE).order_by("course", "name")
+    context["showing_whole_menu"] = show_all
+    context["hidden_by_venue"] = (
+        0 if show_all
+        else MenuItem.objects.filter(restaurant=request.restaurant, is_active=True)
+        .exclude(course=Course.SERVICE).count() - catalogo.count()
     )
     context["dish_groups"] = [
         (label, [i for i in catalogo if i.course == value])
@@ -366,9 +375,24 @@ def quote_update_lines(request: HttpRequest, pk: int) -> HttpResponse:
         quantity = _decimal(raw, "0")
         if quantity <= 0:
             line.delete()
-        elif quantity != line.quantity:
+            continue
+
+        cambios = []
+        if quantity != line.quantity:
             line.quantity = quantity
-            line.save(update_fields=["quantity"])
+            cambios.append("quantity")
+
+        # A dish written for this quote alone has nowhere else to carry its
+        # cost, so it is typed here, beside the warning that asks for it.
+        raw_cost = request.POST.get(f"cost-{line.pk}")
+        if raw_cost is not None:
+            nuevo = _decimal(raw_cost) if raw_cost.strip() else None
+            if nuevo != line.unit_cost:
+                line.unit_cost = nuevo
+                cambios.append("unit_cost")
+
+        if cambios:
+            line.save(update_fields=cambios)
     messages.success(request, _("Quote updated."))
     return redirect("quotes:quote_detail", pk=quote.pk)
 
