@@ -102,30 +102,43 @@ def quote_create(request: HttpRequest) -> HttpResponse:
     return redirect("quotes:quote_detail", pk=quote.pk)
 
 
+def _apply_event_fields(request: HttpRequest, quote: Quote) -> None:
+    """Save whatever the event form is carrying.
+
+    The page is one form with several buttons, so adding a dish or a charge
+    posts the event fields along with it. Without this, everything typed above
+    and not yet saved would be thrown away by the redirect.
+    """
+    if "client_name" not in request.POST:
+        return
+
+    quote.client_name = request.POST.get("client_name", "").strip()
+    quote.concept = request.POST.get("concept", "").strip()
+    quote.event_date = parse_date(request.POST.get("event_date", "") or "")
+    quote.guests = max(1, int(_decimal(request.POST.get("guests"), "1")))
+    quote.days = max(1, int(_decimal(request.POST.get("days"), "1")))
+    quote.payment_terms = request.POST.get("payment_terms", "").strip()
+    quote.notes = request.POST.get("notes", "").strip()
+    quote.charges_tip = request.POST.get("charges_tip") == "on"
+    quote.show_quantities = request.POST.get("show_quantities") == "on"
+    quote.price_per_guest = _decimal(request.POST.get("price_per_guest"))
+    quote.pricing_mode = (
+        PricingMode.PER_GUEST
+        if request.POST.get("pricing_mode") == PricingMode.PER_GUEST
+        else PricingMode.CONSUMPTION
+    )
+    venue = request.POST.get("venue")
+    if venue in Venue.values:
+        quote.venue = venue
+    quote.save()
+
+
 @login_required
 def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
     quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
 
     if request.method == "POST":
-        quote.client_name = request.POST.get("client_name", "").strip()
-        quote.concept = request.POST.get("concept", "").strip()
-        quote.event_date = parse_date(request.POST.get("event_date", "") or "")
-        quote.guests = max(1, int(_decimal(request.POST.get("guests"), "1")))
-        quote.days = max(1, int(_decimal(request.POST.get("days"), "1")))
-        quote.payment_terms = request.POST.get("payment_terms", "").strip()
-        quote.notes = request.POST.get("notes", "").strip()
-        quote.show_quantities = request.POST.get("show_quantities") == "on"
-        venue = request.POST.get("venue")
-        if venue in Venue.values:
-            quote.venue = venue
-        quote.charges_tip = request.POST.get("charges_tip") == "on"
-        quote.price_per_guest = _decimal(request.POST.get("price_per_guest"))
-        quote.pricing_mode = (
-            PricingMode.PER_GUEST
-            if request.POST.get("pricing_mode") == PricingMode.PER_GUEST
-            else PricingMode.CONSUMPTION
-        )
-        quote.save()
+        _apply_event_fields(request, quote)
         messages.success(request, _("Quote saved."))
         return redirect("quotes:quote_detail", pk=quote.pk)
 
@@ -134,7 +147,9 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
         restaurant=request.restaurant, course=Course.SERVICE, is_active=True
     ).order_by("name")
     context["venues"] = Venue.choices
-    context["courses"] = Course.choices
+    # Not "courses": that key already holds the quote's lines grouped by course,
+    # and overwriting it emptied the menu table.
+    context["course_choices"] = Course.choices
     # Only what can be served where this event happens.
     catalogo = (
         MenuItem.for_venue(request.restaurant, quote.is_off_site)
@@ -155,8 +170,9 @@ def quote_compose(request: HttpRequest, pk: int) -> HttpResponse:
     """Build the menu that fits a per-guest budget, then show what it leaves."""
     quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
 
+    _apply_event_fields(request, quote)
     budget = _decimal(request.POST.get("budget_per_guest"))
-    guests = max(1, int(_decimal(request.POST.get("guests"), "1")))
+    guests = max(1, int(_decimal(request.POST.get("compose_guests"), "1")))
     profile = request.POST.get("profile", "seated")
     alcohol = request.POST.get("alcohol") == "on"
     offset = int(_decimal(request.POST.get("offset"), "0"))
@@ -210,9 +226,10 @@ def quote_pdf(request: HttpRequest, pk: int) -> HttpResponse:
 def quote_add_charge(request: HttpRequest, pk: int) -> HttpResponse:
     """Add a charge billed on top of the per-guest price."""
     quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
-    name = request.POST.get("name", "").strip()
-    amount = _decimal(request.POST.get("amount"))
-    quantity = _decimal(request.POST.get("quantity"), "1") or Decimal("1")
+    _apply_event_fields(request, quote)
+    name = request.POST.get("charge_name", "").strip()
+    amount = _decimal(request.POST.get("charge_amount"))
+    quantity = _decimal(request.POST.get("charge_quantity"), "1") or Decimal(1)
 
     # A negative amount is a discount. No amount at all is an inclusion: the
     # quote lists it without charging for it, the way the house always has.
@@ -220,7 +237,7 @@ def quote_add_charge(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, _("A charge needs a name."))
         return redirect("quotes:quote_detail", pk=quote.pk)
 
-    cost = _decimal(request.POST.get("cost")) if request.POST.get("cost") else None
+    cost = _decimal(request.POST.get("charge_cost")) if request.POST.get("charge_cost") else None
 
     QuoteLine.objects.create(
         quote=quote, course=Course.SERVICE, name=name, quantity=quantity,
@@ -228,7 +245,7 @@ def quote_add_charge(request: HttpRequest, pk: int) -> HttpResponse:
         add_on=True, position=900,
     )
 
-    if request.POST.get("remember") == "on":
+    if request.POST.get("charge_remember") == "on":
         # The list of services builds itself out of what has been typed, so
         # nobody has to sit down and enter a catalogue before quoting.
         MenuItem.objects.update_or_create(
@@ -250,11 +267,12 @@ def quote_add_service(request: HttpRequest, pk: int) -> HttpResponse:
     picks from a list instead of remembering figures.
     """
     quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    _apply_event_fields(request, quote)
     service = get_object_or_404(
         MenuItem, pk=request.POST.get("service"), restaurant=request.restaurant,
         course=Course.SERVICE,
     )
-    quantity = _decimal(request.POST.get("quantity"), "1") or Decimal(1)
+    quantity = _decimal(request.POST.get("service_quantity"), "1") or Decimal(1)
 
     QuoteLine.objects.create(
         quote=quote, menu_item=service, course=Course.SERVICE, name=service.name,
@@ -270,10 +288,11 @@ def quote_add_service(request: HttpRequest, pk: int) -> HttpResponse:
 def quote_add_dish(request: HttpRequest, pk: int) -> HttpResponse:
     """Put a dish on the quote, straight from the menu."""
     quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    _apply_event_fields(request, quote)
     dish = get_object_or_404(
         MenuItem, pk=request.POST.get("dish"), restaurant=request.restaurant
     )
-    quantity = _decimal(request.POST.get("quantity"), "1") or Decimal(1)
+    quantity = _decimal(request.POST.get("dish_quantity"), "1") or Decimal(1)
 
     line, created = QuoteLine.objects.get_or_create(
         quote=quote, menu_item=dish, add_on=False,
@@ -303,21 +322,22 @@ def quote_add_custom_dish(request: HttpRequest, pk: int) -> HttpResponse:
     quote; ticking "remember" is what puts them on the menu.
     """
     quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
-    name = request.POST.get("name", "").strip()
+    _apply_event_fields(request, quote)
+    name = request.POST.get("cd_name", "").strip()
     if not name:
         messages.error(request, _("A dish needs a name."))
         return redirect("quotes:quote_detail", pk=quote.pk)
 
-    course = request.POST.get("course")
+    course = request.POST.get("cd_course")
     if course not in Course.values:
         course = Course.STARTERS
-    description = request.POST.get("description", "").strip()
-    price = _decimal(request.POST.get("price"))
-    cost = _decimal(request.POST.get("cost")) if request.POST.get("cost") else None
-    quantity = _decimal(request.POST.get("quantity"), "1") or Decimal(1)
+    description = request.POST.get("cd_description", "").strip()
+    price = _decimal(request.POST.get("cd_price"))
+    cost = _decimal(request.POST.get("cd_cost")) if request.POST.get("cd_cost") else None
+    quantity = _decimal(request.POST.get("cd_quantity"), "1") or Decimal(1)
 
     remembered = None
-    if request.POST.get("remember") == "on":
+    if request.POST.get("cd_remember") == "on":
         remembered, _created = MenuItem.objects.update_or_create(
             restaurant=request.restaurant, name=name,
             defaults=dict(description=description, course=course, price=price,
@@ -338,6 +358,7 @@ def quote_add_custom_dish(request: HttpRequest, pk: int) -> HttpResponse:
 def quote_update_lines(request: HttpRequest, pk: int) -> HttpResponse:
     """Save every quantity at once, so the page is one form and one button."""
     quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    _apply_event_fields(request, quote)
     for line in quote.lines.all():
         raw = request.POST.get(f"qty-{line.pk}")
         if raw is None:

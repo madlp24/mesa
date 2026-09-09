@@ -138,6 +138,13 @@ def compose(restaurant, budget_per_guest, guests, profile="seated", alcohol=True
     for item in items:
         by_course.setdefault(item.course, []).append(item)
 
+    # A dish nobody has costed silently robs the quote of its margin, so it is
+    # only reached for when a course has nothing costed to offer.
+    for course, pool in by_course.items():
+        costed = [item for item in pool if item.is_costed]
+        if costed:
+            by_course[course] = costed
+
     composition = Composition(guests=guests, budget_per_guest=budget_per_guest)
     carry = ZERO
 

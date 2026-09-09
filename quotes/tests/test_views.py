@@ -111,7 +111,7 @@ class TestCompose:
 
         logged_client.post(
             reverse("quotes:quote_compose", args=[quote.pk]),
-            {"budget_per_guest": "250000", "guests": "20", "profile": "seated", "alcohol": "on"},
+            {"budget_per_guest": "250000", "compose_guests": "20", "profile": "seated", "alcohol": "on"},
         )
         quote.refresh_from_db()
 
@@ -124,7 +124,7 @@ class TestCompose:
 
         logged_client.post(
             reverse("quotes:quote_compose", args=[quote.pk]),
-            {"budget_per_guest": "0", "guests": "20", "profile": "seated"},
+            {"budget_per_guest": "0", "compose_guests": "20", "profile": "seated"},
         )
         quote.refresh_from_db()
 
@@ -209,7 +209,7 @@ class TestCharges:
 
         logged_client.post(
             reverse("quotes:quote_add_charge", args=[quote.pk]),
-            {"name": "Alquiler del espacio", "amount": "1000000", "quantity": "1"},
+            {"charge_name": "Alquiler del espacio", "charge_amount": "1000000", "charge_quantity": "1"},
         )
         line = quote.lines.get()
 
@@ -222,7 +222,7 @@ class TestCharges:
 
         logged_client.post(
             reverse("quotes:quote_add_charge", args=[quote.pk]),
-            {"name": "", "amount": "500000", "quantity": "1"},
+            {"charge_name": "", "charge_amount": "500000", "charge_quantity": "1"},
         )
 
         assert not quote.lines.exists()
@@ -232,7 +232,7 @@ class TestCharges:
 
         logged_client.post(
             reverse("quotes:quote_add_charge", args=[quote.pk]),
-            {"name": "Menaje completo", "amount": "0", "quantity": "1"},
+            {"charge_name": "Menaje completo", "charge_amount": "0", "charge_quantity": "1"},
         )
 
         assert quote.lines.count() == 1
@@ -261,7 +261,7 @@ class TestCharges:
 
         logged_client.post(
             reverse("quotes:quote_add_charge", args=[quote.pk]),
-            {"name": "Personal: 2 cocineros", "amount": "", "quantity": "1"},
+            {"charge_name": "Personal: 2 cocineros", "charge_amount": "", "charge_quantity": "1"},
         )
         quote.refresh_from_db()
 
@@ -275,7 +275,7 @@ class TestCharges:
 
         response = logged_client.post(
             reverse("quotes:quote_add_charge", args=[theirs.pk]),
-            {"name": "X", "amount": "1000", "quantity": "1"},
+            {"charge_name": "X", "charge_amount": "1000", "charge_quantity": "1"},
         )
 
         assert response.status_code == 404
@@ -293,7 +293,7 @@ class TestDiscounts:
 
         logged_client.post(
             reverse("quotes:quote_add_charge", args=[quote.pk]),
-            {"name": "Descuento comercial", "amount": "-1000000", "quantity": "1"},
+            {"charge_name": "Descuento comercial", "charge_amount": "-1000000", "charge_quantity": "1"},
         )
         quote.refresh_from_db()
 
@@ -306,7 +306,7 @@ class TestDiscounts:
 
         logged_client.post(
             reverse("quotes:quote_add_charge", args=[quote.pk]),
-            {"name": "Menaje completo", "amount": "0", "quantity": "1"},
+            {"charge_name": "Menaje completo", "charge_amount": "0", "charge_quantity": "1"},
         )
         quote.refresh_from_db()
 
@@ -365,7 +365,7 @@ class TestSavedServices:
 
         logged_client.post(
             reverse("quotes:quote_add_service", args=[quote.pk]),
-            {"service": str(service.pk), "quantity": "2"},
+            {"service": str(service.pk), "service_quantity": "2"},
         )
         line = quote.lines.get()
 
@@ -388,7 +388,7 @@ class TestSavedServices:
 
         logged_client.post(
             reverse("quotes:quote_add_service", args=[quote.pk]),
-            {"service": str(service.pk), "quantity": "1"},
+            {"service": str(service.pk), "service_quantity": "1"},
         )
         quote.refresh_from_db()
 
@@ -403,7 +403,7 @@ class TestSavedServices:
 
         response = logged_client.post(
             reverse("quotes:quote_add_service", args=[quote.pk]),
-            {"service": str(dish.pk), "quantity": "1"},
+            {"service": str(dish.pk), "service_quantity": "1"},
         )
 
         assert response.status_code == 404
@@ -416,7 +416,7 @@ class TestSavedServices:
 
         response = logged_client.post(
             reverse("quotes:quote_add_service", args=[quote.pk]),
-            {"service": str(theirs.pk), "quantity": "1"},
+            {"service": str(theirs.pk), "service_quantity": "1"},
         )
 
         assert response.status_code == 404
@@ -458,7 +458,7 @@ class TestBuildingByHand:
 
         logged_client.post(
             reverse("quotes:quote_add_dish", args=[quote.pk]),
-            {"dish": str(dish.pk), "quantity": "6"},
+            {"dish": str(dish.pk), "dish_quantity": "6"},
         )
         line = quote.lines.get()
 
@@ -474,8 +474,8 @@ class TestBuildingByHand:
         quote = Quote.objects.create(restaurant=restaurant, number="CA-191", guests=12)
         url = reverse("quotes:quote_add_dish", args=[quote.pk])
 
-        logged_client.post(url, {"dish": str(dish.pk), "quantity": "4"})
-        logged_client.post(url, {"dish": str(dish.pk), "quantity": "2"})
+        logged_client.post(url, {"dish": str(dish.pk), "dish_quantity": "4"})
+        logged_client.post(url, {"dish": str(dish.pk), "dish_quantity": "2"})
 
         assert quote.lines.count() == 1
         assert quote.lines.get().quantity == Decimal("6")
@@ -515,7 +515,7 @@ class TestBuildingByHand:
 
         response = logged_client.post(
             reverse("quotes:quote_add_dish", args=[quote.pk]),
-            {"dish": str(theirs.pk), "quantity": "1"},
+            {"dish": str(theirs.pk), "dish_quantity": "1"},
         )
 
         assert response.status_code == 404
@@ -585,7 +585,7 @@ class TestServicesTypedIn:
     """Prices are typed as the service is added; the list builds itself."""
 
     def _add(self, client, quote, **extra):
-        data = {"name": "Mesero", "amount": "200000", "quantity": "2"}
+        data = {"charge_name": "Mesero", "charge_amount": "200000", "charge_quantity": "2"}
         data.update(extra)
         return client.post(reverse("quotes:quote_add_charge", args=[quote.pk]), data)
 
@@ -605,7 +605,7 @@ class TestServicesTypedIn:
     def test_a_typed_cost_counts_in_the_margin(self, logged_client, restaurant):
         quote = Quote.objects.create(restaurant=restaurant, number="CA-221", guests=40)
 
-        self._add(logged_client, quote, cost="90000")
+        self._add(logged_client, quote, charge_cost="90000")
         line = quote.lines.get()
 
         assert line.unit_cost == Decimal("90000")
@@ -613,7 +613,7 @@ class TestServicesTypedIn:
     def test_remembering_it_makes_it_reusable(self, logged_client, restaurant):
         quote = Quote.objects.create(restaurant=restaurant, number="CA-222", guests=40)
 
-        self._add(logged_client, quote, cost="90000", remember="on")
+        self._add(logged_client, quote, charge_cost="90000", charge_remember="on")
         saved = MenuItem.objects.get(restaurant=restaurant, name="Mesero")
 
         assert saved.course == Course.SERVICE
@@ -630,8 +630,8 @@ class TestServicesTypedIn:
     def test_typing_it_again_updates_the_remembered_price(self, logged_client, restaurant):
         quote = Quote.objects.create(restaurant=restaurant, number="CA-224", guests=40)
 
-        self._add(logged_client, quote, remember="on")
-        self._add(logged_client, quote, amount="250000", remember="on")
+        self._add(logged_client, quote, charge_remember="on")
+        self._add(logged_client, quote, charge_amount="250000", charge_remember="on")
 
         assert MenuItem.objects.get(restaurant=restaurant, name="Mesero").price == Decimal("250000")
 
@@ -639,7 +639,7 @@ class TestServicesTypedIn:
         """"Personal: 2 cocineros" is worth remembering even at nothing."""
         quote = Quote.objects.create(restaurant=restaurant, number="CA-225", guests=40)
 
-        self._add(logged_client, quote, name="Personal: 2 cocineros", amount="", remember="on")
+        self._add(logged_client, quote, charge_name="Personal: 2 cocineros", charge_amount="", charge_remember="on")
         saved = MenuItem.objects.get(restaurant=restaurant, name="Personal: 2 cocineros")
 
         assert saved.price == Decimal(0)
@@ -651,8 +651,8 @@ class TestOneOffDish:
     """A corporate event is cooked off the menu; the menu should not fill up."""
 
     def _write(self, client, quote, **extra):
-        data = {"name": "Morcilla", "course": "starters", "description": "",
-                "price": "200000", "quantity": "4"}
+        data = {"cd_name": "Morcilla", "cd_course": "starters", "cd_description": "",
+                "cd_price": "200000", "cd_quantity": "4"}
         data.update(extra)
         return client.post(reverse("quotes:quote_add_custom_dish", args=[quote.pk]), data)
 
@@ -678,7 +678,7 @@ class TestOneOffDish:
     def test_it_can_be_kept_on_the_menu(self, logged_client, restaurant):
         quote = Quote.objects.create(restaurant=restaurant, number="CA-232", guests=40)
 
-        self._write(logged_client, quote, cost="70000", remember="on")
+        self._write(logged_client, quote, cd_cost="70000", cd_remember="on")
         kept = MenuItem.objects.get(restaurant=restaurant, name="Morcilla")
 
         assert kept.course == Course.STARTERS
@@ -690,7 +690,7 @@ class TestOneOffDish:
             restaurant=restaurant, number="CA-233", guests=40, charges_tip=False
         )
 
-        self._write(logged_client, quote, cost="70000")
+        self._write(logged_client, quote, cd_cost="70000")
         quote.refresh_from_db()
 
         assert quote.is_costed is True
@@ -707,7 +707,7 @@ class TestOneOffDish:
     def test_a_dish_needs_a_name(self, logged_client, restaurant):
         quote = Quote.objects.create(restaurant=restaurant, number="CA-235", guests=40)
 
-        self._write(logged_client, quote, name="")
+        self._write(logged_client, quote, cd_name="")
 
         assert not quote.lines.exists()
 
@@ -810,3 +810,129 @@ class TestMenuByVenue:
         item.refresh_from_db()
 
         assert item.availability == Availability.OFF_SITE
+
+
+@pytest.mark.django_db
+class TestMenuTableRenders:
+    def test_the_lines_actually_appear(self, logged_client, restaurant):
+        """The course dropdown overwrote the grouped lines and the table went blank."""
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-280", guests=16)
+        for name in ("Albóndigas al carbón", "Ribeye americano", "Postre de limón"):
+            QuoteLine.objects.create(
+                quote=quote, course=Course.MAINS, name=name, quantity=Decimal("2"),
+                unit_price=Decimal("60000"), unit_cost=Decimal("15000"),
+            )
+
+        body = logged_client.get(reverse("quotes:quote_detail", args=[quote.pk])).content.decode()
+        table = body[body.index("<tbody>"):body.index("</tbody>")]
+
+        for name in ("Albóndigas al carbón", "Ribeye americano", "Postre de limón"):
+            assert name in table
+
+
+@pytest.mark.django_db
+class TestEventFieldsSurviveEveryAction:
+    """The page is one form: an action must not discard what was typed above."""
+
+    EVENTO = {
+        "client_name": "Juliana Rodríguez",
+        "concept": "Cena de grado",
+        "event_date": "2026-10-17",
+        "guests": "16",
+        "days": "1",
+        "payment_terms": "50% anticipo",
+        "notes": "En el reservado.",
+        "pricing_mode": "consumption",
+        "price_per_guest": "0",
+        "venue": "grill",
+        "charges_tip": "on",
+        "show_quantities": "on",
+    }
+
+    def _assert_kept(self, quote):
+        quote.refresh_from_db()
+        assert quote.client_name == "Juliana Rodríguez"
+        assert quote.concept == "Cena de grado"
+        assert str(quote.event_date) == "2026-10-17"
+        assert quote.guests == 16
+        assert quote.notes == "En el reservado."
+        assert quote.venue == Venue.GRILL
+        assert quote.charges_tip is True
+
+    def test_adding_a_charge_keeps_the_event(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-290")
+
+        logged_client.post(
+            reverse("quotes:quote_add_charge", args=[quote.pk]),
+            {**self.EVENTO, "charge_name": "Transporte", "charge_amount": "550000",
+             "charge_quantity": "1"},
+        )
+
+        self._assert_kept(quote)
+        assert quote.add_ons_total == Decimal("550000")
+
+    def test_adding_a_dish_keeps_the_event(self, logged_client, restaurant):
+        dish = MenuItem.objects.create(
+            restaurant=restaurant, name="Morcilla", course=Course.STARTERS,
+            price=Decimal("200000"),
+        )
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-291")
+
+        logged_client.post(
+            reverse("quotes:quote_add_dish", args=[quote.pk]),
+            {**self.EVENTO, "dish": str(dish.pk), "dish_quantity": "2"},
+        )
+
+        self._assert_kept(quote)
+        assert quote.lines.count() == 1
+
+    def test_writing_a_dish_keeps_the_event(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-292")
+
+        logged_client.post(
+            reverse("quotes:quote_add_custom_dish", args=[quote.pk]),
+            {**self.EVENTO, "cd_name": "Chicharrón al barril", "cd_course": "starters",
+             "cd_price": "300000", "cd_quantity": "2"},
+        )
+
+        self._assert_kept(quote)
+
+    def test_saving_quantities_keeps_the_event(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-293")
+        line = QuoteLine.objects.create(
+            quote=quote, name="X", quantity=Decimal("1"), unit_price=Decimal("1000")
+        )
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {**self.EVENTO, f"qty-{line.pk}": "5"},
+        )
+
+        self._assert_kept(quote)
+        line.refresh_from_db()
+        assert line.quantity == Decimal("5")
+
+    def test_choosing_the_venue_switches_the_dish_list_on_the_same_action(
+        self, logged_client, restaurant
+    ):
+        """Picking "grill" and adding a dish must not consult the old venue."""
+        from quotes.models import Availability
+
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Longaniza artesanal", course=Course.STARTERS,
+            price=Decimal("250000"), availability=Availability.OFF_SITE,
+        )
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-294", venue=Venue.IN_HOUSE
+        )
+
+        logged_client.post(
+            reverse("quotes:quote_add_charge", args=[quote.pk]),
+            {**self.EVENTO, "charge_name": "Transporte", "charge_amount": "550000"},
+        )
+        body = logged_client.get(
+            reverse("quotes:quote_detail", args=[quote.pk])
+        ).content.decode()
+        dropdown = body[body.index('id="dish"'):body.index("</select>", body.index('id="dish"'))]
+
+        assert "Longaniza artesanal" in dropdown

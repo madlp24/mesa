@@ -190,3 +190,30 @@ class TestComposerByVenue:
         assert minimum_per_guest(restaurant, 10, "seated", False) < minimum_per_guest(
             restaurant, 10, "seated", False, off_site=True
         )
+
+
+@pytest.mark.django_db
+class TestComposerPrefersCostedDishes:
+    def test_it_leaves_uncosted_dishes_alone_when_it_can(self, restaurant, category):
+        """Picking one silently costs the quote its margin."""
+        _item(restaurant, "Con costo", Course.MAINS, 100000, cost=25000, category=category)
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Sin costo", course=Course.MAINS,
+            price=Decimal("100000"), servings=Decimal(1),
+        )
+
+        for offset in range(3):
+            picked = compose(restaurant, 200000, 10, profile="seated",
+                             alcohol=False, offset=offset).picks
+            mains = [p.item.name for p in picked if p.item.course == Course.MAINS]
+            assert "Sin costo" not in mains
+
+    def test_it_still_uses_one_when_the_course_has_nothing_else(self, restaurant):
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Único sin costo", course=Course.MAINS,
+            price=Decimal("100000"), servings=Decimal(1),
+        )
+
+        picked = compose(restaurant, 200000, 10, profile="seated", alcohol=False).picks
+
+        assert "Único sin costo" in [p.item.name for p in picked]
