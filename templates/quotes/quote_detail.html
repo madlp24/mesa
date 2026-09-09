@@ -271,7 +271,12 @@
                 <form method="post" action="{% url 'quotes:quote_add_dish' quote.pk %}" class="row g-2 align-items-end">
                     {% csrf_token %}
                     <div class="col-md-8">
-                        <label class="form-label small" for="dish">{% trans "Add a dish" %}</label>
+                        <label class="form-label small" for="dish">
+                            {% trans "Add a dish" %}
+                            <span class="text-muted">
+                                — {% if quote.is_off_site %}{% trans "menu for events away from the restaurant" %}{% else %}{% trans "restaurant menu" %}{% endif %}
+                            </span>
+                        </label>
                         <select class="form-select form-select-sm" id="dish" name="dish">
                             {% for label, items in dish_groups %}
                             <optgroup label="{{ label }}">

@@ -740,3 +740,73 @@ class TestNewQuoteDefaults:
         quote.refresh_from_db()
 
         assert quote.pricing_mode == PricingMode.CONSUMPTION
+
+
+@pytest.mark.django_db
+class TestMenuByVenue:
+    """A grill at a finca cannot serve the dining room's carpaccio."""
+
+    def _menu(self, restaurant):
+        from quotes.models import Availability
+
+        return {
+            "ambos": MenuItem.objects.create(
+                restaurant=restaurant, name="Picanha", course=Course.MAINS,
+                price=Decimal("300000"), availability=Availability.BOTH),
+            "casa": MenuItem.objects.create(
+                restaurant=restaurant, name="Carpaccio de atún", course=Course.STARTERS,
+                price=Decimal("48000"), availability=Availability.IN_HOUSE),
+            "fuera": MenuItem.objects.create(
+                restaurant=restaurant, name="Morcilla", course=Course.STARTERS,
+                price=Decimal("200000"), availability=Availability.OFF_SITE),
+        }
+
+    def _names_offered(self, client, quote):
+        """Just the dish dropdown -- the page has other prose on it."""
+        body = client.get(reverse("quotes:quote_detail", args=[quote.pk])).content.decode()
+        start = body.index('id="dish"')
+        return body[start:body.index("</select>", start)]
+
+    def test_a_restaurant_quote_hides_the_grill_dishes(self, logged_client, restaurant):
+        menu = self._menu(restaurant)
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-270", venue=Venue.IN_HOUSE)
+
+        body = self._names_offered(logged_client, quote)
+
+        assert menu["casa"].name in body
+        assert menu["ambos"].name in body
+        assert menu["fuera"].name not in body
+
+    def test_a_grill_quote_hides_the_dining_room_dishes(self, logged_client, restaurant):
+        menu = self._menu(restaurant)
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-271", venue=Venue.GRILL)
+
+        body = self._names_offered(logged_client, quote)
+
+        assert menu["fuera"].name in body
+        assert menu["ambos"].name in body
+        assert menu["casa"].name not in body
+
+    def test_an_event_away_uses_the_same_list_as_a_grill(self, logged_client, restaurant):
+        menu = self._menu(restaurant)
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-272", venue=Venue.OFF_SITE)
+
+        body = self._names_offered(logged_client, quote)
+
+        assert menu["fuera"].name in body
+        assert menu["casa"].name not in body
+
+    def test_where_a_dish_is_served_can_be_changed(self, logged_client, restaurant):
+        from quotes.models import Availability
+
+        item = self._menu(restaurant)["casa"]
+
+        logged_client.post(
+            reverse("quotes:menu_item_edit", args=[item.pk]),
+            {"name": item.name, "course": "starters", "price": "48000", "servings": "1",
+             "product": "", "product_units": "1", "manual_cost": "",
+             "availability": "off_site", "is_active": "on"},
+        )
+        item.refresh_from_db()
+
+        assert item.availability == Availability.OFF_SITE

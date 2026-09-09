@@ -29,6 +29,19 @@ class Venue(models.TextChoices):
     GRILL = "grill", _("Grill away from the restaurant")
 
 
+class Availability(models.TextChoices):
+    """Where a dish can be served.
+
+    A grill taken to a client's finca cooks longaniza and morcilla; the dining
+    room serves nigiris and carpaccio. Quoting one from the other's list is how
+    a quote goes out wrong, so each item says where it belongs.
+    """
+
+    BOTH = "both", _("Anywhere")
+    IN_HOUSE = "in_house", _("At the restaurant only")
+    OFF_SITE = "off_site", _("Away from the restaurant only")
+
+
 class Course(models.TextChoices):
     STARTERS = "starters", _("Starters")
     MAINS = "mains", _("Mains")
@@ -92,6 +105,9 @@ class MenuItem(models.Model):
         blank=True,
         help_text=_("Cost of one unit, for what the POS does not sell"),
     )
+    availability = models.CharField(
+        max_length=20, choices=Availability.choices, default=Availability.BOTH
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -128,6 +144,15 @@ class MenuItem(models.Model):
     def is_costed(self) -> bool:
         """Whether a quote using this item can report a margin."""
         return self.unit_cost is not None
+
+    @classmethod
+    def for_venue(cls, restaurant, off_site: bool):
+        """The items that can be served at this kind of event."""
+        allowed = [Availability.BOTH,
+                   Availability.OFF_SITE if off_site else Availability.IN_HOUSE]
+        return cls.objects.filter(
+            restaurant=restaurant, is_active=True, availability__in=allowed
+        )
 
 
 class Quote(models.Model):

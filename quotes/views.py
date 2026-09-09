@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 from catalog.models import Product
 
 from . import services
-from .models import Course, MenuItem, PricingMode, Quote, QuoteLine, Venue
+from .models import Availability, Course, MenuItem, PricingMode, Quote, QuoteLine, Venue
 from .pdf import render_quote_pdf
 
 #: Margin to judge a quote against, taken from events this restaurant already billed.
@@ -135,9 +135,12 @@ def quote_detail(request: HttpRequest, pk: int) -> HttpResponse:
     ).order_by("name")
     context["venues"] = Venue.choices
     context["courses"] = Course.choices
-    catalogo = MenuItem.objects.filter(
-        restaurant=request.restaurant, is_active=True
-    ).exclude(course=Course.SERVICE).order_by("course", "name")
+    # Only what can be served where this event happens.
+    catalogo = (
+        MenuItem.for_venue(request.restaurant, quote.is_off_site)
+        .exclude(course=Course.SERVICE)
+        .order_by("course", "name")
+    )
     context["dish_groups"] = [
         (label, [i for i in catalogo if i.course == value])
         for value, label in Course.choices
@@ -163,10 +166,13 @@ def quote_compose(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect("quotes:quote_detail", pk=quote.pk)
 
     composition = services.compose(
-        request.restaurant, budget, guests, profile=profile, alcohol=alcohol, offset=offset
+        request.restaurant, budget, guests, profile=profile, alcohol=alcohol,
+        offset=offset, off_site=quote.is_off_site,
     )
     if not composition.picks:
-        floor = services.minimum_per_guest(request.restaurant, guests, profile, alcohol)
+        floor = services.minimum_per_guest(
+            request.restaurant, guests, profile, alcohol, quote.is_off_site
+        )
         messages.error(
             request,
             _("That budget does not cover this kind of event. The floor is about %(floor)s per guest.")
@@ -176,7 +182,9 @@ def quote_compose(request: HttpRequest, pk: int) -> HttpResponse:
 
     services.apply_composition(quote, composition)
     if not composition.fits:
-        floor = services.minimum_per_guest(request.restaurant, guests, profile, alcohol)
+        floor = services.minimum_per_guest(
+            request.restaurant, guests, profile, alcohol, quote.is_off_site
+        )
         messages.warning(
             request,
             _("The closest menu costs %(cost)s per guest. The floor for this event is about %(floor)s.")
@@ -368,6 +376,7 @@ def menu_list(request: HttpRequest) -> HttpResponse:
             "products": Product.objects.filter(
                 restaurant=request.restaurant, is_active=True
             ).order_by("name"),
+            "availabilities": Availability.choices,
             "unmapped_count": sum(1 for item in items if not item.is_mapped and item.is_active),
         },
     )
@@ -393,6 +402,9 @@ def menu_item_edit(request: HttpRequest, pk: int) -> HttpResponse:
     item.product_units = _decimal(request.POST.get("product_units"), "1") or Decimal(1)
     raw_cost = (request.POST.get("manual_cost") or "").strip()
     item.manual_cost = _decimal(raw_cost) if raw_cost else None
+    availability = request.POST.get("availability")
+    if availability in Availability.values:
+        item.availability = availability
     item.is_active = request.POST.get("is_active") == "on"
     item.save()
 

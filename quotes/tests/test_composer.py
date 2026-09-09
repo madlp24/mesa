@@ -148,3 +148,45 @@ class TestApply:
 
         assert quote.lines.count() != first or quote.guests == 10
         assert quote.guests == 10
+
+
+@pytest.mark.django_db
+class TestComposerByVenue:
+    def test_it_only_picks_what_can_be_served_there(self, restaurant, category):
+        from quotes.models import Availability
+
+        for course in (Course.STARTERS, Course.MAINS, Course.SIDES,
+                       Course.DESSERTS, Course.SOFT):
+            _item(restaurant, f"casa-{course}", course, 30000,
+                  cost=8000, category=category)
+        for course in (Course.STARTERS, Course.MAINS, Course.SIDES,
+                       Course.DESSERTS, Course.SOFT):
+            item = _item(restaurant, f"fuera-{course}", course, 30000,
+                         cost=8000, category=category)
+            item.availability = Availability.OFF_SITE
+            item.save()
+        for item in MenuItem.objects.filter(name__startswith="casa-"):
+            item.availability = Availability.IN_HOUSE
+            item.save()
+
+        dentro = compose(restaurant, 200000, 20, profile="seated", alcohol=False)
+        fuera = compose(restaurant, 200000, 20, profile="seated", alcohol=False, off_site=True)
+
+        assert all(p.item.name.startswith("casa-") for p in dentro.picks)
+        assert all(p.item.name.startswith("fuera-") for p in fuera.picks)
+
+    def test_the_floor_is_measured_on_the_right_list(self, restaurant, category):
+        from quotes.models import Availability
+
+        barato = _item(restaurant, "Barato de casa", Course.MAINS, 20000,
+                       cost=5000, category=category)
+        barato.availability = Availability.IN_HOUSE
+        barato.save()
+        caro = _item(restaurant, "Caro de fuera", Course.MAINS, 200000,
+                     cost=50000, category=category)
+        caro.availability = Availability.OFF_SITE
+        caro.save()
+
+        assert minimum_per_guest(restaurant, 10, "seated", False) < minimum_per_guest(
+            restaurant, 10, "seated", False, off_site=True
+        )
