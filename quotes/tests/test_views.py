@@ -936,3 +936,113 @@ class TestEventFieldsSurviveEveryAction:
         dropdown = body[body.index('id="dish"'):body.index("</select>", body.index('id="dish"'))]
 
         assert "Longaniza artesanal" in dropdown
+
+
+@pytest.mark.django_db
+class TestReachingTheWholeMenu:
+    """The venue filter must never be a wall the person quoting cannot pass."""
+
+    def _menu(self, restaurant):
+        from quotes.models import Availability
+
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Carpaccio de atún", course=Course.STARTERS,
+            price=Decimal("48000"), availability=Availability.IN_HOUSE)
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Longaniza artesanal", course=Course.STARTERS,
+            price=Decimal("250000"), availability=Availability.OFF_SITE)
+
+    def _dropdown(self, client, quote, query=""):
+        body = client.get(
+            reverse("quotes:quote_detail", args=[quote.pk]) + query
+        ).content.decode()
+        start = body.index('id="dish"')
+        return body[start:body.index("</select>", start)]
+
+    def test_the_whole_menu_can_be_asked_for(self, logged_client, restaurant):
+        self._menu(restaurant)
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-300", venue=Venue.IN_HOUSE
+        )
+
+        acotado = self._dropdown(logged_client, quote)
+        completo = self._dropdown(logged_client, quote, "?menu=all")
+
+        assert "Longaniza artesanal" not in acotado
+        assert "Longaniza artesanal" in completo
+        assert "Carpaccio de atún" in completo
+
+    def test_the_page_says_how_many_are_hidden(self, logged_client, restaurant):
+        self._menu(restaurant)
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-301", venue=Venue.IN_HOUSE
+        )
+
+        body = logged_client.get(reverse("quotes:quote_detail", args=[quote.pk])).content.decode()
+
+        assert "menu=all" in body
+
+    def test_changing_the_venue_changes_the_list(self, logged_client, restaurant):
+        self._menu(restaurant)
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-302", venue=Venue.IN_HOUSE
+        )
+
+        logged_client.post(
+            reverse("quotes:quote_detail", args=[quote.pk]),
+            {"client_name": "X", "guests": "10", "pricing_mode": "per_guest", "venue": "grill"},
+        )
+        dropdown = self._dropdown(logged_client, quote)
+
+        assert "Longaniza artesanal" in dropdown
+        assert "Carpaccio de atún" not in dropdown
+
+
+@pytest.mark.django_db
+class TestCostTypedOnTheLine:
+    def test_a_written_dish_can_be_costed_where_the_warning_is(self, logged_client, restaurant):
+        """A one-off dish has nowhere else to carry a cost."""
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-310", guests=20)
+        line = QuoteLine.objects.create(
+            quote=quote, course=Course.STARTERS, name="Picada mixta",
+            quantity=Decimal("1"), unit_price=Decimal("250000"), unit_cost=None,
+        )
+        assert quote.is_costed is False
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"qty-{line.pk}": "1", f"cost-{line.pk}": "80000"},
+        )
+        quote.refresh_from_db()
+
+        assert quote.lines.get().unit_cost == Decimal("80000")
+        assert quote.is_costed is True
+
+    def test_clearing_it_makes_the_cost_unknown_again(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-311", guests=20)
+        line = QuoteLine.objects.create(
+            quote=quote, course=Course.STARTERS, name="Picada",
+            quantity=Decimal("1"), unit_price=Decimal("250000"), unit_cost=Decimal("80000"),
+        )
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"qty-{line.pk}": "1", f"cost-{line.pk}": ""},
+        )
+
+        assert quote.lines.get().unit_cost is None
+
+    def test_the_quantity_still_saves_alongside(self, logged_client, restaurant):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-312", guests=20)
+        line = QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Picanha",
+            quantity=Decimal("1"), unit_price=Decimal("300000"),
+        )
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"qty-{line.pk}": "6", f"cost-{line.pk}": "73441"},
+        )
+        line.refresh_from_db()
+
+        assert (line.quantity, line.unit_cost) == (Decimal("6"), Decimal("73441"))
