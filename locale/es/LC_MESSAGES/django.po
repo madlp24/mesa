@@ -1554,7 +1554,11 @@ msgid ""
 "account, and you\n"
 "      will land straight in it.\n"
 "      "
-msgstr "Se te invitó a trabajar en %(name)s. Inicia sesión, o crea una cuenta, y entrarás directo."
+msgstr ""
+"\n"
+"      Se te invitó a trabajar en %(name)s. Inicia sesión, o crea una cuenta, y\n"
+"      entrarás directo.\n"
+"      "
 
 #: templates/tenants/invitation_landing.html:18
 msgid "Create an account"
