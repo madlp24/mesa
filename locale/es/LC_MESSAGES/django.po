@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 14:32-0500\n"
+"POT-Creation-Date: 2026-09-08 21:22-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -130,7 +130,7 @@ msgstr "Otros"
 msgid "By consumption"
 msgstr "Por consumo"
 
-#: quotes/models.py:46 quotes/pdf.py:325 templates/quotes/quote_detail.html:65
+#: quotes/models.py:46 quotes/pdf.py:341 templates/quotes/quote_detail.html:65
 #: templates/quotes/quote_detail.html:69
 msgid "Price per guest"
 msgstr "Precio por persona"
@@ -164,54 +164,54 @@ msgstr "Sin cliente"
 msgid "Page %(n)s"
 msgstr "Página %(n)s"
 
-#: quotes/pdf.py:192
+#: quotes/pdf.py:191 quotes/pdf.py:208
 msgid "Quotation"
 msgstr "Cotización"
 
-#: quotes/pdf.py:194
+#: quotes/pdf.py:210
 msgid "EVENTS"
 msgstr "EVENTOS"
 
-#: quotes/pdf.py:196
+#: quotes/pdf.py:212
 msgid "No."
 msgstr "N.º"
 
-#: quotes/pdf.py:206
+#: quotes/pdf.py:222
 #, python-format
 msgid " x %(n)s days"
 msgstr " x %(n)s días"
 
-#: quotes/pdf.py:209 templates/quotes/quote_detail.html:34
+#: quotes/pdf.py:225 templates/quotes/quote_detail.html:34
 #: templates/quotes/quote_list.html:42
 msgid "Client"
 msgstr "Cliente"
 
-#: quotes/pdf.py:210 templates/quotes/quote_detail.html:38
+#: quotes/pdf.py:226 templates/quotes/quote_detail.html:38
 msgid "Concept"
 msgstr "Concepto"
 
-#: quotes/pdf.py:211
+#: quotes/pdf.py:227
 msgid "Quote date"
 msgstr "Fecha de la cotización"
 
-#: quotes/pdf.py:213 templates/quotes/quote_detail.html:43
+#: quotes/pdf.py:229 templates/quotes/quote_detail.html:43
 msgid "Event date"
 msgstr "Fecha del evento"
 
-#: quotes/pdf.py:214
+#: quotes/pdf.py:230
 msgid "To be defined"
 msgstr "Por definir"
 
-#: quotes/pdf.py:216 quotes/pdf.py:326 templates/quotes/quote_detail.html:48
+#: quotes/pdf.py:232 quotes/pdf.py:342 templates/quotes/quote_detail.html:48
 #: templates/quotes/quote_detail.html:193 templates/quotes/quote_list.html:44
 msgid "Guests"
 msgstr "Personas"
 
-#: quotes/pdf.py:217 templates/quotes/quote_detail.html:57
+#: quotes/pdf.py:233 templates/quotes/quote_detail.html:57
 msgid "Payment terms"
 msgstr "Forma de pago"
 
-#: quotes/pdf.py:242
+#: quotes/pdf.py:258
 msgid ""
 "To confirm and hold the date, transfer the deposit agreed in the payment "
 "terms above."
@@ -219,46 +219,52 @@ msgstr ""
 "Para confirmar y separar la fecha, transferir el anticipo acordado en la "
 "forma de pago indicada arriba."
 
-#: quotes/pdf.py:258
+#: quotes/pdf.py:274
 msgid "DESCRIPTION"
 msgstr "DESCRIPCIÓN"
 
-#: quotes/pdf.py:260
+#: quotes/pdf.py:276
 msgctxt "column heading"
 msgid "QTY"
 msgstr "CANT."
 
-#: quotes/pdf.py:262
+#: quotes/pdf.py:278
 msgctxt "column heading"
 msgid "UNIT"
 msgstr "V / UNI"
 
-#: quotes/pdf.py:263
+#: quotes/pdf.py:279
 msgctxt "column heading"
 msgid "TOTAL"
 msgstr "V / TOTAL"
 
-#: quotes/pdf.py:328 templates/quotes/quote_detail.html:52
+#: quotes/pdf.py:344 templates/quotes/quote_detail.html:52
 msgid "Days"
 msgstr "Días"
 
-#: quotes/pdf.py:334
+#: quotes/pdf.py:350
 msgid "Subtotal before tax and tip"
 msgstr "Subtotal sin impuesto ni propina"
 
-#: quotes/pdf.py:335
+#: quotes/pdf.py:351
 msgid "Consumption tax 8%"
 msgstr "Impuesto al consumo 8%"
 
-#: quotes/pdf.py:337
+#: quotes/pdf.py:353
 msgid "Suggested tip 10%"
 msgstr "Propina sugerida 10%"
 
-#: quotes/pdf.py:350
+#: quotes/pdf.py:366
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: quotes/pdf.py:354
+#: quotes/pdf.py:373
+msgid ""
+"Prices already include the consumption tax. The suggested tip is in the "
+"total."
+msgstr "Los precios ya incluyen el impuesto al consumo. La propina sugerida está incluida en el total."
+
+#: quotes/pdf.py:375
 msgid "Prices already include the consumption tax. The tip is voluntary."
 msgstr ""
 "Los precios ya incluyen el impuesto al consumo. La propina es voluntaria."
@@ -1494,7 +1500,9 @@ msgstr "Esta invitación ya no sirve"
 msgid ""
 "It was cancelled, already used, or it expired. Ask whoever sent it for a new "
 "link."
-msgstr "Fue cancelada, ya se usó, o venció. Pídele un enlace nuevo a quien te la mandó."
+msgstr ""
+"Fue cancelada, ya se usó, o venció. Pídele un enlace nuevo a quien te la "
+"mandó."
 
 #: templates/tenants/invitation_invalid.html:13
 msgid "Go to Mesa"
@@ -1542,7 +1550,9 @@ msgstr "tú"
 msgid ""
 "Invite someone and send them the link. Whoever opens it joins this "
 "restaurant instead of starting an empty one of their own."
-msgstr "Invita a alguien y mándale el enlace. Quien lo abra entra a este restaurante en vez de empezar uno vacío propio."
+msgstr ""
+"Invita a alguien y mándale el enlace. Quien lo abra entra a este restaurante "
+"en vez de empezar uno vacío propio."
 
 #: templates/tenants/settings.html:58
 msgid "Their email (just so you remember who it was for)"

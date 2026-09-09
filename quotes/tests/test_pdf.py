@@ -534,3 +534,31 @@ class TestMasthead:
         size, _spacing = canvas._masthead_type("MESA")
 
         assert size == QuoteCanvas.MASTHEAD_MAX
+
+
+@pytest.mark.django_db
+class TestFooterMatchesTheTip:
+    def _quote(self, restaurant, charges_tip):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-260", guests=16,
+            pricing_mode=PricingMode.CONSUMPTION, charges_tip=charges_tip,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Ribeye", quantity=Decimal("4"),
+            unit_price=Decimal("200000"), unit_cost=Decimal("66208"),
+        )
+        return quote
+
+    def test_a_charged_tip_is_not_called_voluntary(self, restaurant):
+        """The footer used to contradict the line right above it."""
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(self._quote(restaurant, charges_tip=True)))
+
+        assert "Propina sugerida" in text
+        assert "La propina es voluntaria" not in text
+
+    def test_an_uncharged_tip_is_still_called_voluntary(self, restaurant):
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(self._quote(restaurant, charges_tip=False)))
+
+        assert "La propina es voluntaria" in text
