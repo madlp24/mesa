@@ -120,15 +120,20 @@ def _choose(pool: list[MenuItem], purse: Decimal, slots: int, guests: int, offse
     return chosen
 
 
-def compose(restaurant, budget_per_guest, guests, profile="seated", alcohol=True, offset=0) -> Composition:
-    """Build a menu that fits ``budget_per_guest`` for ``guests`` people."""
+def compose(restaurant, budget_per_guest, guests, profile="seated", alcohol=True,
+            offset=0, off_site=False) -> Composition:
+    """Build a menu that fits ``budget_per_guest`` for ``guests`` people.
+
+    ``off_site`` decides which half of the menu is on the table: a grill taken
+    to a finca cannot serve the dining room's carpaccio.
+    """
     budget_per_guest = Decimal(budget_per_guest)
     guests = max(1, int(guests))
 
     blocks = [b for b in PROFILES.get(profile, PROFILES["seated"]) if alcohol or not b.get("alcohol")]
     weights = sum(b["weight"] for b in blocks) or Decimal(1)
 
-    items = MenuItem.objects.filter(restaurant=restaurant, is_active=True, price__gt=0)
+    items = MenuItem.for_venue(restaurant, off_site).filter(price__gt=0)
     by_course: dict[str, list[MenuItem]] = {}
     for item in items:
         by_course.setdefault(item.course, []).append(item)
@@ -150,14 +155,14 @@ def compose(restaurant, budget_per_guest, guests, profile="seated", alcohol=True
             composition.picks.append(Pick(item=item, quantity=units_needed(item, guests)))
         carry = max(ZERO, purse - spent)
 
-    _trim(composition)
+    _trim(composition, off_site=off_site)
 
     order = list(Course.values)
     composition.picks.sort(key=lambda p: order.index(p.item.course))
     return composition
 
 
-def _trim(composition: Composition) -> None:
+def _trim(composition: Composition, off_site: bool = False) -> None:
     """Bring a composition back under budget after a course had to overshoot.
 
     A course with nothing in it takes its cheapest item even when the purse does
@@ -177,11 +182,8 @@ def _trim(composition: Composition) -> None:
         taken = {p.item.pk for p in composition.picks}
         cheaper = [
             it
-            for it in MenuItem.objects.filter(
-                restaurant=worst.item.restaurant_id,
-                course=worst.item.course,
-                is_active=True,
-                price__gt=0,
+            for it in MenuItem.for_venue(worst.item.restaurant_id, off_site).filter(
+                course=worst.item.course, price__gt=0
             )
             if it.pk not in taken and cost_per_guest(it, guests) < cost_per_guest(worst.item, guests)
         ]
@@ -193,10 +195,11 @@ def _trim(composition: Composition) -> None:
         worst.quantity = units_needed(best, guests)
 
 
-def minimum_per_guest(restaurant, guests, profile="seated", alcohol=True) -> Decimal:
+def minimum_per_guest(restaurant, guests, profile="seated", alcohol=True,
+                      off_site=False) -> Decimal:
     """The cheapest this kind of event can be — the floor to quote against."""
     blocks = [b for b in PROFILES.get(profile, PROFILES["seated"]) if alcohol or not b.get("alcohol")]
-    items = MenuItem.objects.filter(restaurant=restaurant, is_active=True, price__gt=0)
+    items = MenuItem.for_venue(restaurant, off_site).filter(price__gt=0)
 
     by_course: dict[str, list[MenuItem]] = {}
     for item in items:

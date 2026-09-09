@@ -31,6 +31,7 @@
                 <tr>
                     <th scope="col">{% trans "Item" %}</th>
                     <th scope="col">{% trans "Course" %}</th>
+                    <th scope="col">{% trans "Where" %}</th>
                     <th scope="col" class="text-end">{% trans "Price" %}</th>
                     <th scope="col" class="text-end">{% trans "Serves" %}</th>
                     <th scope="col">{% trans "Product" %}</th>
@@ -46,6 +47,13 @@
                         {% if item.description %}<div class="text-muted small">{{ item.description|truncatechars:80 }}</div>{% endif %}
                     </td>
                     <td class="text-muted small">{{ item.get_course_display }}</td>
+                    <td class="small">
+                        {% if item.availability == 'off_site' %}
+                        <span class="badge text-bg-dark">{% trans "away only" %}</span>
+                        {% elif item.availability == 'in_house' %}
+                        <span class="badge text-bg-light text-dark border">{% trans "restaurant only" %}</span>
+                        {% else %}<span class="text-muted">—</span>{% endif %}
+                    </td>
                     <td class="text-end">{{ item.price|floatformat:0|intcomma }}</td>
                     <td class="text-end text-muted">{{ item.servings|floatformat:2 }}</td>
                     <td>
@@ -68,7 +76,7 @@
                     </td>
                 </tr>
                 <tr class="collapse" id="edit-{{ item.pk }}">
-                    <td colspan="7" class="bg-body-tertiary">
+                    <td colspan="8" class="bg-body-tertiary">
                         <form method="post" action="{% url 'quotes:menu_item_edit' item.pk %}" class="row g-2 align-items-end">
                             {% csrf_token %}
                             <div class="col-md-3">
@@ -105,6 +113,14 @@
                                     <option value="">{% trans "— not mapped —" %}</option>
                                     {% for product in products %}
                                     <option value="{{ product.pk }}" {% if item.product_id == product.pk %}selected{% endif %}>{{ product.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small" for="avail-{{ item.pk }}">{% trans "Served where" %}</label>
+                                <select class="form-select form-select-sm" id="avail-{{ item.pk }}" name="availability">
+                                    {% for value, label in availabilities %}
+                                    <option value="{{ value }}" {% if item.availability == value %}selected{% endif %}>{{ label }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

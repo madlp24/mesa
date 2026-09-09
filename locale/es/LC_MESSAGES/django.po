@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 21:22-0500\n"
+"POT-Creation-Date: 2026-09-09 11:23-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: analytics/views.py:26 templates/quotes/menu_list.html:75
+#: analytics/views.py:26 templates/quotes/menu_list.html:83
 msgid "Name"
 msgstr "Nombre"
 
@@ -24,9 +24,9 @@ msgstr "Nombre"
 msgid "Category"
 msgstr "Categoría"
 
-#: analytics/views.py:28 templates/quotes/menu_list.html:112
+#: analytics/views.py:28 templates/quotes/menu_list.html:128
 #: templates/quotes/quote_detail.html:134
-#: templates/quotes/quote_detail.html:329 templates/quotes/quote_list.html:46
+#: templates/quotes/quote_detail.html:334 templates/quotes/quote_list.html:46
 msgid "Cost"
 msgstr "Costo"
 
@@ -94,68 +94,80 @@ msgstr "Evento por fuera del restaurante"
 msgid "Grill away from the restaurant"
 msgstr "Asado por fuera del restaurante"
 
-#: quotes/models.py:33 templates/quotes/menu_list.html:85
+#: quotes/models.py:40
+msgid "Anywhere"
+msgstr "En cualquier parte"
+
+#: quotes/models.py:41
+msgid "At the restaurant only"
+msgstr "Solo en el restaurante"
+
+#: quotes/models.py:42
+msgid "Away from the restaurant only"
+msgstr "Solo por fuera del restaurante"
+
+#: quotes/models.py:46 templates/quotes/menu_list.html:93
 msgid "Starters"
 msgstr "Entradas"
 
-#: quotes/models.py:34 templates/quotes/menu_list.html:86
+#: quotes/models.py:47 templates/quotes/menu_list.html:94
 msgid "Mains"
 msgstr "Fuertes"
 
-#: quotes/models.py:35 templates/quotes/menu_list.html:87
+#: quotes/models.py:48 templates/quotes/menu_list.html:95
 msgid "Sides"
 msgstr "Acompañamientos"
 
-#: quotes/models.py:36 templates/quotes/menu_list.html:88
+#: quotes/models.py:49 templates/quotes/menu_list.html:96
 msgid "Desserts"
 msgstr "Postres"
 
-#: quotes/models.py:37 templates/quotes/menu_list.html:89
+#: quotes/models.py:50 templates/quotes/menu_list.html:97
 msgid "Alcoholic drinks"
 msgstr "Bebidas con alcohol"
 
-#: quotes/models.py:38 templates/quotes/menu_list.html:90
+#: quotes/models.py:51 templates/quotes/menu_list.html:98
 msgid "Soft drinks"
 msgstr "Bebidas sin alcohol"
 
-#: quotes/models.py:40
+#: quotes/models.py:53
 msgid "Services"
 msgstr "Servicios"
 
-#: quotes/models.py:41 templates/quotes/menu_list.html:91
+#: quotes/models.py:54 templates/quotes/menu_list.html:99
 msgid "Other"
 msgstr "Otros"
 
-#: quotes/models.py:45 templates/quotes/quote_detail.html:64
+#: quotes/models.py:58 templates/quotes/quote_detail.html:64
 msgid "By consumption"
 msgstr "Por consumo"
 
-#: quotes/models.py:46 quotes/pdf.py:341 templates/quotes/quote_detail.html:65
+#: quotes/models.py:59 quotes/pdf.py:341 templates/quotes/quote_detail.html:65
 #: templates/quotes/quote_detail.html:69
 msgid "Price per guest"
 msgstr "Precio por persona"
 
-#: quotes/models.py:64
+#: quotes/models.py:77
 msgid "Quoted price, tax included"
 msgstr "Precio cotizado, impuesto incluido"
 
-#: quotes/models.py:70
+#: quotes/models.py:83
 msgid "How many guests one unit serves"
 msgstr "A cuántas personas alcanza una unidad"
 
-#: quotes/models.py:83
+#: quotes/models.py:96
 msgid "Product units consumed by one unit of this item"
 msgstr "Unidades del producto que consume una unidad de este ítem"
 
-#: quotes/models.py:93
+#: quotes/models.py:106
 msgid "Cost of one unit, for what the POS does not sell"
 msgstr "Costo de una unidad, para lo que el POS no vende"
 
-#: quotes/models.py:143
+#: quotes/models.py:168
 msgid "Dates the event runs over, each one served in full"
 msgstr "Fechas que cubre el evento, cada una servida completa"
 
-#: quotes/models.py:173
+#: quotes/models.py:198
 msgid "No client"
 msgstr "Sin cliente"
 
@@ -262,7 +274,9 @@ msgstr "TOTAL"
 msgid ""
 "Prices already include the consumption tax. The suggested tip is in the "
 "total."
-msgstr "Los precios ya incluyen el impuesto al consumo. La propina sugerida está incluida en el total."
+msgstr ""
+"Los precios ya incluyen el impuesto al consumo. La propina sugerida está "
+"incluida en el total."
 
 #: quotes/pdf.py:375
 msgid "Prices already include the consumption tax. The tip is voluntary."
@@ -289,11 +303,11 @@ msgstr "50% anticipo, 50% en el evento"
 msgid "Quote saved."
 msgstr "Cotización guardada."
 
-#: quotes/views.py:162
+#: quotes/views.py:165
 msgid "Enter a price per guest first."
 msgstr "Primero pon un precio por persona."
 
-#: quotes/views.py:172
+#: quotes/views.py:178
 #, python-format
 msgid ""
 "That budget does not cover this kind of event. The floor is about %(floor)s "
@@ -302,7 +316,7 @@ msgstr ""
 "Ese presupuesto no alcanza para este tipo de evento. El mínimo es de unos "
 "%(floor)s por persona."
 
-#: quotes/views.py:182
+#: quotes/views.py:190
 #, python-format
 msgid ""
 "The closest menu costs %(cost)s per guest. The floor for this event is about "
@@ -311,29 +325,29 @@ msgstr ""
 "El menú más cercano cuesta %(cost)s por persona. El mínimo para este evento "
 "es de unos %(floor)s."
 
-#: quotes/views.py:186
+#: quotes/views.py:194
 msgid "Menu composed."
 msgstr "Menú armado."
 
-#: quotes/views.py:212
+#: quotes/views.py:220
 msgid "A charge needs a name."
 msgstr "Un cargo necesita nombre."
 
-#: quotes/views.py:232 quotes/views.py:256 quotes/views.py:283
-#: quotes/views.py:324
+#: quotes/views.py:240 quotes/views.py:264 quotes/views.py:291
+#: quotes/views.py:332
 #, python-format
 msgid "%(name)s added."
 msgstr "%(name)s agregado."
 
-#: quotes/views.py:300
+#: quotes/views.py:308
 msgid "A dish needs a name."
 msgstr "Un plato necesita nombre."
 
-#: quotes/views.py:343
+#: quotes/views.py:351
 msgid "Quote updated."
 msgstr "Cotización actualizada."
 
-#: quotes/views.py:399
+#: quotes/views.py:411
 #, python-format
 msgid "%(name)s updated."
 msgstr "%(name)s actualizado."
@@ -702,7 +716,7 @@ msgstr ""
 "Selecciona dos o más filas y fusiónalas cuando el POS dividió un producto en "
 "duplicados."
 
-#: templates/catalog/product_list.html:25 templates/quotes/menu_list.html:36
+#: templates/catalog/product_list.html:25 templates/quotes/menu_list.html:37
 msgid "Product"
 msgstr "Producto"
 
@@ -1035,62 +1049,78 @@ msgstr[1] ""
 msgid "Item"
 msgstr "Ítem"
 
-#: templates/quotes/menu_list.html:33 templates/quotes/menu_list.html:83
-#: templates/quotes/quote_detail.html:312
+#: templates/quotes/menu_list.html:33 templates/quotes/menu_list.html:91
+#: templates/quotes/quote_detail.html:317
 msgid "Course"
 msgstr "Tiempo"
 
-#: templates/quotes/menu_list.html:34 templates/quotes/menu_list.html:95
+#: templates/quotes/menu_list.html:34 templates/quotes/quote_detail.html:26
+msgid "Where"
+msgstr "Dónde"
+
+#: templates/quotes/menu_list.html:35 templates/quotes/menu_list.html:103
 #: templates/quotes/quote_detail.html:129
-#: templates/quotes/quote_detail.html:324
+#: templates/quotes/quote_detail.html:329
 msgid "Price"
 msgstr "Precio"
 
-#: templates/quotes/menu_list.html:35 templates/quotes/menu_list.html:99
+#: templates/quotes/menu_list.html:36 templates/quotes/menu_list.html:107
 msgid "Serves"
 msgstr "Rinde"
 
-#: templates/quotes/menu_list.html:37
+#: templates/quotes/menu_list.html:38
 msgid "Unit cost"
 msgstr "Costo unitario"
 
-#: templates/quotes/menu_list.html:55
+#: templates/quotes/menu_list.html:52
+msgid "away only"
+msgstr "solo por fuera"
+
+#: templates/quotes/menu_list.html:54
+msgid "restaurant only"
+msgstr "solo restaurante"
+
+#: templates/quotes/menu_list.html:63
 msgid "not mapped"
 msgstr "sin mapear"
 
-#: templates/quotes/menu_list.html:60 templates/quotes/quote_detail.html:370
+#: templates/quotes/menu_list.html:68 templates/quotes/quote_detail.html:375
 msgid "no cost"
 msgstr "sin costo"
 
-#: templates/quotes/menu_list.html:66
+#: templates/quotes/menu_list.html:74
 msgid "Edit"
 msgstr "Editar"
 
-#: templates/quotes/menu_list.html:79 templates/quotes/quote_detail.html:320
+#: templates/quotes/menu_list.html:87 templates/quotes/quote_detail.html:325
 msgid "Description"
 msgstr "Descripción"
 
-#: templates/quotes/menu_list.html:103
+#: templates/quotes/menu_list.html:111
 msgid "Served from product"
 msgstr "Se sirve del producto"
 
-#: templates/quotes/menu_list.html:105
+#: templates/quotes/menu_list.html:113
 msgid "— not mapped —"
 msgstr "— sin mapear —"
 
-#: templates/quotes/menu_list.html:116
+#: templates/quotes/menu_list.html:120
+msgid "Served where"
+msgstr "Se sirve dónde"
+
+#: templates/quotes/menu_list.html:132
 msgid "from the POS"
 msgstr "del POS"
 
-#: templates/quotes/menu_list.html:119
+#: templates/quotes/menu_list.html:135
 msgid "Product units"
 msgstr "Unidades del producto"
 
-#: templates/quotes/menu_list.html:125
+#: templates/quotes/menu_list.html:141
 msgid "Active"
 msgstr "Activo"
 
-#: templates/quotes/menu_list.html:129
+#: templates/quotes/menu_list.html:145
 msgid "Save item"
 msgstr "Guardar ítem"
 
@@ -1109,10 +1139,6 @@ msgstr "Descargar PDF"
 #: templates/quotes/quote_detail.html:21 templates/quotes/quote_list.html:43
 msgid "Event"
 msgstr "Evento"
-
-#: templates/quotes/quote_detail.html:26
-msgid "Where"
-msgstr "Dónde"
 
 #: templates/quotes/quote_detail.html:62
 msgid "Pricing"
@@ -1151,7 +1177,7 @@ msgstr ""
 "precio vacío se lista como incluido. Un precio negativo es un descuento."
 
 #: templates/quotes/quote_detail.html:110
-#: templates/quotes/quote_detail.html:383 templates/tenants/settings.html:45
+#: templates/quotes/quote_detail.html:388 templates/tenants/settings.html:45
 msgid "Remove"
 msgstr "Quitar"
 
@@ -1168,15 +1194,15 @@ msgid "included"
 msgstr ""
 
 #: templates/quotes/quote_detail.html:136
-#: templates/quotes/quote_detail.html:326
 #: templates/quotes/quote_detail.html:331
+#: templates/quotes/quote_detail.html:336
 msgid "optional"
 msgstr "opcional"
 
 #: templates/quotes/quote_detail.html:139
 #: templates/quotes/quote_detail.html:166
-#: templates/quotes/quote_detail.html:286
-#: templates/quotes/quote_detail.html:334
+#: templates/quotes/quote_detail.html:291
+#: templates/quotes/quote_detail.html:339
 msgid "Qty"
 msgstr "Cant."
 
@@ -1185,7 +1211,7 @@ msgid "Remember it for next time"
 msgstr "Recordarlo para la próxima"
 
 #: templates/quotes/quote_detail.html:150
-#: templates/quotes/quote_detail.html:291
+#: templates/quotes/quote_detail.html:296
 msgid "Add"
 msgstr "Agregar"
 
@@ -1223,7 +1249,7 @@ msgid "Compose menu"
 msgstr "Armar menú"
 
 #: templates/quotes/quote_detail.html:221
-#: templates/quotes/quote_detail.html:420 templates/quotes/quote_list.html:45
+#: templates/quotes/quote_detail.html:425 templates/quotes/quote_list.html:45
 msgid "Total"
 msgstr "Total"
 
@@ -1287,15 +1313,23 @@ msgstr[1] ""
 msgid "Map them to products"
 msgstr "Mapéalos a productos"
 
-#: templates/quotes/quote_detail.html:274
+#: templates/quotes/quote_detail.html:275
 msgid "Add a dish"
 msgstr "Agregar plato"
 
-#: templates/quotes/quote_detail.html:298
+#: templates/quotes/quote_detail.html:277
+msgid "menu for events away from the restaurant"
+msgstr "menú para eventos por fuera del restaurante"
+
+#: templates/quotes/quote_detail.html:277
+msgid "restaurant menu"
+msgstr "menú del restaurante"
+
+#: templates/quotes/quote_detail.html:303
 msgid "Or write a dish that is not on the menu"
 msgstr "O escribe un plato que no está en el menú"
 
-#: templates/quotes/quote_detail.html:301
+#: templates/quotes/quote_detail.html:306
 msgid ""
 "On a per-guest quote the dish prices do not change the total — leave them "
 "empty if you only want the menu listed."
@@ -1303,51 +1337,51 @@ msgstr ""
 "En una cotización por persona los precios de los platos no cambian el total "
 "— déjalos vacíos si solo quieres listar el menú."
 
-#: templates/quotes/quote_detail.html:307
+#: templates/quotes/quote_detail.html:312
 msgid "Dish"
 msgstr "Plato"
 
-#: templates/quotes/quote_detail.html:309
+#: templates/quotes/quote_detail.html:314
 msgid "Morcilla, chicharrón al barril…"
 msgstr "Morcilla, chicharrón al barril…"
 
-#: templates/quotes/quote_detail.html:342
+#: templates/quotes/quote_detail.html:347
 msgid "Add it to the menu too — otherwise it stays on this quote only"
 msgstr "Agregarlo también al menú — si no, queda solo en esta cotización"
 
-#: templates/quotes/quote_detail.html:347
+#: templates/quotes/quote_detail.html:352
 msgid "Add dish"
 msgstr "Agregar plato"
 
-#: templates/quotes/quote_detail.html:352
+#: templates/quotes/quote_detail.html:357
 msgid "Menu"
 msgstr "Menú"
 
-#: templates/quotes/quote_detail.html:353
+#: templates/quotes/quote_detail.html:358
 msgid "lines"
 msgstr "líneas"
 
-#: templates/quotes/quote_detail.html:376
+#: templates/quotes/quote_detail.html:381
 msgid "Quantity of"
 msgstr "Cantidad de"
 
-#: templates/quotes/quote_detail.html:392
+#: templates/quotes/quote_detail.html:397
 msgid "Save quantities"
 msgstr "Guardar cantidades"
 
-#: templates/quotes/quote_detail.html:403
+#: templates/quotes/quote_detail.html:408
 msgid "Subtotal (tax included)"
 msgstr "Subtotal (impuesto incluido)"
 
-#: templates/quotes/quote_detail.html:408
+#: templates/quotes/quote_detail.html:413
 msgid "of which tax, already inside"
 msgstr "del cual impuesto, ya incluido"
 
-#: templates/quotes/quote_detail.html:414
+#: templates/quotes/quote_detail.html:419
 msgid "Tip"
 msgstr "Propina"
 
-#: templates/quotes/quote_detail.html:430
+#: templates/quotes/quote_detail.html:435
 msgid "No lines yet. Compose a menu from a budget to get started."
 msgstr "Todavía no hay líneas. Arma un menú por presupuesto para empezar."
 
