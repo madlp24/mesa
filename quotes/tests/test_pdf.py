@@ -499,3 +499,38 @@ class TestPricelessMenu:
         assert "6.000.000" in text
         assert "CANT." not in text
         assert quote.total == Decimal("6000000")
+
+
+@pytest.mark.django_db
+class TestMasthead:
+    def _render(self, restaurant, name):
+        restaurant.name = name
+        restaurant.save()
+        return _text_of(render_quote_pdf(_quote_with_lines(restaurant)))
+
+    def test_a_long_name_still_fits_beside_the_title(self, restaurant):
+        """"Tres Cuatro Cinco Steakhouse" sat exactly on the limit."""
+        with translation.override("es"):
+            text = self._render(restaurant, "Tres Cuatro Cinco Steakhouse")
+
+        assert "TRES CUATRO CINCO STEAKHOUSE" in text
+        assert "Cotización" in text
+
+    def test_an_absurdly_long_name_does_not_overrun(self, restaurant):
+        largo = "Restaurante Parrilla Y Brasas De La Vieja Estación Central"
+        with translation.override("es"):
+            text = self._render(restaurant, largo)
+
+        assert largo.upper() in text
+        assert "Cotización" in text
+
+    def test_a_short_name_keeps_the_full_size(self, restaurant):
+        from quotes.pdf import QuoteCanvas
+
+        restaurant.name = "Mesa"
+        restaurant.save()
+        canvas = QuoteCanvas(_quote_with_lines(restaurant))
+
+        size, _spacing = canvas._masthead_type("MESA")
+
+        assert size == QuoteCanvas.MASTHEAD_MAX
