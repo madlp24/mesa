@@ -1,5 +1,6 @@
 """Production settings (Heroku-friendly)."""
 import dj_database_url
+from decouple import config
 
 from .base import *  # noqa: F401,F403
 from .base import MIDDLEWARE
@@ -15,3 +16,8 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+# Real mail in production: the console backend would swallow password resets.
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
+)

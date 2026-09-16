@@ -1,5 +1,6 @@
 """Tests for the public landing and help pages (US33)."""
 import pytest
+from django.core import mail
 from django.urls import reverse
 
 from pages.views import CONTACT_EMAIL
@@ -71,3 +72,17 @@ def test_menu_shows_login_and_signup_for_anonymous(client):
 def test_change_password_page_renders(logged_client):
     response = logged_client.get(reverse("account_change_password"))
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_password_reset_sends_an_email(client, user):
+    """The forgot-password flow works end to end once a mail server is set.
+
+    Django swaps in the locmem backend under test, so this exercises the whole
+    path without touching SMTP.
+    """
+    response = client.post(reverse("account_reset_password"), {"email": user.email})
+
+    assert response.status_code in (200, 302)
+    assert len(mail.outbox) == 1
+    assert user.email in mail.outbox[0].to
