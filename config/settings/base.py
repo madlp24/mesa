@@ -104,3 +104,21 @@ ACCOUNT_LOGIN_METHODS = {"username", "email"}
 ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_SIGNUP_FORM_CLASS = "tenants.forms.RestaurantSignupForm"
+
+# --- Email -----------------------------------------------------------------
+# Only account mail (password reset) goes out today. Locally the console
+# backend prints messages to the terminal so the flow can be exercised without
+# a mail server; production overrides the backend to SMTP and reads the
+# credentials from the environment (never committed). Any provider works --
+# the host/user/password are all that change.
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = config("EMAIL_HOST", default="")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+# A send must not hang a web worker waiting on the mail server.
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="Mesa <no-reply@mesa.app>")
