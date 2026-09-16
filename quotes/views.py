@@ -385,17 +385,19 @@ def quote_update_lines(request: HttpRequest, pk: int) -> HttpResponse:
     _apply_event_fields(request, quote)
     for line in quote.lines.all():
         raw = request.POST.get(f"qty-{line.pk}")
-        if raw is None:
-            continue
-        quantity = _decimal(raw, "0")
-        if quantity <= 0:
-            line.delete()
-            continue
-
         cambios = []
-        if quantity != line.quantity:
-            line.quantity = quantity
-            cambios.append("quantity")
+
+        # A blank box means "leave it alone", never "throw the line away". It
+        # empties on its own while someone is retyping a number, and a silent
+        # delete on the next save is how a menu quietly loses dishes.
+        if raw is not None and raw.strip():
+            quantity = _decimal(raw, "0")
+            if quantity <= 0:
+                line.delete()
+                continue
+            if quantity != line.quantity:
+                line.quantity = quantity
+                cambios.append("quantity")
 
         # A dish written for this quote alone has nowhere else to carry its
         # cost, so it is typed here, beside the warning that asks for it.

@@ -1121,3 +1121,84 @@ class TestVenueDishesComeFirst:
 
         assert dropdown.count("<optgroup") == 1
         assert "Solo común" in dropdown
+
+
+@pytest.mark.django_db
+class TestBlankQuantityKeepsTheLine:
+    """A box left empty must never be read as "delete this dish".
+
+    CA-130 lost every dish on it this way: the number input empties while
+    someone retypes it, and the next save took that as a zero.
+    """
+
+    def _quote_with_lines(self, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-330", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("162000"),
+        )
+        a = QuoteLine.objects.create(
+            quote=quote, course=Course.MAINS, name="Picanha", quantity=Decimal("6"),
+            unit_price=Decimal("300000"), unit_cost=Decimal("73441"),
+        )
+        b = QuoteLine.objects.create(
+            quote=quote, course=Course.STARTERS, name="Morcilla", quantity=Decimal("2"),
+            unit_price=Decimal("200000"), unit_cost=Decimal("50000"),
+        )
+        return quote, a, b
+
+    def test_a_blank_box_leaves_the_line_alone(self, logged_client, restaurant):
+        quote, a, b = self._quote_with_lines(restaurant)
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"qty-{a.pk}": "", f"qty-{b.pk}": ""},
+        )
+
+        assert quote.lines.count() == 2
+        a.refresh_from_db()
+        assert a.quantity == Decimal("6")
+
+    def test_one_blank_box_does_not_take_the_others_down(self, logged_client, restaurant):
+        quote, a, b = self._quote_with_lines(restaurant)
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"qty-{a.pk}": "", f"qty-{b.pk}": "5"},
+        )
+        b.refresh_from_db()
+
+        assert quote.lines.count() == 2
+        assert b.quantity == Decimal("5")
+
+    def test_whitespace_is_still_blank(self, logged_client, restaurant):
+        quote, a, _b = self._quote_with_lines(restaurant)
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"qty-{a.pk}": "   "},
+        )
+
+        assert quote.lines.filter(pk=a.pk).exists()
+
+    def test_a_typed_zero_still_removes_it(self, logged_client, restaurant):
+        """Deliberate, and the only way the box removes anything."""
+        quote, a, _b = self._quote_with_lines(restaurant)
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"qty-{a.pk}": "0"},
+        )
+
+        assert not quote.lines.filter(pk=a.pk).exists()
+
+    def test_a_cost_can_still_be_typed_on_a_blank_quantity(self, logged_client, restaurant):
+        quote, a, _b = self._quote_with_lines(restaurant)
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"qty-{a.pk}": "", f"cost-{a.pk}": "80000"},
+        )
+        a.refresh_from_db()
+
+        assert a.quantity == Decimal("6")
+        assert a.unit_cost == Decimal("80000")

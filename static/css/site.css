@@ -64,54 +64,81 @@ a:hover {
     color: var(--mesa-accent);
 }
 
-.mesa-nav .nav-link {
-    color: rgba(255, 255, 255, .72);
+/* Hamburger button */
+.mesa-nav .navbar-toggler {
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 10px;
+    padding: .4rem .6rem;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+
+.mesa-nav .navbar-toggler:hover {
+    background-color: rgba(255, 255, 255, .09);
+    border-color: rgba(255, 255, 255, .34);
+}
+
+.mesa-nav .navbar-toggler:focus {
+    box-shadow: 0 0 0 .2rem rgba(214, 162, 62, .3);
+}
+
+/* The menu it opens */
+.mesa-menu {
+    min-width: 15rem;
+    padding: .5rem;
+    margin-top: .55rem;
+    background-color: var(--mesa-surface);
+    border: 1px solid var(--mesa-border);
+    border-radius: 14px;
+    box-shadow: var(--mesa-shadow-hover);
+}
+
+.mesa-menu .dropdown-item {
+    width: 100%;
+    text-align: left;
+    padding: .5rem .75rem;
+    border: 0;
+    border-radius: 9px;
     font-weight: 500;
-    padding-left: .9rem;
-    padding-right: .9rem;
-    transition: color .15s ease;
-}
-
-.mesa-nav .nav-link:hover,
-.mesa-nav .nav-link:focus {
-    color: #fff;
-}
-
-.mesa-nav .nav-link.active {
-    color: #fff;
-    box-shadow: inset 0 -2px 0 var(--mesa-accent);
-}
-
-.mesa-nav .navbar-text {
-    color: rgba(255, 255, 255, .68);
-    font-size: .9rem;
-}
-
-.mesa-nav .btn-link {
-    color: rgba(255, 255, 255, .72);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.mesa-nav .btn-link:hover {
-    color: #fff;
-}
-
-.mesa-lang-select {
-    width: auto;
-    background-color: rgba(255, 255, 255, .08);
-    border-color: rgba(255, 255, 255, .22);
-    color: #fff;
-    font-size: .85rem;
-}
-
-.mesa-lang-select option {
     color: var(--mesa-ink);
+    background-color: transparent;
+    transition: background-color .12s ease, color .12s ease;
 }
 
-.mesa-lang-select:focus {
-    border-color: var(--mesa-accent);
-    box-shadow: 0 0 0 .2rem rgba(214, 162, 62, .25);
+.mesa-menu .dropdown-item:hover,
+.mesa-menu .dropdown-item:focus {
+    background-color: rgba(192, 73, 43, .08);
+    color: var(--mesa-primary-dark);
+}
+
+/* Current page / current language -- terracotta, not Bootstrap blue. */
+.mesa-menu .dropdown-item.active,
+.mesa-menu .dropdown-item:active {
+    background-color: var(--mesa-primary);
+    color: #fff;
+}
+
+.mesa-menu .dropdown-header {
+    padding: .5rem .75rem .25rem;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--mesa-muted);
+}
+
+.mesa-menu .dropdown-item-text {
+    padding: .35rem .75rem;
+    font-size: .8rem;
+    color: var(--mesa-muted);
+}
+
+.mesa-menu .dropdown-divider {
+    margin: .4rem .25rem;
+    border-top-color: var(--mesa-border);
+}
+
+.mesa-menu form {
+    margin: 0;
 }
 
 /* ---- Cards --------------------------------------------------------------- */
