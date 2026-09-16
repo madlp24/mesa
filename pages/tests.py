@@ -41,3 +41,33 @@ def test_dashboard_still_requires_login_at_new_url(client):
     response = client.get(reverse("analytics:dashboard"))
     assert response.status_code == 302
     assert "/accounts/login/" in response.url
+
+
+# --- US34: hamburger menu + change password ---------------------------------
+
+
+@pytest.mark.django_db
+def test_menu_lists_destinations_and_change_password(logged_client):
+    body = logged_client.get(reverse("analytics:dashboard")).content.decode()
+    # A single hamburger menu holds every destination...
+    assert 'id="mainMenu"' in body
+    for name in ("analytics:margin_analysis", "catalog:product_list",
+                 "sales:upload", "quotes:quote_list", "pages:help"):
+        assert reverse(name) in body
+    # ...and the self-service change-password link.
+    assert reverse("account_change_password") in body
+
+
+@pytest.mark.django_db
+def test_menu_shows_login_and_signup_for_anonymous(client):
+    body = client.get(reverse("pages:help")).content.decode()
+    assert reverse("account_login") in body
+    assert reverse("account_signup") in body
+    # No account-only actions leak to anonymous visitors.
+    assert reverse("account_change_password") not in body
+
+
+@pytest.mark.django_db
+def test_change_password_page_renders(logged_client):
+    response = logged_client.get(reverse("account_change_password"))
+    assert response.status_code == 200

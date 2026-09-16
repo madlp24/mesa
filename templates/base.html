@@ -14,88 +14,61 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark mesa-nav">
+    <nav class="navbar navbar-dark mesa-nav">
         <div class="container">
             <a class="navbar-brand" href="{% url 'pages:landing' %}">Mesa<span class="brand-accent">.</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#mainNav" aria-controls="mainNav"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                {% if request.user.is_authenticated %}
-                {% with url_name=request.resolver_match.url_name %}
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'dashboard' %}active{% endif %}" href="{% url 'analytics:dashboard' %}">{% trans "Dashboard" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'margin_analysis' %}active{% endif %}" href="{% url 'analytics:margin_analysis' %}">{% trans "Margins" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'pnl_summary' %}active{% endif %}" href="{% url 'analytics:pnl_summary' %}">{% trans "P&L" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'product_list' or url_name == 'product_detail' %}active{% endif %}" href="{% url 'catalog:product_list' %}">{% trans "Products" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'upload' %}active{% endif %}" href="{% url 'sales:upload' %}">{% trans "Upload" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'quote_list' or url_name == 'quote_detail' or url_name == 'menu_list' %}active{% endif %}" href="{% url 'quotes:quote_list' %}">{% trans "Quotes" %}</a>
-                    </li>
-                </ul>
-                {% endwith %}
-                {% endif %}
-                <ul class="navbar-nav ms-auto align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link {% if url_name == 'help' %}active{% endif %}" href="{% url 'pages:help' %}">{% trans "Help" %}</a>
-                    </li>
-                    <li class="nav-item me-lg-2">
-                        {% get_current_language as CURRENT_LANGUAGE %}
-                        {% get_available_languages as LANGUAGES %}
-                        <form action="{% url 'set_language' %}" method="post" class="d-flex align-items-center">
+            {% with url_name=request.resolver_match.url_name %}
+            <div class="dropdown">
+                <button class="navbar-toggler" type="button" id="mainMenu"
+                        data-bs-toggle="dropdown" aria-expanded="false" aria-label="{% trans 'Menu' %}">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end mesa-menu" aria-labelledby="mainMenu">
+                    {% if request.user.is_authenticated %}
+                        <li><a class="dropdown-item {% if url_name == 'dashboard' %}active{% endif %}" href="{% url 'analytics:dashboard' %}">{% trans "Dashboard" %}</a></li>
+                        <li><a class="dropdown-item {% if url_name == 'margin_analysis' %}active{% endif %}" href="{% url 'analytics:margin_analysis' %}">{% trans "Margins" %}</a></li>
+                        <li><a class="dropdown-item {% if url_name == 'pnl_summary' %}active{% endif %}" href="{% url 'analytics:pnl_summary' %}">{% trans "P&L" %}</a></li>
+                        <li><a class="dropdown-item {% if url_name == 'product_list' or url_name == 'product_detail' %}active{% endif %}" href="{% url 'catalog:product_list' %}">{% trans "Products" %}</a></li>
+                        <li><a class="dropdown-item {% if url_name == 'upload' %}active{% endif %}" href="{% url 'sales:upload' %}">{% trans "Upload" %}</a></li>
+                        <li><a class="dropdown-item {% if url_name == 'quote_list' or url_name == 'quote_detail' or url_name == 'menu_list' %}active{% endif %}" href="{% url 'quotes:quote_list' %}">{% trans "Quotes" %}</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                    {% endif %}
+                    <li><a class="dropdown-item {% if url_name == 'help' %}active{% endif %}" href="{% url 'pages:help' %}">{% trans "Help" %}</a></li>
+
+                    <li><hr class="dropdown-divider"></li>
+                    <li><h6 class="dropdown-header">{% trans "Language" %}</h6></li>
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                            <label for="languageSelect" class="visually-hidden">{% trans "Language" %}</label>
-                            <select id="languageSelect" name="language" class="form-select form-select-sm mesa-lang-select"
-                                    onchange="this.form.submit()" aria-label="{% trans 'Language' %}">
-                                {% for code, name in LANGUAGES %}
-                                <option value="{{ code }}" {% if code == CURRENT_LANGUAGE %}selected{% endif %}>{{ name }}</option>
-                                {% endfor %}
-                            </select>
+                            {% get_available_languages as LANGUAGES %}
+                            {% for code, name in LANGUAGES %}
+                            <button type="submit" name="language" value="{{ code }}"
+                                    class="dropdown-item {% if code == LANGUAGE_CODE %}active{% endif %}">{{ name }}</button>
+                            {% endfor %}
                         </form>
                     </li>
+
+                    <li><hr class="dropdown-divider"></li>
                     {% if request.user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle {% if url_name == 'settings' %}active{% endif %}" href="#"
-                               id="accountMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {% if request.restaurant %}{{ request.restaurant.name }}{% else %}{{ request.user.email }}{% endif %}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
-                                <li><span class="dropdown-item-text text-muted small">{{ request.user.email }}</span></li>
-                                {% if request.restaurant %}
-                                <li><a class="dropdown-item" href="{% url 'tenants:settings' %}">{% trans "Restaurant settings" %}</a></li>
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="post" action="{% url 'account_logout' %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="dropdown-item">{% trans "Logout" %}</button>
-                                    </form>
-                                </li>
-                            </ul>
+                        <li><span class="dropdown-item-text text-muted small">{{ request.user.email }}</span></li>
+                        {% if request.restaurant %}
+                        <li><a class="dropdown-item {% if url_name == 'settings' %}active{% endif %}" href="{% url 'tenants:settings' %}">{% trans "Restaurant settings" %}</a></li>
+                        {% endif %}
+                        <li><a class="dropdown-item" href="{% url 'account_change_password' %}">{% trans "Change password" %}</a></li>
+                        <li>
+                            <form method="post" action="{% url 'account_logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">{% trans "Logout" %}</button>
+                            </form>
                         </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'account_login' %}">{% trans "Login" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-sm btn-primary ms-lg-2" href="{% url 'account_signup' %}">{% trans "Sign up" %}</a>
-                        </li>
+                        <li><a class="dropdown-item" href="{% url 'account_login' %}">{% trans "Login" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'account_signup' %}">{% trans "Sign up" %}</a></li>
                     {% endif %}
                 </ul>
             </div>
+            {% endwith %}
         </div>
     </nav>
 
