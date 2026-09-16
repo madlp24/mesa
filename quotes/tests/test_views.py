@@ -563,6 +563,31 @@ class TestQuoteDetailRenders:
         assert "Personal: 2 cocineros" in body
         assert "Descuento comercial" in body
 
+    def test_each_add_button_posts_to_its_own_view(self, logged_client, restaurant):
+        """The two Add buttons sit in one form and are told apart by formaction.
+
+        They shipped crossed over: the dish box posted to the charge view, so
+        adding a dish answered "A charge needs a name." and saved nothing.
+        """
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-212")
+        MenuItem.objects.create(
+            restaurant=restaurant, name="Picanha", course=Course.MAINS,
+            price=Decimal("300000"),
+        )
+
+        body = logged_client.get(
+            reverse("quotes:quote_detail", args=[quote.pk])
+        ).content.decode()
+
+        # Each box reaches from its own first field to the button under it.
+        caja_plato = body[body.index('id="dish"'):]
+        caja_plato = caja_plato[:caja_plato.index("</button>")]
+        assert reverse("quotes:quote_add_dish", args=[quote.pk]) in caja_plato
+
+        caja_cargo = body[body.index('id="charge_name"'):]
+        caja_cargo = caja_cargo[:caja_cargo.index("</button>")]
+        assert reverse("quotes:quote_add_charge", args=[quote.pk]) in caja_cargo
+
     def test_it_renders_an_empty_quote(self, logged_client, restaurant):
         quote = Quote.objects.create(restaurant=restaurant, number="CA-211")
 
