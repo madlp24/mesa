@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-16 14:05-0500\n"
+"POT-Creation-Date: 2026-09-23 15:11-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -351,11 +351,11 @@ msgstr "%(name)s agregado."
 msgid "A dish needs a name."
 msgstr "Un plato necesita nombre."
 
-#: quotes/views.py:411
+#: quotes/views.py:432
 msgid "Quote updated."
 msgstr "Cotización actualizada."
 
-#: quotes/views.py:471
+#: quotes/views.py:492
 #, python-format
 msgid "%(name)s updated."
 msgstr "%(name)s actualizado."
@@ -1197,7 +1197,7 @@ msgstr ""
 "precio vacío se lista como incluido. Un precio negativo es un descuento."
 
 #: templates/quotes/quote_detail.html:115
-#: templates/quotes/quote_detail.html:406 templates/tenants/settings.html:45
+#: templates/quotes/quote_detail.html:414 templates/tenants/settings.html:45
 msgid "Remove"
 msgstr "Quitar"
 
@@ -1269,7 +1269,7 @@ msgid "Compose menu"
 msgstr "Armar menú"
 
 #: templates/quotes/quote_detail.html:225
-#: templates/quotes/quote_detail.html:444 templates/quotes/quote_list.html:45
+#: templates/quotes/quote_detail.html:452 templates/quotes/quote_list.html:45
 msgid "Total"
 msgstr "Total"
 
@@ -1392,35 +1392,39 @@ msgstr "Agregar plato"
 msgid "lines"
 msgstr "líneas"
 
-#: templates/quotes/quote_detail.html:392
+#: templates/quotes/quote_detail.html:389
+msgid "Section of"
+msgstr "Sección de"
+
+#: templates/quotes/quote_detail.html:400
 msgid "Quantity of"
 msgstr "Cantidad de"
 
-#: templates/quotes/quote_detail.html:399
+#: templates/quotes/quote_detail.html:407
 msgid "cost"
 msgstr "costo"
 
-#: templates/quotes/quote_detail.html:400
+#: templates/quotes/quote_detail.html:408
 msgid "Cost of"
 msgstr "Costo de"
 
-#: templates/quotes/quote_detail.html:416
+#: templates/quotes/quote_detail.html:424
 msgid "Save quantities"
 msgstr "Guardar cantidades"
 
-#: templates/quotes/quote_detail.html:427
+#: templates/quotes/quote_detail.html:435
 msgid "Subtotal (tax included)"
 msgstr "Subtotal (impuesto incluido)"
 
-#: templates/quotes/quote_detail.html:432
+#: templates/quotes/quote_detail.html:440
 msgid "of which tax, already inside"
 msgstr "del cual impuesto, ya incluido"
 
-#: templates/quotes/quote_detail.html:438
+#: templates/quotes/quote_detail.html:446
 msgid "Tip"
 msgstr "Propina"
 
-#: templates/quotes/quote_detail.html:454
+#: templates/quotes/quote_detail.html:462
 msgid "No lines yet. Compose a menu from a budget to get started."
 msgstr "Todavía no hay líneas. Arma un menú por presupuesto para empezar."
 
