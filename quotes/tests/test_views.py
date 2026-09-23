@@ -1149,6 +1149,82 @@ class TestVenueDishesComeFirst:
 
 
 @pytest.mark.django_db
+class TestMovingALineBetweenCourses:
+    """A dish lands under whatever heading its menu entry carries.
+
+    Which heading is right is often only obvious once the dish is on the page:
+    mazorca arrives as a starter and belongs with the sides. The select beside
+    each line moves it without retyping the dish.
+    """
+
+    def _quote_with(self, restaurant, course):
+        quote = Quote.objects.create(restaurant=restaurant, number="CA-300")
+        line = QuoteLine.objects.create(
+            quote=quote, course=course, name="Mazorca salada",
+            quantity=Decimal("1"), unit_price=Decimal("18000"),
+        )
+        return quote, line
+
+    def test_it_moves_the_line_to_the_chosen_course(self, logged_client, restaurant):
+        quote, line = self._quote_with(restaurant, Course.STARTERS)
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"course-{line.pk}": Course.SIDES},
+        )
+
+        line.refresh_from_db()
+        assert line.course == Course.SIDES
+
+    def test_it_lands_at_the_end_of_its_new_section(self, logged_client, restaurant):
+        quote, line = self._quote_with(restaurant, Course.STARTERS)
+        QuoteLine.objects.create(
+            quote=quote, course=Course.SIDES, name="Maduro con queso",
+            quantity=Decimal("1"), unit_price=Decimal("24000"), position=7,
+        )
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"course-{line.pk}": Course.SIDES},
+        )
+
+        line.refresh_from_db()
+        assert line.position == 8
+
+    def test_it_ignores_a_course_it_does_not_know(self, logged_client, restaurant):
+        quote, line = self._quote_with(restaurant, Course.STARTERS)
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"course-{line.pk}": "postres-de-la-abuela"},
+        )
+
+        line.refresh_from_db()
+        assert line.course == Course.STARTERS
+
+    def test_moving_a_line_leaves_its_quantity_alone(self, logged_client, restaurant):
+        quote, line = self._quote_with(restaurant, Course.STARTERS)
+
+        logged_client.post(
+            reverse("quotes:quote_update_lines", args=[quote.pk]),
+            {f"course-{line.pk}": Course.MAINS},
+        )
+
+        line.refresh_from_db()
+        assert line.quantity == Decimal("1")
+
+    def test_the_select_shows_the_course_the_line_is_in(self, logged_client, restaurant):
+        quote, line = self._quote_with(restaurant, Course.SIDES)
+
+        body = logged_client.get(
+            reverse("quotes:quote_detail", args=[quote.pk])
+        ).content.decode()
+
+        caja = body[body.index(f'name="course-{line.pk}"'):]
+        caja = caja[:caja.index("</select>")]
+        assert f'value="{Course.SIDES}" selected' in caja
+
+
 class TestBlankQuantityKeepsTheLine:
     """A box left empty must never be read as "delete this dish".
 

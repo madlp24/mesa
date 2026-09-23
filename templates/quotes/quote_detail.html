@@ -384,6 +384,14 @@
                                 <div>{{ line.name }}</div>
                                 {% if line.description %}<div class="text-muted small">{{ line.description }}</div>{% endif %}
                                 {% if not line.unit_cost %}<span class="badge text-bg-warning">{% trans "no cost" %}</span>{% endif %}
+                                <select class="form-select form-select-sm mt-1 w-auto d-inline-block text-muted"
+                                        name="course-{{ line.pk }}"
+                                        aria-label="{% trans 'Section of' %} {{ line.name }}"
+                                        onchange="this.form.action='{% url 'quotes:quote_update_lines' quote.pk %}';this.form.submit()">
+                                    {% for value, label in course_choices %}
+                                    <option value="{{ value }}" {% if value == line.course %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
                             </td>
                             <td style="width:6.5rem">
                                 <input type="number" step="0.01" min="0" name="qty-{{ line.pk }}"

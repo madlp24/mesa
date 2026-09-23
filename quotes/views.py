@@ -377,6 +377,17 @@ def quote_add_custom_dish(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect("quotes:quote_detail", pk=quote.pk)
 
 
+def _next_position(quote: Quote, course: str) -> int:
+    """Put a moved line at the end of the section it lands in, not in the middle."""
+    ultima = (
+        quote.lines.filter(course=course, add_on=False)
+        .order_by("-position")
+        .values_list("position", flat=True)
+        .first()
+    )
+    return (ultima or 0) + 1
+
+
 @login_required
 @require_POST
 def quote_update_lines(request: HttpRequest, pk: int) -> HttpResponse:
@@ -407,6 +418,14 @@ def quote_update_lines(request: HttpRequest, pk: int) -> HttpResponse:
             if nuevo != line.unit_cost:
                 line.unit_cost = nuevo
                 cambios.append("unit_cost")
+
+        # The course is what decides which heading a dish sits under, and the
+        # right heading is often only obvious once the dish is on the page.
+        raw_course = request.POST.get(f"course-{line.pk}")
+        if raw_course in Course.values and raw_course != line.course:
+            line.course = raw_course
+            line.position = _next_position(quote, raw_course)
+            cambios += ["course", "position"]
 
         if cambios:
             line.save(update_fields=cambios)
