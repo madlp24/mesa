@@ -16,10 +16,26 @@ def test_landing_is_public(client):
 
 
 @pytest.mark.django_db
-def test_landing_redirects_authenticated_user_to_dashboard(logged_client):
+def test_signed_in_user_gets_the_home_hub(logged_client):
+    """`/` stops being the dashboard: it asks where you want to go (US35)."""
     response = logged_client.get(reverse("pages:landing"))
-    assert response.status_code == 302
-    assert response.url == reverse("analytics:dashboard")
+
+    assert response.status_code == 200
+    assert "pages/home.html" in [t.name for t in response.templates]
+    body = response.content.decode()
+    # Every job is one click away from the hub.
+    for name in ("analytics:dashboard", "analytics:margin_analysis",
+                 "analytics:pnl_summary", "sales:upload", "catalog:product_list",
+                 "quotes:quote_list", "quotes:menu_list", "tenants:settings"):
+        assert reverse(name) in body, name
+
+
+@pytest.mark.django_db
+def test_anonymous_visitor_still_gets_the_landing(client):
+    response = client.get(reverse("pages:landing"))
+
+    assert response.status_code == 200
+    assert "pages/landing.html" in [t.name for t in response.templates]
 
 
 @pytest.mark.django_db

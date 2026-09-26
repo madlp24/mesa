@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-23 15:11-0500\n"
+"POT-Creation-Date: 2026-09-25 19:59-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -445,7 +445,7 @@ msgid "Already have an account?"
 msgstr "¿Ya tienes una cuenta?"
 
 #: templates/analytics/dashboard.html:4 templates/analytics/dashboard.html:9
-#: templates/base.html:28
+#: templates/base.html:28 templates/pages/home.html:18
 msgid "Dashboard"
 msgstr "Panel"
 
@@ -590,16 +590,16 @@ msgstr "Margen bruto %%"
 msgid "Menu"
 msgstr "Menú"
 
-#: templates/base.html:29
+#: templates/base.html:29 templates/pages/home.html:25
 msgid "Margins"
 msgstr "Márgenes"
 
-#: templates/base.html:30
+#: templates/base.html:30 templates/pages/home.html:32
 msgid "P&L"
 msgstr "PyG"
 
 #: templates/base.html:31 templates/catalog/product_list.html:4
-#: templates/catalog/product_list.html:9
+#: templates/catalog/product_list.html:9 templates/pages/home.html:46
 msgid "Products"
 msgstr "Productos"
 
@@ -607,8 +607,8 @@ msgstr "Productos"
 msgid "Upload"
 msgstr "Subir"
 
-#: templates/base.html:33 templates/quotes/menu_list.html:14
-#: templates/quotes/quote_list.html:4
+#: templates/base.html:33 templates/pages/home.html:53
+#: templates/quotes/menu_list.html:14 templates/quotes/quote_list.html:4
 msgid "Quotes"
 msgstr "Cotizaciones"
 
@@ -843,6 +843,58 @@ msgstr "Contacto"
 #: templates/pages/help.html:43
 msgid "Questions, feedback or a bug to report? Get in touch:"
 msgstr "¿Preguntas, comentarios o un error que reportar? Escríbeme:"
+
+#: templates/pages/home.html:4
+msgid "Home"
+msgstr "Inicio"
+
+#: templates/pages/home.html:8
+msgid "What would you like to do?"
+msgstr "¿Qué quieres hacer?"
+
+#: templates/pages/home.html:19
+msgid "Revenue, average ticket and margin for the period."
+msgstr "Ventas, ticket promedio y margen del período."
+
+#: templates/pages/home.html:26
+msgid "Margin product by product, to see what to reprice."
+msgstr "Margen producto por producto, para ver qué reprecificar."
+
+#: templates/pages/home.html:33
+msgid "Month-by-month profit and loss."
+msgstr "Pérdidas y ganancias mes a mes."
+
+#: templates/pages/home.html:39 templates/sales/upload.html:10
+msgid "Upload reports"
+msgstr "Subir reportes"
+
+#: templates/pages/home.html:40
+msgid "Bring in your Soft Restaurant reports, one or several."
+msgstr "Carga tus reportes de Soft Restaurant, uno o varios."
+
+#: templates/pages/home.html:47
+msgid "Your catalog and the POS identities behind it."
+msgstr "Tu catálogo y las identidades del POS detrás de él."
+
+#: templates/pages/home.html:54
+msgid "Build and send proposals for events."
+msgstr "Arma y envía propuestas para eventos."
+
+#: templates/pages/home.html:60
+msgid "Event menu"
+msgstr "Menú de eventos"
+
+#: templates/pages/home.html:61
+msgid "The dishes you offer at events, and their cost."
+msgstr "Los platos que ofreces en eventos, y su costo."
+
+#: templates/pages/home.html:67 templates/tenants/settings.html:4
+msgid "Settings"
+msgstr "Ajustes"
+
+#: templates/pages/home.html:68
+msgid "Your restaurant and the people who can see it."
+msgstr "Tu restaurante y las personas que pueden verlo."
 
 #: templates/pages/landing.html:4
 msgid "Business intelligence for restaurants"
@@ -1499,10 +1551,6 @@ msgstr "Arma tu primera cotización"
 msgid "Upload report"
 msgstr "Subir reporte"
 
-#: templates/sales/upload.html:10
-msgid "Upload reports"
-msgstr "Subir reportes"
-
 #: templates/sales/upload.html:12
 msgid ""
 "Upload your Soft Restaurant Productos-Vendidos exports (.pdf or .xlsx). "
@@ -1611,10 +1659,6 @@ msgstr "Crear una cuenta"
 #: templates/tenants/invitation_landing.html:21
 msgid "I already have one"
 msgstr "Ya tengo una"
-
-#: templates/tenants/settings.html:4
-msgid "Settings"
-msgstr "Ajustes"
 
 #: templates/tenants/settings.html:11
 msgid "Update how your restaurant is named across Mesa."
