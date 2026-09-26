@@ -33,6 +33,13 @@ from .models import Category, Product, ProductAlias
 _NOISE_TOKENS = frozenset(
     {"GR", "G", "GRS", "ML", "L", "CC", "KG", "UND", "UN", "U", "X", "TRAGO"}
 )
+# Spanish connectors carry no identity: the POS writes the same dish both ways
+# ("EXTRA DE AGUACATE" / "EXTRA AGUACATE"), and keeping them made the two look
+# like different products. Dropping a connector from BOTH sides preserves every
+# real distinction ("POSTRE DE LIMON" stays apart from "POSTRE DE MANGO").
+# "CON" is deliberately NOT here: "AGUA MANANTIAL CON GAS" is not "AGUA
+# MANANTIAL".
+_CONNECTOR_TOKENS = frozenset({"DE", "DEL"})
 # Serving families: when two products share a name but their groups name a
 # different serving, they are different products (bottle vs glass/trago).
 _SERVING_KEYWORDS = ("BOTELLA", "COPA", "TRAGO", "MEDIA")
@@ -50,12 +57,16 @@ def normalize_name(raw: str) -> str:
     """Normalize a raw POS name for identity comparison.
 
     Uppercases, strips accents, drops ``*`` and punctuation, and removes
-    standalone unit/serving marker tokens. ``"Punta de Anca*GR"`` and
-    ``"PUNTA DE ANCA"`` both normalize to ``"PUNTA DE ANCA"``.
+    standalone unit/serving markers and Spanish connectors. ``"Punta de
+    Anca*GR"`` and ``"PUNTA DE ANCA"`` both normalize to ``"PUNTA ANCA"``.
     """
     text = _strip_accents(str(raw)).upper()
     text = re.sub(r"[^0-9A-Z\s]", " ", text)  # "NO.21" -> "NO 21"
-    tokens = [t for t in text.split() if t not in _NOISE_TOKENS]
+    tokens = [
+        t
+        for t in text.split()
+        if t not in _NOISE_TOKENS and t not in _CONNECTOR_TOKENS
+    ]
     return " ".join(tokens)
 
 

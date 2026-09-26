@@ -17,7 +17,9 @@ from catalog.models import Category, Product, ProductAlias
 @pytest.mark.parametrize(
     "raw,expected",
     [
-        ("Punta de Anca*GR", "PUNTA DE ANCA"),
+        ("Punta de Anca*GR", "PUNTA ANCA"),
+        ("EXTRA DE AGUACATE", "EXTRA AGUACATE"),
+        ("Croquetas del Lomo", "CROQUETAS LOMO"),
         ("Café con Leche", "CAFE CON LECHE"),
         ("NEGRONI X TRAGO", "NEGRONI"),
         ("No.21", "NO 21"),
@@ -150,3 +152,37 @@ def test_alias_hit_short_circuits_resolution(restaurant):
     )
     assert again == first
     assert Category.objects.count() == 1
+
+
+# --- Spanish connectors (DE/DEL) do not change identity (#130) --------------
+
+
+@pytest.mark.parametrize(
+    "pos_2026,historico",
+    [
+        # Real renames seen importing Junio/Julio 2026: the historical row died
+        # in Mayo and the new one was born in Junio, same Grupo.
+        ("EXTRA AGUACATE", "EXTRA DE AGUACATE"),
+        ("CROQUETAS DE LOMO AHUMADO *4UND", "CROQUETAS LOMO AHUMADO * 4 UND"),
+        ("TOSTADA TARTAR RES", "TOSTADAS DE TARTAR RES"),
+        ("VERMOUTH ROSSO YZAGUIRRE X TRAGO", "VERMOUTH ROSSO DE YZAGUIRRE X TRAGO"),
+    ],
+)
+def test_connector_rename_is_the_same_product(pos_2026, historico):
+    assert names_match(normalize_name(pos_2026), normalize_name(historico))
+
+
+@pytest.mark.parametrize(
+    "a,b",
+    [
+        # Dropping the connector must not blur real distinctions.
+        ("POSTRE DE LIMON", "POSTRE DE MANGO"),
+        ("SODA DE COCO", "SODA DE LULO"),
+        # "CON" is not a connector we drop: still water is not sparkling water.
+        ("AGUA MANANTIAL", "AGUA MANANTIAL CON GAS"),
+        # A size added to the name stays a human call, not an automatic fusion.
+        ("ACQUA PANNA", "ACQUA PANNA * 505 ML"),
+    ],
+)
+def test_connectors_do_not_over_fuse(a, b):
+    assert not names_match(normalize_name(a), normalize_name(b))
