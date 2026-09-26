@@ -52,6 +52,7 @@
     </div>
     <div class="mt-3">
         <button type="submit" class="btn btn-primary">{% trans "Merge selected" %}</button>
+        <a href="{% url 'catalog:duplicates' %}" class="btn btn-outline-secondary ms-2">{% trans "Possible duplicates" %}</a>
     </div>
 </form>
 {% else %}

@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from sales.models import SaleItem
 
 from . import services
+from .duplicates import find_possible_duplicates
 from .models import Product, ProductAlias
 
 _REVENUE = ExpressionWrapper(
@@ -182,3 +183,35 @@ def product_sales_series(request: HttpRequest, pk: int) -> JsonResponse:
             "data": [row["units"] for row in rows],
         }
     )
+
+
+@login_required
+def duplicate_review(request: HttpRequest) -> HttpResponse:
+    """Products that look like one dish split in two by a rename (US37)."""
+    candidates = find_possible_duplicates(request.restaurant)
+    return render(
+        request, "catalog/duplicates.html", {"candidates": candidates}
+    )
+
+
+@login_required
+@require_POST
+def merge_pair(request: HttpRequest) -> HttpResponse:
+    """Fold the newcomer into the product that carries the history."""
+    keep = get_object_or_404(
+        Product, pk=request.POST.get("keep"), restaurant=request.restaurant
+    )
+    merge = get_object_or_404(
+        Product, pk=request.POST.get("merge"), restaurant=request.restaurant
+    )
+    try:
+        services.merge_products(request.restaurant, keep, [merge])
+    except services.IdentityError as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(
+            request,
+            _("“%(merged)s” is now part of “%(kept)s”.")
+            % {"merged": merge.name, "kept": keep.name},
+        )
+    return redirect("catalog:duplicates")
