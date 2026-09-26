@@ -6,6 +6,8 @@ app_name = "catalog"
 urlpatterns = [
     path("", views.product_list, name="product_list"),
     path("merge/", views.merge_products, name="merge_products"),
+    path("duplicates/", views.duplicate_review, name="duplicates"),
+    path("duplicates/merge/", views.merge_pair, name="merge_pair"),
     path("alias/<int:alias_id>/", views.alias_action, name="alias_action"),
     path("<int:pk>/", views.product_detail, name="product_detail"),
     path(

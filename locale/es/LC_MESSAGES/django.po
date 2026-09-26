@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 20:27-0500\n"
+"POT-Creation-Date: 2026-09-25 20:32-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -92,28 +92,33 @@ msgstr[1] ""
 "Se agregaron %(count)d productos como filas nuevas -- revisa que no sean "
 "renombrados: %(names)s"
 
-#: catalog/views.py:76
+#: catalog/views.py:77
 msgid "Select at least two products to merge."
 msgstr "Selecciona al menos dos productos para fusionar."
 
-#: catalog/views.py:92
+#: catalog/views.py:93
 msgid "Choose which product to keep."
 msgstr "Elige qué producto conservar."
 
-#: catalog/views.py:102
+#: catalog/views.py:103
 #, python-format
 msgid "Merged %(count)d product(s) into “%(name)s”."
 msgstr "Se fusionaron %(count)d producto(s) en «%(name)s»."
 
-#: catalog/views.py:124
+#: catalog/views.py:125
 #, python-format
 msgid "Split “%(raw)s” into a new product."
 msgstr "Se separó «%(raw)s» en un producto nuevo."
 
-#: catalog/views.py:134
+#: catalog/views.py:135
 #, python-format
 msgid "Moved “%(raw)s” to “%(name)s”."
 msgstr "Se movió «%(raw)s» a «%(name)s»."
+
+#: catalog/views.py:214
+#, python-format
+msgid "“%(merged)s” is now part of “%(kept)s”."
+msgstr "“%(merged)s” ahora forma parte de “%(kept)s”."
 
 #: config/settings/base.py:84
 msgid "English"
@@ -730,6 +735,62 @@ msgstr "Iniciar sesión"
 msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
 msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
+#: templates/catalog/duplicates.html:4 templates/catalog/duplicates.html:9
+#: templates/catalog/product_list.html:55
+msgid "Possible duplicates"
+msgstr "Posibles duplicados"
+
+#: templates/catalog/duplicates.html:11
+msgid ""
+"Pairs where one product stopped selling right as a similarly named one "
+"started — the mark of a dish renamed in the POS."
+msgstr "Pares donde un producto dejó de venderse justo cuando empezó otro de nombre parecido — la huella de un plato renombrado en el POS."
+
+#: templates/catalog/duplicates.html:14
+msgid "All products"
+msgstr "Todos los productos"
+
+#: templates/catalog/duplicates.html:19
+msgid ""
+"Merging keeps the product with the longer history and moves the other's "
+"sales and POS identities onto it."
+msgstr "Al fusionar se conserva el producto con la historia más larga y se le trasladan las ventas e identidades del POS del otro."
+
+#: templates/catalog/duplicates.html:25
+msgid "Keeps the history"
+msgstr "Conserva la historia"
+
+#: templates/catalog/duplicates.html:28 templates/catalog/duplicates.html:36
+#, python-format
+msgid "%(units)s units"
+msgstr "%(units)s unidades"
+
+#: templates/catalog/duplicates.html:29
+#, python-format
+msgid "last sold %(date)s"
+msgstr "última venta %(date)s"
+
+#: templates/catalog/duplicates.html:33
+msgid "Would be folded in"
+msgstr "Se absorbería"
+
+#: templates/catalog/duplicates.html:37
+#, python-format
+msgid "first sold %(date)s"
+msgstr "primera venta %(date)s"
+
+#: templates/catalog/duplicates.html:42
+msgid "Merge these two products? This cannot be undone."
+msgstr "¿Fusionar estos dos productos? No se puede deshacer."
+
+#: templates/catalog/duplicates.html:46
+msgid "Merge"
+msgstr "Fusionar"
+
+#: templates/catalog/duplicates.html:54
+msgid "Nothing looks like a rename right now."
+msgstr "Por ahora nada parece un renombre."
+
 #: templates/catalog/merge_confirm.html:4
 msgid "Confirm merge"
 msgstr "Confirmar fusión"
@@ -842,7 +903,7 @@ msgstr "Seleccionar"
 msgid "Merge selected"
 msgstr "Fusionar seleccionados"
 
-#: templates/catalog/product_list.html:59
+#: templates/catalog/product_list.html:60
 msgid "No products yet. Upload a report to build your catalog."
 msgstr "Aún no hay productos. Sube un reporte para crear tu catálogo."
 

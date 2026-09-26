@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Possible duplicates" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="h3 mb-1">{% trans "Possible duplicates" %}</h1>
+    <p class="text-muted mb-0">
+      {% trans "Pairs where one product stopped selling right as a similarly named one started — the mark of a dish renamed in the POS." %}
+    </p>
+  </div>
+  <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary btn-sm">{% trans "All products" %}</a>
+</div>
+
+{% if candidates %}
+<p class="text-muted small">
+  {% trans "Merging keeps the product with the longer history and moves the other's sales and POS identities onto it." %}
+</p>
+{% for c in candidates %}
+<div class="card mb-3"><div class="card-body">
+  <div class="row align-items-center g-3">
+    <div class="col-md-5">
+      <div class="text-muted small text-uppercase">{% trans "Keeps the history" %}</div>
+      <a href="{% url 'catalog:product_detail' c.keep.pk %}" class="fw-bold">{{ c.keep.name }}</a>
+      <div class="text-muted small">
+        {{ c.keep.category.name }} · {% blocktrans with units=c.keep_units %}{{ units }} units{% endblocktrans %}
+        · {% blocktrans with date=c.keep_last %}last sold {{ date }}{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="text-muted small text-uppercase">{% trans "Would be folded in" %}</div>
+      <a href="{% url 'catalog:product_detail' c.merge.pk %}" class="fw-bold">{{ c.merge.name }}</a>
+      <div class="text-muted small">
+        {{ c.merge.category.name }} · {% blocktrans with units=c.merge_units %}{{ units }} units{% endblocktrans %}
+        · {% blocktrans with date=c.merge_first %}first sold {{ date }}{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-md-2 text-md-end">
+      <form method="post" action="{% url 'catalog:merge_pair' %}"
+            onsubmit="return confirm('{% trans "Merge these two products? This cannot be undone." %}');">
+        {% csrf_token %}
+        <input type="hidden" name="keep" value="{{ c.keep.pk }}">
+        <input type="hidden" name="merge" value="{{ c.merge.pk }}">
+        <button type="submit" class="btn btn-primary btn-sm">{% trans "Merge" %}</button>
+      </form>
+    </div>
+  </div>
+</div></div>
+{% endfor %}
+{% else %}
+<div class="card"><div class="card-body text-center text-muted py-5">
+  <p class="mb-0">{% trans "Nothing looks like a rename right now." %}</p>
+</div></div>
+{% endif %}
+{% endblock %}
