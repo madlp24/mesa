@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 19:59-0500\n"
+"POT-Creation-Date: 2026-09-25 20:27-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -16,40 +16,81 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: analytics/views.py:26 templates/quotes/menu_list.html:83
+#: analytics/forms.py:25
+msgid "Your master workbook (.xlsx)"
+msgstr "Tu Excel maestro (.xlsx)"
+
+#: analytics/forms.py:29
+msgid "Year"
+msgstr "Año"
+
+#: analytics/forms.py:35 templates/analytics/pnl.html:32
+msgid "Month"
+msgstr "Mes"
+
+#: analytics/forms.py:45
+msgid "That is not an .xlsx workbook. Upload your master analysis file."
+msgstr "Eso no es un archivo .xlsx. Sube tu Excel de análisis."
+
+#: analytics/forms.py:49
+#, python-format
+msgid "The file is too large (%(size)s). The limit is %(limit)s."
+msgstr "El archivo es demasiado grande (%(size)s). El límite es %(limit)s."
+
+#: analytics/views.py:33 templates/quotes/menu_list.html:83
 msgid "Name"
 msgstr "Nombre"
 
-#: analytics/views.py:27 templates/catalog/product_list.html:26
+#: analytics/views.py:34 templates/catalog/product_list.html:26
 msgid "Category"
 msgstr "Categoría"
 
-#: analytics/views.py:28 templates/quotes/menu_list.html:128
+#: analytics/views.py:35 templates/quotes/menu_list.html:128
 #: templates/quotes/quote_detail.html:137
 #: templates/quotes/quote_detail.html:345 templates/quotes/quote_list.html:46
 msgid "Cost"
 msgstr "Costo"
 
-#: analytics/views.py:29
+#: analytics/views.py:36
 msgid "Sale price"
 msgstr "Precio de venta"
 
-#: analytics/views.py:30
+#: analytics/views.py:37
 msgid "Margin $"
 msgstr "Margen $"
 
-#: analytics/views.py:31
+#: analytics/views.py:38
 msgid "Margin %"
 msgstr "Margen %"
 
-#: analytics/views.py:32 templates/catalog/product_detail.html:34
+#: analytics/views.py:39 templates/catalog/product_detail.html:34
 #: templates/catalog/product_detail.html:118
 msgid "Units sold"
 msgstr "Unidades vendidas"
 
-#: analytics/views.py:33 templates/catalog/product_detail.html:46
+#: analytics/views.py:40 templates/catalog/product_detail.html:46
 msgid "Total margin"
 msgstr "Margen total"
+
+#: analytics/views.py:242
+#, python-format
+msgid "%(column)s updated: %(matched)d products matched."
+msgstr "%(column)s actualizada: %(matched)d productos emparejados."
+
+#: analytics/views.py:246
+#, python-format
+msgid ""
+"%(count)d product was added as a new row -- check it is not a renamed one: "
+"%(names)s"
+msgid_plural ""
+"%(count)d products were added as new rows -- check they are not renamed "
+"ones: %(names)s"
+msgstr[0] ""
+"Se agregó %(count)d producto como fila nueva -- revisa que no sea uno "
+"renombrado: %(names)s"
+msgstr[1] ""
+"Se agregaron %(count)d productos como filas nuevas -- revisa que no sean "
+"renombrados: %(names)s"
 
 #: catalog/views.py:76
 msgid "Select at least two products to merge."
@@ -424,7 +465,7 @@ msgstr "Recuérdame"
 msgid "Don't have an account?"
 msgstr "¿No tienes una cuenta?"
 
-#: templates/account/login.html:58 templates/base.html:67
+#: templates/account/login.html:58 templates/base.html:68
 msgid "Sign up"
 msgstr "Regístrate"
 
@@ -565,10 +606,6 @@ msgstr "Período"
 msgid "Last 12 months"
 msgstr "Últimos 12 meses"
 
-#: templates/analytics/pnl.html:32
-msgid "Month"
-msgstr "Mes"
-
 #: templates/analytics/pnl.html:33 templates/catalog/product_list.html:30
 msgid "Revenue"
 msgstr "Ingresos"
@@ -586,6 +623,59 @@ msgstr "Margen bruto"
 msgid "Gross Margin %%"
 msgstr "Margen bruto %%"
 
+#: templates/analytics/workbook_update.html:4
+#: templates/analytics/workbook_update.html:10 templates/base.html:33
+#: templates/pages/home.html:46
+msgid "Update my workbook"
+msgstr "Actualizar mi Excel"
+
+#: templates/analytics/workbook_update.html:12
+msgid ""
+"Attach your master analysis file and pick a month. Mesa fills that month's "
+"column in the “Productos vendidos” sheet with the units it has for your "
+"restaurant, and hands the workbook back to you."
+msgstr ""
+"Adjunta tu archivo de análisis y elige un mes. Mesa llena la columna de ese "
+"mes en la hoja “Productos vendidos” con las unidades que tiene de tu "
+"restaurante, y te devuelve el archivo."
+
+#: templates/analytics/workbook_update.html:19
+msgid ""
+"First upload that month's reports on the Upload page, so Mesa has the data. "
+"Then come back here."
+msgstr ""
+"Primero sube los reportes de ese mes en la página de Subir, para que Mesa "
+"tenga los datos. Luego vuelve aquí."
+
+#: templates/analytics/workbook_update.html:23
+msgid "Go to Upload"
+msgstr "Ir a Subir reportes"
+
+#: templates/analytics/workbook_update.html:46
+msgid "Update and download"
+msgstr "Actualizar y descargar"
+
+#: templates/analytics/workbook_update.html:53
+msgid "Good to know"
+msgstr "Ten en cuenta"
+
+#: templates/analytics/workbook_update.html:55
+msgid "Your file is never stored: it is processed and handed straight back."
+msgstr "Tu archivo nunca se guarda: se procesa y se te devuelve de inmediato."
+
+#: templates/analytics/workbook_update.html:56
+msgid "The workbook you upload is never modified — you get a new copy."
+msgstr "El archivo que subes nunca se modifica — recibes una copia nueva."
+
+#: templates/analytics/workbook_update.html:57
+msgid ""
+"Products Mesa could not match are added as new rows. Review them in Products "
+"so a renamed dish does not become a duplicate."
+msgstr ""
+"Los productos que Mesa no pudo emparejar se agregan como filas nuevas. "
+"Revísalos en Productos para que un plato renombrado no se vuelva un "
+"duplicado."
+
 #: templates/base.html:23 templates/quotes/quote_detail.html:369
 msgid "Menu"
 msgstr "Menú"
@@ -599,7 +689,7 @@ msgid "P&L"
 msgstr "PyG"
 
 #: templates/base.html:31 templates/catalog/product_list.html:4
-#: templates/catalog/product_list.html:9 templates/pages/home.html:46
+#: templates/catalog/product_list.html:9 templates/pages/home.html:53
 msgid "Products"
 msgstr "Productos"
 
@@ -607,36 +697,36 @@ msgstr "Productos"
 msgid "Upload"
 msgstr "Subir"
 
-#: templates/base.html:33 templates/pages/home.html:53
+#: templates/base.html:34 templates/pages/home.html:60
 #: templates/quotes/menu_list.html:14 templates/quotes/quote_list.html:4
 msgid "Quotes"
 msgstr "Cotizaciones"
 
-#: templates/base.html:36 templates/pages/help.html:4
+#: templates/base.html:37 templates/pages/help.html:4
 msgid "Help"
 msgstr "Ayuda"
 
-#: templates/base.html:39
+#: templates/base.html:40
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:56 templates/tenants/settings.html:10
+#: templates/base.html:57 templates/tenants/settings.html:10
 msgid "Restaurant settings"
 msgstr "Ajustes del restaurante"
 
-#: templates/base.html:58
+#: templates/base.html:59
 msgid "Change password"
 msgstr "Cambiar contraseña"
 
-#: templates/base.html:62
+#: templates/base.html:63
 msgid "Logout"
 msgstr "Cerrar sesión"
 
-#: templates/base.html:66
+#: templates/base.html:67
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/base.html:89
+#: templates/base.html:90
 msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
 msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
@@ -873,26 +963,30 @@ msgid "Bring in your Soft Restaurant reports, one or several."
 msgstr "Carga tus reportes de Soft Restaurant, uno o varios."
 
 #: templates/pages/home.html:47
+msgid "Fill a month into your master Excel and download it."
+msgstr "Llena un mes en tu Excel maestro y descárgalo."
+
+#: templates/pages/home.html:54
 msgid "Your catalog and the POS identities behind it."
 msgstr "Tu catálogo y las identidades del POS detrás de él."
 
-#: templates/pages/home.html:54
+#: templates/pages/home.html:61
 msgid "Build and send proposals for events."
 msgstr "Arma y envía propuestas para eventos."
 
-#: templates/pages/home.html:60
+#: templates/pages/home.html:67
 msgid "Event menu"
 msgstr "Menú de eventos"
 
-#: templates/pages/home.html:61
+#: templates/pages/home.html:68
 msgid "The dishes you offer at events, and their cost."
 msgstr "Los platos que ofreces en eventos, y su costo."
 
-#: templates/pages/home.html:67 templates/tenants/settings.html:4
+#: templates/pages/home.html:74 templates/tenants/settings.html:4
 msgid "Settings"
 msgstr "Ajustes"
 
-#: templates/pages/home.html:68
+#: templates/pages/home.html:75
 msgid "Your restaurant and the people who can see it."
 msgstr "Tu restaurante y las personas que pueden verlo."
 

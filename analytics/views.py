@@ -1,16 +1,23 @@
 import datetime
 import io
+import tempfile
+from pathlib import Path
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.dateparse import parse_date
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from sales.models import Sale
 
 from .exports import build_analysis_workbook, build_productos_vendidos_workbook
+from .forms import WorkbookUpdateForm
+from .unified_excel import UnifiedUpdateError, update_productos_vendidos
 from .services import (
     MARGIN_SORT_KEYS,
     compute_kpis,
@@ -181,3 +188,65 @@ def revenue_by_category_api(request: HttpRequest) -> JsonResponse:
             "data": [float(row["revenue"]) for row in rows],
         }
     )
+
+
+@login_required
+def workbook_update(request: HttpRequest) -> HttpResponse:
+    """Fill one month into the owner's master workbook and hand it straight back.
+
+    The workbook is a private business file, so it is never stored: the upload
+    lands in a temporary directory, the copy is read into memory, and the
+    directory is gone before the response is sent.
+    """
+    form = WorkbookUpdateForm()
+    if request.method == "POST":
+        form = WorkbookUpdateForm(request.POST, request.FILES)
+        if form.is_valid():
+            download = _fill_workbook(request, form.cleaned_data)
+            if download is not None:
+                return download
+
+    return render(request, "analytics/workbook_update.html", {"form": form})
+
+
+def _fill_workbook(request: HttpRequest, data: dict):
+    """Return the updated workbook as a download, or None when it cannot be."""
+    upload = data["workbook"]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        source = Path(tmpdir) / Path(upload.name).name
+        with source.open("wb") as handle:
+            for chunk in upload.chunks():
+                handle.write(chunk)
+        try:
+            summary = update_productos_vendidos(
+                source, request.restaurant, data["year"], data["month"]
+            )
+        except UnifiedUpdateError as exc:
+            messages.error(request, str(exc))
+            return None
+        copy = Path(summary["copy"])
+        payload = copy.read_bytes()
+        name = copy.name
+
+    _report(request, summary)
+    return FileResponse(io.BytesIO(payload), as_attachment=True, filename=name)
+
+
+def _report(request: HttpRequest, summary: dict) -> None:
+    """Queue what happened; it shows on the next page the owner opens."""
+    for warning in summary["warnings"]:
+        messages.warning(request, warning)
+
+    appended = summary["appended_names"]
+    text = gettext(
+        "%(column)s updated: %(matched)d products matched."
+    ) % {"column": summary["column"], "matched": summary["matched"]}
+    if appended:
+        text += " " + ngettext(
+            "%(count)d product was added as a new row -- check it is not a "
+            "renamed one: %(names)s",
+            "%(count)d products were added as new rows -- check they are not "
+            "renamed ones: %(names)s",
+            len(appended),
+        ) % {"count": len(appended), "names": ", ".join(appended[:8])}
+    messages.success(request, text)

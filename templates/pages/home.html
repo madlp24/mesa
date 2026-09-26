@@ -41,6 +41,13 @@
     </a>
   </div>
   <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'analytics:workbook_update' %}">
+      <span class="hub-card-icon">📗</span>
+      <span class="hub-card-title">{% trans "Update my workbook" %}</span>
+      <span class="hub-card-text">{% trans "Fill a month into your master Excel and download it." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
     <a class="hub-card" href="{% url 'catalog:product_list' %}">
       <span class="hub-card-icon">🍽️</span>
       <span class="hub-card-title">{% trans "Products" %}</span>
