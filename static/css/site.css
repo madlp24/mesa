@@ -422,3 +422,47 @@ a:hover {
     font-size: .95rem;
     margin-bottom: 0;
 }
+
+/* ---- Home hub ------------------------------------------------------------ */
+.hub-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.4rem;
+    background: var(--mesa-surface);
+    border: 1px solid var(--mesa-border);
+    border-radius: 14px;
+    box-shadow: var(--mesa-shadow);
+    text-decoration: none;
+    color: inherit;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.hub-card:hover,
+.hub-card:focus {
+    transform: translateY(-3px);
+    box-shadow: var(--mesa-shadow-hover);
+    border-color: var(--mesa-primary);
+    color: inherit;
+}
+
+.hub-card:hover .hub-card-title {
+    color: var(--mesa-primary);
+}
+
+.hub-card-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    margin-bottom: .7rem;
+}
+
+.hub-card-title {
+    font-weight: 700;
+    color: var(--mesa-ink);
+    margin-bottom: .25rem;
+}
+
+.hub-card-text {
+    font-size: .9rem;
+    color: var(--mesa-muted);
+}

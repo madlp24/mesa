@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Home" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h1 class="h3 mb-1">{% trans "What would you like to do?" %}</h1>
+  {% if request.restaurant %}
+  <p class="text-muted mb-0">{{ request.restaurant.name }}</p>
+  {% endif %}
+</div>
+
+<div class="row g-3">
+  <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'analytics:dashboard' %}">
+      <span class="hub-card-icon">📊</span>
+      <span class="hub-card-title">{% trans "Dashboard" %}</span>
+      <span class="hub-card-text">{% trans "Revenue, average ticket and margin for the period." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'analytics:margin_analysis' %}">
+      <span class="hub-card-icon">💰</span>
+      <span class="hub-card-title">{% trans "Margins" %}</span>
+      <span class="hub-card-text">{% trans "Margin product by product, to see what to reprice." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'analytics:pnl_summary' %}">
+      <span class="hub-card-icon">📒</span>
+      <span class="hub-card-title">{% trans "P&L" %}</span>
+      <span class="hub-card-text">{% trans "Month-by-month profit and loss." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'sales:upload' %}">
+      <span class="hub-card-icon">📥</span>
+      <span class="hub-card-title">{% trans "Upload reports" %}</span>
+      <span class="hub-card-text">{% trans "Bring in your Soft Restaurant reports, one or several." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'catalog:product_list' %}">
+      <span class="hub-card-icon">🍽️</span>
+      <span class="hub-card-title">{% trans "Products" %}</span>
+      <span class="hub-card-text">{% trans "Your catalog and the POS identities behind it." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'quotes:quote_list' %}">
+      <span class="hub-card-icon">🧾</span>
+      <span class="hub-card-title">{% trans "Quotes" %}</span>
+      <span class="hub-card-text">{% trans "Build and send proposals for events." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'quotes:menu_list' %}">
+      <span class="hub-card-icon">📖</span>
+      <span class="hub-card-title">{% trans "Event menu" %}</span>
+      <span class="hub-card-text">{% trans "The dishes you offer at events, and their cost." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'tenants:settings' %}">
+      <span class="hub-card-icon">⚙️</span>
+      <span class="hub-card-title">{% trans "Settings" %}</span>
+      <span class="hub-card-text">{% trans "Your restaurant and the people who can see it." %}</span>
+    </a>
+  </div>
+</div>
+{% endblock %}

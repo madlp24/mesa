@@ -1,18 +1,24 @@
-"""Public marketing pages: landing (`/`) and help (`/help/`).
+"""The pages at `/` and `/help/`.
 
-These are the only unauthenticated pages besides the allauth login/signup flow.
-Authenticated visitors to the landing are sent straight to their dashboard so
-returning users land on their data, not the marketing copy.
+`/` serves double duty: the marketing landing for visitors, and the home hub
+for signed-in users. Help is public. These are the only unauthenticated pages
+besides the allauth login/signup flow.
 """
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 
 CONTACT_EMAIL = "mdelapavalondono@gmail.com"
 
 
 def landing(request: HttpRequest) -> HttpResponse:
+    """`/` is the marketing landing for visitors and the hub for signed-in users.
+
+    Signing in used to drop everyone on the sales dashboard, which is noise for
+    someone who came to quote an event, so the hub simply asks where they want
+    to go.
+    """
     if request.user.is_authenticated:
-        return redirect("analytics:dashboard")
+        return render(request, "pages/home.html")
     return render(request, "pages/landing.html")
 
 
