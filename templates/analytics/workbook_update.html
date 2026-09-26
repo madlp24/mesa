@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Update my workbook" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-xl-7">
+    <div class="mb-4">
+      <h1 class="h3 mb-1">{% trans "Update my workbook" %}</h1>
+      <p class="text-muted mb-0">
+        {% trans "Attach your master analysis file and pick a month. Mesa fills that month's column in the “Productos vendidos” sheet with the units it has for your restaurant, and hands the workbook back to you." %}
+      </p>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <p class="text-muted small mb-3">
+          {% blocktrans trimmed %}
+          First upload that month's reports on the Upload page, so Mesa has the
+          data. Then come back here.
+          {% endblocktrans %}
+          <a href="{% url 'sales:upload' %}">{% trans "Go to Upload" %}</a>
+        </p>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="{{ form.workbook.id_for_label }}" class="form-label">{{ form.workbook.label }}</label>
+            <input type="file" name="{{ form.workbook.html_name }}" id="{{ form.workbook.id_for_label }}"
+                   class="form-control {% if form.workbook.errors %}is-invalid{% endif %}"
+                   accept=".xlsx" required>
+            {% for error in form.workbook.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-sm-6">
+              <label for="{{ form.month.id_for_label }}" class="form-label">{{ form.month.label }}</label>
+              {{ form.month }}
+            </div>
+            <div class="col-sm-6">
+              <label for="{{ form.year.id_for_label }}" class="form-label">{{ form.year.label }}</label>
+              {{ form.year }}
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">{% trans "Update and download" %}</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h6 text-muted">{% trans "Good to know" %}</h2>
+        <ul class="text-muted small mb-0">
+          <li>{% trans "Your file is never stored: it is processed and handed straight back." %}</li>
+          <li>{% trans "The workbook you upload is never modified — you get a new copy." %}</li>
+          <li>{% trans "Products Mesa could not match are added as new rows. Review them in Products so a renamed dish does not become a duplicate." %}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -30,6 +30,7 @@
                         <li><a class="dropdown-item {% if url_name == 'pnl_summary' %}active{% endif %}" href="{% url 'analytics:pnl_summary' %}">{% trans "P&L" %}</a></li>
                         <li><a class="dropdown-item {% if url_name == 'product_list' or url_name == 'product_detail' %}active{% endif %}" href="{% url 'catalog:product_list' %}">{% trans "Products" %}</a></li>
                         <li><a class="dropdown-item {% if url_name == 'upload' %}active{% endif %}" href="{% url 'sales:upload' %}">{% trans "Upload" %}</a></li>
+                        <li><a class="dropdown-item {% if url_name == 'workbook_update' %}active{% endif %}" href="{% url 'analytics:workbook_update' %}">{% trans "Update my workbook" %}</a></li>
                         <li><a class="dropdown-item {% if url_name == 'quote_list' or url_name == 'quote_detail' or url_name == 'menu_list' %}active{% endif %}" href="{% url 'quotes:quote_list' %}">{% trans "Quotes" %}</a></li>
                         <li><hr class="dropdown-divider"></li>
                     {% endif %}
