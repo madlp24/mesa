@@ -1,9 +1,9 @@
 """Fill the 'Datos totales' sheet (N/O/S/T = Venta/Costo Bar y Cocina) of the
-unified-analysis workbook from a folder of daily POS PDFs (US32).
+unified-analysis workbook from folders of daily POS reports (US32).
 
-Reads each daily report's footer (BEBIDAS/ALIMENTOS block) directly -- these are
-authoritative POS aggregates, not derived from Mesa's per-product data -- and
-writes them per day. Writes a copy; never touches the original.
+Reads each day's footer (BEBIDAS/ALIMENTOS block) -- authoritative POS
+aggregates, not derived from Mesa's per-product data -- and writes them per day.
+Writes a copy; never touches the original.
 """
 from datetime import date
 from pathlib import Path
@@ -11,40 +11,43 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from analytics.unified_excel import UnifiedUpdateError, update_datos_totales
+from sales.importers.folder import select_daily_reports
 from sales.importers.pdf_daily import parse_daily_totals
 
 
 class Command(BaseCommand):
     help = (
-        "Fill 'Datos totales' N/O/S/T (Venta/Costo Bar y Cocina) from the footer "
-        "of each daily PDF in --pdf-dir. Writes a copy '<name> (Mesa Datos totales).xlsx'."
+        "Fill 'Datos totales' N/O/S/T from the footer of every daily report in "
+        "the given folders. Writes a copy '<name> (Mesa Datos totales).xlsx'."
     )
 
     def add_arguments(self, parser):
         parser.add_argument("--file", required=True, help="Path to the master .xlsx")
         parser.add_argument(
-            "--pdf-dir", required=True, help="Folder with the month's daily PDFs"
+            "--pdf-dir",
+            required=True,
+            action="append",
+            help="Folder with daily PDFs. Repeat for several months.",
         )
 
     def handle(self, *args, **options):
-        pdf_dir = Path(options["pdf_dir"])
-        if not pdf_dir.is_dir():
-            raise CommandError(f"Not a folder: {pdf_dir}")
-
         totals_by_date: dict[date, object] = {}
-        skipped = []
-        for pdf in sorted(pdf_dir.glob("*.pdf")):
-            if "mes" in pdf.stem.lower().split():  # monthly summary, not a day
-                skipped.append(pdf.name)
-                continue
-            totals = parse_daily_totals(pdf)
-            if totals is None:
-                skipped.append(pdf.name)
-                continue
-            totals_by_date[date.fromisoformat(totals.date)] = totals
+        skipped: list[tuple[str, str]] = []
+        for raw in options["pdf_dir"]:
+            folder = Path(raw)
+            if not folder.is_dir():
+                raise CommandError(f"Not a folder: {folder}")
+            chosen, folder_skips = select_daily_reports(folder)
+            skipped.extend(folder_skips)
+            for day, pdf in chosen.items():
+                totals = parse_daily_totals(pdf)
+                if totals is None:
+                    skipped.append((pdf.name, "no BEBIDAS/ALIMENTOS footer"))
+                    continue
+                totals_by_date[day] = totals
 
         if not totals_by_date:
-            raise CommandError(f"No daily report footers found in {pdf_dir}")
+            raise CommandError("No daily report footers found in the given folders")
 
         try:
             summary = update_datos_totales(Path(options["file"]), totals_by_date)
@@ -53,6 +56,8 @@ class Command(BaseCommand):
 
         for warning in summary["warnings"]:
             self.stdout.write(self.style.WARNING(f"WARNING: {warning}"))
+        for name, why in skipped:
+            self.stdout.write(self.style.WARNING(f"  skipped {name}: {why}"))
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -66,7 +71,7 @@ class Command(BaseCommand):
             self.stdout.write(
                 "Appended (no existing row for these dates; added at the bottom):"
             )
-            for day in summary["appended"]:
+            for day in summary["appended"][:12]:
                 self.stdout.write(f"  - {day}")
-        if skipped:
-            self.stdout.write(f"Skipped {len(skipped)} file(s) without a daily footer.")
+            if len(summary["appended"]) > 12:
+                self.stdout.write(f"  ... and {len(summary['appended']) - 12} more")
