@@ -3,7 +3,11 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-from sales.importers.tickets import TicketExportError, read_daily_covers
+from sales.importers.tickets import (
+    TicketExportError,
+    read_covers_from_workbook,
+    read_daily_covers,
+)
 from sales.models import DailyCovers
 from tenants.utils import resolve_restaurant
 
@@ -17,6 +21,12 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--file", required=True, help="The sales report export")
         parser.add_argument("--restaurant", help="Restaurant slug")
+        parser.add_argument(
+            "--workbook",
+            action="store_true",
+            help="Read --file as the master workbook's 'Datos totales' sheet "
+                 "instead of the bill-level export (brings in the history).",
+        )
 
     def handle(self, *args, **options):
         path = Path(options["file"])
@@ -24,8 +34,9 @@ class Command(BaseCommand):
             raise CommandError(f"File not found: {path}")
         restaurant = resolve_restaurant(options.get("restaurant"))
 
+        read = read_covers_from_workbook if options["workbook"] else read_daily_covers
         try:
-            days = read_daily_covers(path)
+            days = read(path)
         except TicketExportError as exc:
             raise CommandError(str(exc)) from exc
 

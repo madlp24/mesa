@@ -108,3 +108,54 @@ def test_party_size(restaurant):
         restaurant=restaurant, date=datetime.date(2026, 1, 3), guests=0, accounts=0
     )
     assert empty.party_size is None
+
+
+def _workbook(path, rows):
+    """The owner's master workbook: turnout lives in "Datos totales"."""
+    from openpyxl import Workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Datos totales "  # the real sheet carries a trailing space
+    ws.cell(row=1, column=2, value="Fecha")
+    for i, (when, guests, accounts) in enumerate(rows, start=2):
+        ws.cell(row=i, column=2, value=when)
+        ws.cell(row=i, column=6, value=guests)
+        ws.cell(row=i, column=7, value=accounts)
+    wb.save(path)
+    return path
+
+
+def test_the_workbook_carries_the_history():
+    """Four years of turnout live in the sheet, not in the POS export."""
+    import tempfile
+
+    from sales.importers.tickets import read_covers_from_workbook
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = _workbook(f"{tmp}/master.xlsx", [
+            (datetime.datetime(2022, 1, 6), 25, 7),
+            (datetime.datetime(2026, 9, 27), 48, 17),
+        ])
+        days = read_covers_from_workbook(path)
+
+    assert [(d.date, d.guests, d.accounts) for d in days] == [
+        (datetime.date(2022, 1, 6), 25, 7),
+        (datetime.date(2026, 9, 27), 48, 17),
+    ]
+
+
+def test_a_day_with_no_turnout_stays_unknown():
+    """An empty cell must not become "nobody came"."""
+    import tempfile
+
+    from sales.importers.tickets import read_covers_from_workbook
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = _workbook(f"{tmp}/master.xlsx", [
+            (datetime.datetime(2022, 1, 6), None, None),
+            (datetime.datetime(2022, 1, 7), 0, 0),
+            (datetime.datetime(2022, 1, 8), 10, 4),
+        ])
+        days = read_covers_from_workbook(path)
+
+    assert [d.date for d in days] == [datetime.date(2022, 1, 8)]
