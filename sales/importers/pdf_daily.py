@@ -16,6 +16,7 @@ becomes one synthetic :class:`CanonicalSale` carrying a single item:
 Because the report embeds the catalog, each item also carries the product name
 and category so :func:`persist` can auto-create missing products.
 """
+import datetime
 import logging
 import re
 from dataclasses import dataclass
@@ -33,6 +34,12 @@ logger = logging.getLogger(__name__)
 
 # "... DEL 01/04/2025 06:00:00 AM AL ..." -> capture the period's start date.
 _PERIOD = re.compile(r"DEL\s+(\d{2})/(\d{2})/(\d{4})")
+# The whole period. A day's report runs 06:00 to 06:00 the next morning, so a
+# span of more than a day means an aggregate (a whole month) wearing the same
+# layout -- importing it as if it were a day silently doubles that month.
+_PERIOD_RANGE = re.compile(
+    r"DEL\s+(\d{2})/(\d{2})/(\d{4}).*?AL\s+(\d{2})/(\d{2})/(\d{4})"
+)
 # "GRUPO:ACOMPAÑAMIENTOS" (header) and "GRUPO: ACOMPAÑAMIENTOS 290.000 ..."
 # (subtotal) both name the current group; capture the leading letters.
 _GROUP = re.compile(r"^GRUPO:\s*([^\d$]+?)\s*(?:\d|$)")
@@ -59,6 +66,35 @@ _FOOTER = re.compile(
 
 def _clean_number(raw: str) -> str:
     return raw.replace("$", "").replace(",", "").strip()
+
+
+def _span_days(line: str) -> int | None:
+    """Days between the period's two dates, or None when only one is printed."""
+    match = _PERIOD_RANGE.search(line)
+    if not match:
+        return None
+    d1, m1, y1, d2, m2, y2 = (int(g) for g in match.groups())
+    return (datetime.date(y2, m2, d2) - datetime.date(y1, m1, d1)).days
+
+
+def read_period(path: Path) -> tuple[datetime.date, int] | None:
+    """The report's start date and span, read from the first page alone.
+
+    Lets a caller sort a folder into days and aggregates without parsing every
+    product line of every file.
+    """
+    with pdfplumber.open(path) as pdf:
+        text = pdf.pages[0].extract_text() or ""
+    match = _PERIOD_RANGE.search(text)
+    if match:
+        d1, m1, y1, d2, m2, y2 = (int(g) for g in match.groups())
+        start = datetime.date(y1, m1, d1)
+        return start, (datetime.date(y2, m2, d2) - start).days
+    single = _PERIOD.search(text)
+    if single:
+        day, month, year = (int(g) for g in single.groups())
+        return datetime.date(year, month, day), 1
+    return None
 
 
 @dataclass(frozen=True)
@@ -117,6 +153,8 @@ class PdfDailyImporter(BaseImporter):
 
     def __init__(self) -> None:
         self.skipped_rows = 0
+        # Days the report covers; 1 for a daily report. None until parsed.
+        self.period_days: int | None = None
 
     def normalize(self, path: Path) -> list[CanonicalSale]:
         period_date: str | None = None
@@ -133,6 +171,7 @@ class PdfDailyImporter(BaseImporter):
                         if match:
                             day, month, year = match.groups()
                             period_date = f"{year}-{month}-{day}"
+                            self.period_days = _span_days(line)
 
                     group = _GROUP.match(line)
                     if group:

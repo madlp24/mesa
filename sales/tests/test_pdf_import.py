@@ -11,7 +11,7 @@ from catalog.models import Category, Product
 from sales.models import Sale, SaleItem
 
 PERIOD_LINE = (
-    "PRODUCTOS VENDIDOS DEL 01/04/2025 06:00:00 AM AL 01/05/2025 06:00:00 AM"
+    "PRODUCTOS VENDIDOS DEL 01/04/2025 06:00:00 AM AL 02/04/2025 06:00:00 AM"
 )
 # A faithful slice of the real "Productos Vendidos" report: a period header,
 # GRUPO sections, product rows (CLAVE DESC then 8 numeric columns), a GRUPO

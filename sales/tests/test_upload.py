@@ -18,7 +18,7 @@ def _report_pdf_bytes(day="01", month="05"):
     lines = [
         "TRES CUATRO CINCO STEAKHOUSE",
         f"PRODUCTOS VENDIDOS DEL {day}/{month}/2026 06:00:00 AM AL "
-        f"28/{month}/2026 06:00:00 AM",
+        f"{int(day) + 1:02d}/{month}/2026 06:00:00 AM",
         "GRUPO:COCTELES",
         "8100 NEGRONI $20,000.00 5.00 $100,000.00 $6,000.00 "
         "$0.00 $0.00 $0.00 $0.00",

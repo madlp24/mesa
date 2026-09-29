@@ -1,4 +1,5 @@
 """Identity resolution exercised through the full PDF import path (US22)."""
+import datetime
 from io import StringIO
 
 import pytest
@@ -18,13 +19,19 @@ def _product_line(clave, desc, price, qty, total, unit_cost):
     )
 
 
+def _next_day(ddmmyyyy):
+    """The morning the report closes -- a day's report runs 06:00 to 06:00."""
+    day = datetime.datetime.strptime(ddmmyyyy, "%d/%m/%Y").date()
+    return (day + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
+
+
 def _write_report(path, period_start, lines):
     pdf = canvas.Canvas(str(path), pagesize=landscape(letter))
     pdf.setFont("Helvetica", 8)
     y = 560
     header = (
         f"PRODUCTOS VENDIDOS DEL {period_start} 06:00:00 AM AL "
-        "01/07/2026 06:00:00 AM"
+        f"{_next_day(period_start)} 06:00:00 AM"
     )
     for line in ["TRES CUATRO CINCO STEAKHOUSE", header, *lines]:
         pdf.drawString(30, y, line)
