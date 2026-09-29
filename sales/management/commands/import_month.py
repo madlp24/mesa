@@ -3,22 +3,9 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-from sales.importers.pdf_daily import parse_daily_totals, read_period
+from sales.importers.folder import select_daily_reports
 from sales.services import run_import
 from tenants.utils import resolve_restaurant
-
-
-def _fullness(path: Path) -> float:
-    """How much of a day a report accounts for, used to break a tie.
-
-    Two files can carry the same date when one is a partial cut ("por una
-    cuenta", "HORA EXACTA"). The complete day always totals at least as much as
-    a slice of it, so the larger total is the one to keep.
-    """
-    totals = parse_daily_totals(path)
-    if totals is None:
-        return -1.0
-    return float(totals.venta_bar + totals.venta_cocina)
 
 
 class Command(BaseCommand):
@@ -43,36 +30,7 @@ class Command(BaseCommand):
             raise CommandError(f"Not a folder: {folder}")
         restaurant = resolve_restaurant(options.get("restaurant"))
 
-        chosen: dict = {}
-        skipped: list[tuple[str, str]] = []
-        for pdf in sorted(folder.glob("*.pdf")):
-            # macOS writes a metadata twin next to each file on a FAT drive
-            # ("._name.pdf"). It matches *.pdf but is not a PDF.
-            if pdf.name.startswith("._"):
-                continue
-            try:
-                period = read_period(pdf)
-            except Exception as exc:  # a corrupt or mislabelled file
-                skipped.append((pdf.name, f"unreadable ({type(exc).__name__})"))
-                continue
-            if period is None:
-                skipped.append((pdf.name, "no period printed"))
-                continue
-            day, span = period
-            if span > 1:
-                skipped.append((pdf.name, f"covers {span} days -- an aggregate"))
-                continue
-            rival = chosen.get(day)
-            if rival is None:
-                chosen[day] = pdf
-                continue
-            # Same date twice: keep the fuller report, skip the slice.
-            if _fullness(pdf) > _fullness(rival):
-                chosen[day] = pdf
-                skipped.append((rival.name, f"partial report for {day}"))
-            else:
-                skipped.append((pdf.name, f"partial report for {day}"))
-
+        chosen, skipped = select_daily_reports(folder)
         if not chosen:
             raise CommandError(f"No daily reports found in {folder}")
 
@@ -88,9 +46,7 @@ class Command(BaseCommand):
         sales = items = duplicates = 0
         for day in sorted(chosen):
             pdf = chosen[day]
-            batch = run_import(
-                pdf, restaurant, filename=pdf.name, source="cli"
-            )
+            batch = run_import(pdf, restaurant, filename=pdf.name, source="cli")
             sales += batch.sales_created
             items += batch.items_created
             duplicates += batch.skipped_duplicate
