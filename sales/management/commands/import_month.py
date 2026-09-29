@@ -46,7 +46,15 @@ class Command(BaseCommand):
         chosen: dict = {}
         skipped: list[tuple[str, str]] = []
         for pdf in sorted(folder.glob("*.pdf")):
-            period = read_period(pdf)
+            # macOS writes a metadata twin next to each file on a FAT drive
+            # ("._name.pdf"). It matches *.pdf but is not a PDF.
+            if pdf.name.startswith("._"):
+                continue
+            try:
+                period = read_period(pdf)
+            except Exception as exc:  # a corrupt or mislabelled file
+                skipped.append((pdf.name, f"unreadable ({type(exc).__name__})"))
+                continue
             if period is None:
                 skipped.append((pdf.name, "no period printed"))
                 continue

@@ -101,3 +101,21 @@ def test_dry_run_touches_nothing(tmp_path, restaurant):
 
     assert Sale.objects.count() == 0
     assert "Dry run" in out.getvalue()
+
+
+@pytest.mark.django_db
+def test_a_file_that_is_not_a_pdf_does_not_abort_the_month(tmp_path, restaurant):
+    """macOS writes "._name.pdf" metadata twins on a FAT drive; one crashed February."""
+    _report(tmp_path / "dia01.pdf", start="01/02/2026", end="02/02/2026")
+    (tmp_path / "._dia01.pdf").write_bytes(b"\x00\x05\x16\x07not a pdf")
+    (tmp_path / "roto.pdf").write_bytes(b"this is not a pdf either")
+    out = StringIO()
+
+    call_command(
+        "import_month", "--dir", str(tmp_path), "--restaurant", restaurant.slug,
+        stdout=out,
+    )
+
+    assert Sale.objects.filter(restaurant=restaurant).count() == 1
+    assert "unreadable" in out.getvalue()          # the corrupt file is reported
+    assert "._dia01.pdf" not in out.getvalue()     # the metadata twin is silent
