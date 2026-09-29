@@ -27,6 +27,13 @@
     </a>
   </div>
   <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'analytics:margin_alerts' %}">
+      <span class="hub-card-icon">🚨</span>
+      <span class="hub-card-title">{% trans "Margin alerts" %}</span>
+      <span class="hub-card-text">{% trans "What is selling at a loss, what is thin, what has no cost." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
     <a class="hub-card" href="{% url 'analytics:pnl_summary' %}">
       <span class="hub-card-icon">📒</span>
       <span class="hub-card-title">{% trans "P&L" %}</span>

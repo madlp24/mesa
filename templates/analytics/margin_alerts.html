@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load i18n humanize %}
+
+{% block title %}{% trans "Margin alerts" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h1 class="h3 mb-1">{% trans "Margin alerts" %}</h1>
+  <p class="text-muted mb-0">
+    {% trans "What Mesa would flag if it read your margins for you. Each list is ordered by revenue, so the money decides what to look at first." %}
+  </p>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-4">
+  <div class="col-auto">
+    <label for="threshold" class="form-label mb-0">{% trans "Thin below" %}</label>
+    <div class="input-group">
+      <input type="number" step="1" min="0" max="100" id="threshold" name="threshold"
+             value="{{ threshold|floatformat:0 }}" class="form-control" style="width:6rem">
+      <span class="input-group-text">%</span>
+    </div>
+  </div>
+  <div class="col-auto">
+    <label for="start" class="form-label mb-0">{% trans "From" %}</label>
+    <input type="date" id="start" name="start" value="{{ start|date:'Y-m-d' }}" class="form-control">
+  </div>
+  <div class="col-auto">
+    <label for="end" class="form-label mb-0">{% trans "To" %}</label>
+    <input type="date" id="end" name="end" value="{{ end|date:'Y-m-d' }}" class="form-control">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary">{% trans "Apply" %}</button>
+  </div>
+  <div class="col-auto">
+    <a href="{% url 'analytics:margin_analysis' %}" class="btn btn-outline-secondary">{% trans "Full margin table" %}</a>
+  </div>
+</form>
+
+{% if not start and not end %}
+<p class="text-muted small">{% trans "Showing your whole history. Narrow it with the dates above." %}</p>
+{% endif %}
+
+{% if alerts.total == 0 %}
+<div class="card"><div class="card-body text-center text-muted py-5">
+  <p class="mb-0">{% trans "Nothing to flag: every product carries a cost and clears the threshold." %}</p>
+</div></div>
+{% endif %}
+
+{% if alerts.at_a_loss %}
+<div class="card mb-4 border-danger"><div class="card-body">
+  <h2 class="h5 mb-1">{% trans "Sold at a loss" %}</h2>
+  <p class="text-muted small">{% trans "Each of these costs more than it charges." %}</p>
+  {% include "analytics/_margin_rows.html" with rows=alerts.at_a_loss %}
+</div></div>
+{% endif %}
+
+{% if alerts.thin %}
+<div class="card mb-4"><div class="card-body">
+  <h2 class="h5 mb-1">{% blocktrans with pct=threshold|floatformat:0 %}Margin under {{ pct }}%{% endblocktrans %}</h2>
+  <p class="text-muted small">{% trans "They make money, but less than the rest of your menu." %}</p>
+  {% include "analytics/_margin_rows.html" with rows=alerts.thin %}
+</div></div>
+{% endif %}
+
+{% if alerts.without_cost %}
+<div class="card mb-4 border-warning"><div class="card-body">
+  <h2 class="h5 mb-1">{% trans "No cost loaded" %}</h2>
+  <p class="text-muted small">
+    {% trans "Mesa cannot tell what these earn, and today they count as pure margin — which inflates every other figure." %}
+  </p>
+  {% include "analytics/_margin_rows.html" with rows=alerts.without_cost %}
+</div></div>
+{% endif %}
+{% endblock %}

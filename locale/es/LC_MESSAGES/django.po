@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 12:00-0500\n"
+"POT-Creation-Date: 2026-09-29 14:50-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -37,47 +37,47 @@ msgstr "Eso no es un archivo .xlsx. Sube tu Excel de análisis."
 msgid "The file is too large (%(size)s). The limit is %(limit)s."
 msgstr "El archivo es demasiado grande (%(size)s). El límite es %(limit)s."
 
-#: analytics/views.py:33 templates/quotes/menu_list.html:83
+#: analytics/views.py:35 templates/quotes/menu_list.html:83
 msgid "Name"
 msgstr "Nombre"
 
-#: analytics/views.py:34 templates/catalog/product_list.html:26
+#: analytics/views.py:36 templates/catalog/product_list.html:26
 msgid "Category"
 msgstr "Categoría"
 
-#: analytics/views.py:35 templates/quotes/menu_list.html:128
+#: analytics/views.py:37 templates/quotes/menu_list.html:128
 #: templates/quotes/quote_detail.html:145
 #: templates/quotes/quote_detail.html:353 templates/quotes/quote_list.html:46
 msgid "Cost"
 msgstr "Costo"
 
-#: analytics/views.py:36
+#: analytics/views.py:38
 msgid "Sale price"
 msgstr "Precio de venta"
 
-#: analytics/views.py:37
+#: analytics/views.py:39
 msgid "Margin $"
 msgstr "Margen $"
 
-#: analytics/views.py:38
+#: analytics/views.py:40
 msgid "Margin %"
 msgstr "Margen %"
 
-#: analytics/views.py:39 templates/catalog/product_detail.html:34
+#: analytics/views.py:41 templates/catalog/product_detail.html:34
 #: templates/catalog/product_detail.html:118
 msgid "Units sold"
 msgstr "Unidades vendidas"
 
-#: analytics/views.py:40 templates/catalog/product_detail.html:46
+#: analytics/views.py:42 templates/catalog/product_detail.html:46
 msgid "Total margin"
 msgstr "Margen total"
 
-#: analytics/views.py:242
+#: analytics/views.py:244
 #, python-format
 msgid "%(column)s updated: %(matched)d products matched."
 msgstr "%(column)s actualizada: %(matched)d productos emparejados."
 
-#: analytics/views.py:246
+#: analytics/views.py:248
 #, python-format
 msgid ""
 "%(count)d product was added as a new row -- check it is not a renamed one: "
@@ -322,12 +322,16 @@ msgstr "TOTAL"
 
 #: quotes/pdf.py:374
 msgid "Prices do not include the consumption tax or the tip, both added above."
-msgstr "Los precios no incluyen el impuesto al consumo ni la propina; ambos se suman arriba."
+msgstr ""
+"Los precios no incluyen el impuesto al consumo ni la propina; ambos se suman "
+"arriba."
 
 #: quotes/pdf.py:376
 msgid ""
 "Prices do not include the consumption tax, added above. The tip is voluntary."
-msgstr "Los precios no incluyen el impuesto al consumo, que se suma arriba. La propina es voluntaria."
+msgstr ""
+"Los precios no incluyen el impuesto al consumo, que se suma arriba. La "
+"propina es voluntaria."
 
 #: quotes/pdf.py:381
 msgid ""
@@ -440,7 +444,7 @@ msgstr "Reportes de Soft Restaurant (.pdf o .xlsx) — uno o varios"
 msgid "Imported %(count)d report(s)."
 msgstr "Se importaron %(count)d reporte(s)."
 
-#: sales/views.py:65
+#: sales/views.py:68
 #, python-format
 msgid ""
 "We couldn't read '%(name)s'. Make sure it is a Soft Restaurant 'Productos "
@@ -449,7 +453,7 @@ msgstr ""
 "No pudimos leer '%(name)s'. Asegúrate de que sea una exportación 'Productos "
 "Vendidos' de Soft Restaurant e inténtalo de nuevo."
 
-#: sales/views.py:90
+#: sales/views.py:93
 #, python-format
 msgid "Import undone: %(count)d sales removed."
 msgstr "Importación deshecha: %(count)d ventas eliminadas."
@@ -483,7 +487,7 @@ msgstr "Recuérdame"
 msgid "Don't have an account?"
 msgstr "¿No tienes una cuenta?"
 
-#: templates/account/login.html:58 templates/base.html:68
+#: templates/account/login.html:58 templates/base.html:69
 msgid "Sign up"
 msgstr "Regístrate"
 
@@ -502,6 +506,30 @@ msgstr "Empieza a controlar los números de tu restaurante"
 #: templates/account/signup.html:47
 msgid "Already have an account?"
 msgstr "¿Ya tienes una cuenta?"
+
+#: templates/analytics/_margin_rows.html:6
+#: templates/catalog/product_list.html:25 templates/quotes/menu_list.html:37
+msgid "Product"
+msgstr "Producto"
+
+#: templates/analytics/_margin_rows.html:7
+msgid "Group"
+msgstr "Grupo"
+
+#: templates/analytics/_margin_rows.html:8
+#: templates/catalog/product_list.html:29
+msgid "Units"
+msgstr "Unidades"
+
+#: templates/analytics/_margin_rows.html:9 templates/analytics/pnl.html:33
+#: templates/catalog/product_list.html:30
+msgid "Revenue"
+msgstr "Ingresos"
+
+#: templates/analytics/_margin_rows.html:10
+#: templates/quotes/quote_detail.html:260 templates/quotes/quote_list.html:47
+msgid "Margin"
+msgstr "Margen"
 
 #: templates/analytics/dashboard.html:4 templates/analytics/dashboard.html:9
 #: templates/base.html:28 templates/pages/home.html:18
@@ -537,19 +565,22 @@ msgid "Upload your first report"
 msgstr "Sube tu primer reporte"
 
 #: templates/analytics/dashboard.html:38
-#: templates/analytics/margin_analysis.html:14
+#: templates/analytics/margin_alerts.html:24
+#: templates/analytics/margin_analysis.html:15
 #: templates/catalog/product_detail.html:19
 msgid "From"
 msgstr "Desde"
 
 #: templates/analytics/dashboard.html:42
-#: templates/analytics/margin_analysis.html:18
+#: templates/analytics/margin_alerts.html:28
+#: templates/analytics/margin_analysis.html:19
 #: templates/catalog/product_detail.html:23
 msgid "To"
 msgstr "Hasta"
 
 #: templates/analytics/dashboard.html:46
-#: templates/analytics/margin_analysis.html:24 templates/analytics/pnl.html:23
+#: templates/analytics/margin_alerts.html:32
+#: templates/analytics/margin_analysis.html:25 templates/analytics/pnl.html:23
 #: templates/catalog/product_detail.html:27
 msgid "Apply"
 msgstr "Aplicar"
@@ -589,18 +620,77 @@ msgstr "Ingresos por categoría"
 msgid "Revenue (COP)"
 msgstr "Ingresos (COP)"
 
+#: templates/analytics/margin_alerts.html:4
+#: templates/analytics/margin_alerts.html:8 templates/base.html:30
+#: templates/pages/home.html:32
+msgid "Margin alerts"
+msgstr "Alertas de margen"
+
+#: templates/analytics/margin_alerts.html:10
+msgid ""
+"What Mesa would flag if it read your margins for you. Each list is ordered "
+"by revenue, so the money decides what to look at first."
+msgstr "Lo que Mesa señalaría si leyera tus márgenes por ti. Cada lista va ordenada por ingreso, así la plata decide qué mirar primero."
+
+#: templates/analytics/margin_alerts.html:16
+msgid "Thin below"
+msgstr "Bajo si es menor a"
+
+#: templates/analytics/margin_alerts.html:35
+msgid "Full margin table"
+msgstr "Tabla completa de márgenes"
+
+#: templates/analytics/margin_alerts.html:40
+msgid "Showing your whole history. Narrow it with the dates above."
+msgstr "Mostrando todo tu histórico. Acótalo con las fechas de arriba."
+
+#: templates/analytics/margin_alerts.html:45
+msgid "Nothing to flag: every product carries a cost and clears the threshold."
+msgstr "Nada que señalar: todos los productos tienen costo y superan el umbral."
+
+#: templates/analytics/margin_alerts.html:51
+msgid "Sold at a loss"
+msgstr "Se vende a pérdida"
+
+#: templates/analytics/margin_alerts.html:52
+msgid "Each of these costs more than it charges."
+msgstr "Cada uno de estos cuesta más de lo que cobra."
+
+#: templates/analytics/margin_alerts.html:59
+#, python-format
+msgid "Margin under %(pct)s%%"
+msgstr "Margen por debajo de %(pct)s%%"
+
+#: templates/analytics/margin_alerts.html:60
+msgid "They make money, but less than the rest of your menu."
+msgstr "Dejan plata, pero menos que el resto de tu carta."
+
+#: templates/analytics/margin_alerts.html:67
+msgid "No cost loaded"
+msgstr "Sin costo cargado"
+
+#: templates/analytics/margin_alerts.html:69
+msgid ""
+"Mesa cannot tell what these earn, and today they count as pure margin — "
+"which inflates every other figure."
+msgstr "Mesa no puede saber cuánto dejan, y hoy cuentan como margen puro — lo que infla todas las demás cifras."
+
 #: templates/analytics/margin_analysis.html:4
 #: templates/analytics/margin_analysis.html:8
 msgid "Margin analysis"
 msgstr "Análisis de márgenes"
 
 #: templates/analytics/margin_analysis.html:9
+msgid "See margin alerts"
+msgstr "Ver alertas de margen"
+
+#: templates/analytics/margin_analysis.html:10
 msgid "Active products ranked by gross margin. Click a column to sort."
 msgstr ""
 "Productos activos ordenados por margen bruto. Haz clic en una columna para "
 "ordenar."
 
-#: templates/analytics/margin_analysis.html:70
+#: templates/analytics/margin_analysis.html:71
 msgid "No active products."
 msgstr "No hay productos activos."
 
@@ -624,10 +714,6 @@ msgstr "Período"
 msgid "Last 12 months"
 msgstr "Últimos 12 meses"
 
-#: templates/analytics/pnl.html:33 templates/catalog/product_list.html:30
-msgid "Revenue"
-msgstr "Ingresos"
-
 #: templates/analytics/pnl.html:34
 msgid "COGS"
 msgstr "Costo de ventas"
@@ -642,8 +728,8 @@ msgid "Gross Margin %%"
 msgstr "Margen bruto %%"
 
 #: templates/analytics/workbook_update.html:4
-#: templates/analytics/workbook_update.html:10 templates/base.html:33
-#: templates/pages/home.html:46
+#: templates/analytics/workbook_update.html:10 templates/base.html:34
+#: templates/pages/home.html:53
 msgid "Update my workbook"
 msgstr "Actualizar mi Excel"
 
@@ -702,49 +788,49 @@ msgstr "Menú"
 msgid "Margins"
 msgstr "Márgenes"
 
-#: templates/base.html:30 templates/pages/home.html:32
+#: templates/base.html:31 templates/pages/home.html:39
 msgid "P&L"
 msgstr "PyG"
 
-#: templates/base.html:31 templates/catalog/product_list.html:4
-#: templates/catalog/product_list.html:9 templates/pages/home.html:53
+#: templates/base.html:32 templates/catalog/product_list.html:4
+#: templates/catalog/product_list.html:9 templates/pages/home.html:60
 msgid "Products"
 msgstr "Productos"
 
-#: templates/base.html:32
+#: templates/base.html:33
 msgid "Upload"
 msgstr "Subir"
 
-#: templates/base.html:34 templates/pages/home.html:60
+#: templates/base.html:35 templates/pages/home.html:67
 #: templates/quotes/menu_list.html:14 templates/quotes/quote_list.html:4
 msgid "Quotes"
 msgstr "Cotizaciones"
 
-#: templates/base.html:37 templates/pages/help.html:4
+#: templates/base.html:38 templates/pages/help.html:4
 msgid "Help"
 msgstr "Ayuda"
 
-#: templates/base.html:40
+#: templates/base.html:41
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:57 templates/tenants/settings.html:10
+#: templates/base.html:58 templates/tenants/settings.html:10
 msgid "Restaurant settings"
 msgstr "Ajustes del restaurante"
 
-#: templates/base.html:59
+#: templates/base.html:60
 msgid "Change password"
 msgstr "Cambiar contraseña"
 
-#: templates/base.html:63
+#: templates/base.html:64
 msgid "Logout"
 msgstr "Cerrar sesión"
 
-#: templates/base.html:67
+#: templates/base.html:68
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/base.html:90
+#: templates/base.html:91
 msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
 msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
@@ -900,17 +986,9 @@ msgstr ""
 "Selecciona dos o más filas y fusiónalas cuando el POS dividió un producto en "
 "duplicados."
 
-#: templates/catalog/product_list.html:25 templates/quotes/menu_list.html:37
-msgid "Product"
-msgstr "Producto"
-
 #: templates/catalog/product_list.html:28
 msgid "Aliases"
 msgstr "Alias"
-
-#: templates/catalog/product_list.html:29
-msgid "Units"
-msgstr "Unidades"
 
 #: templates/catalog/product_list.html:39
 msgid "Select"
@@ -1029,42 +1107,46 @@ msgid "Margin product by product, to see what to reprice."
 msgstr "Margen producto por producto, para ver qué reprecificar."
 
 #: templates/pages/home.html:33
+msgid "What is selling at a loss, what is thin, what has no cost."
+msgstr "Qué se vende a pérdida, qué está bajo, qué no tiene costo."
+
+#: templates/pages/home.html:40
 msgid "Month-by-month profit and loss."
 msgstr "Pérdidas y ganancias mes a mes."
 
-#: templates/pages/home.html:39 templates/sales/upload.html:10
+#: templates/pages/home.html:46 templates/sales/upload.html:10
 msgid "Upload reports"
 msgstr "Subir reportes"
 
-#: templates/pages/home.html:40
+#: templates/pages/home.html:47
 msgid "Bring in your Soft Restaurant reports, one or several."
 msgstr "Carga tus reportes de Soft Restaurant, uno o varios."
 
-#: templates/pages/home.html:47
+#: templates/pages/home.html:54
 msgid "Fill a month into your master Excel and download it."
 msgstr "Llena un mes en tu Excel maestro y descárgalo."
 
-#: templates/pages/home.html:54
+#: templates/pages/home.html:61
 msgid "Your catalog and the POS identities behind it."
 msgstr "Tu catálogo y las identidades del POS detrás de él."
 
-#: templates/pages/home.html:61
+#: templates/pages/home.html:68
 msgid "Build and send proposals for events."
 msgstr "Arma y envía propuestas para eventos."
 
-#: templates/pages/home.html:67
+#: templates/pages/home.html:74
 msgid "Event menu"
 msgstr "Menú de eventos"
 
-#: templates/pages/home.html:68
+#: templates/pages/home.html:75
 msgid "The dishes you offer at events, and their cost."
 msgstr "Los platos que ofreces en eventos, y su costo."
 
-#: templates/pages/home.html:74 templates/tenants/settings.html:4
+#: templates/pages/home.html:81 templates/tenants/settings.html:4
 msgid "Settings"
 msgstr "Ajustes"
 
-#: templates/pages/home.html:75
+#: templates/pages/home.html:82
 msgid "Your restaurant and the people who can see it."
 msgstr "Tu restaurante y las personas que pueden verlo."
 
@@ -1529,10 +1611,6 @@ msgstr "Utilidad"
 #: templates/quotes/quote_detail.html:254
 msgid "after tax and tip"
 msgstr "después de impuesto y propina"
-
-#: templates/quotes/quote_detail.html:260 templates/quotes/quote_list.html:47
-msgid "Margin"
-msgstr "Margen"
 
 #: templates/quotes/quote_detail.html:264
 msgid "target"

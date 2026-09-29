@@ -1,6 +1,7 @@
 import datetime
 import io
 import tempfile
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from django.contrib import messages
@@ -16,6 +17,7 @@ from django.utils.translation import ngettext
 from sales.models import Sale
 
 from .exports import build_analysis_workbook, build_productos_vendidos_workbook
+from .alerts import DEFAULT_THRESHOLD, margin_alerts
 from .forms import WorkbookUpdateForm
 from .unified_excel import UnifiedUpdateError, update_productos_vendidos
 from .services import (
@@ -250,3 +252,36 @@ def _report(request: HttpRequest, summary: dict) -> None:
             len(appended),
         ) % {"count": len(appended), "names": ", ".join(appended[:8])}
     messages.success(request, text)
+
+
+def _threshold(request: HttpRequest) -> Decimal:
+    """The margin the owner considers thin, from ?threshold=, clamped to 0-100."""
+    raw = request.GET.get("threshold")
+    if not raw:
+        return DEFAULT_THRESHOLD
+    try:
+        value = Decimal(raw)
+    except (InvalidOperation, TypeError):
+        return DEFAULT_THRESHOLD
+    return min(max(value, Decimal("0")), Decimal("100"))
+
+
+@login_required
+def margin_alerts_view(request: HttpRequest) -> HttpResponse:
+    """Products whose margin is worth a look, worst money first (US40).
+
+    Unlike the dashboard this does not default to the last 30 days: a product
+    sold at a loss in March is still a problem in September, so the whole
+    history is considered unless a range is asked for.
+    """
+    start = parse_date(request.GET.get("start", "") or "")
+    end = parse_date(request.GET.get("end", "") or "")
+    threshold = _threshold(request)
+    alerts = margin_alerts(
+        request.restaurant, threshold=threshold, start=start, end=end
+    )
+    return render(
+        request,
+        "analytics/margin_alerts.html",
+        {"alerts": alerts, "start": start, "end": end, "threshold": threshold},
+    )

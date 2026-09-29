@@ -6,6 +6,7 @@
 {% block content %}
 <div class="mb-4">
     <h1 class="h3 mb-1">{% trans "Margin analysis" %}</h1>
+    <a href="{% url 'analytics:margin_alerts' %}" class="btn btn-sm btn-outline-danger mt-2">{% trans "See margin alerts" %}</a>
     <p class="text-muted mb-0">{% trans "Active products ranked by gross margin. Click a column to sort." %}</p>
 </div>
 
