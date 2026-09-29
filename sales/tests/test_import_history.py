@@ -17,7 +17,7 @@ def _report_pdf(clave="8100", name="NEGRONI", qty="5.00"):
     pdf.setFont("Helvetica", 8)
     lines = [
         "TRES CUATRO CINCO STEAKHOUSE",
-        "PRODUCTOS VENDIDOS DEL 01/05/2026 06:00:00 AM AL 01/06/2026 06:00:00 AM",
+        "PRODUCTOS VENDIDOS DEL 01/05/2026 06:00:00 AM AL 02/05/2026 06:00:00 AM",
         "GRUPO:COCTELES",
         f"{clave} {name} $20,000.00 {qty} $100,000.00 $6,000.00 $0 $0 $0 $0",
     ]

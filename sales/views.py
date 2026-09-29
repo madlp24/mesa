@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 
 from sales.forms import ReportUploadForm
 from sales.models import ImportBatch
-from sales.services import run_import, undo_import
+from sales.services import AggregateReportError, run_import, undo_import
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,9 @@ def _import_upload(request: HttpRequest, upload) -> dict | None:
         batch = run_import(
             tmp_path, request.restaurant, filename=upload.name, source="web"
         )
+    except AggregateReportError as exc:
+        messages.error(request, str(exc))
+        return None
     except Exception:
         logger.exception("Report upload failed for %s", upload.name)
         messages.error(
