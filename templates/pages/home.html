@@ -41,6 +41,13 @@
     </a>
   </div>
   <div class="col-sm-6 col-lg-4">
+    <a class="hub-card" href="{% url 'analytics:comparisons' %}">
+      <span class="hub-card-icon">📅</span>
+      <span class="hub-card-title">{% trans "Comparisons" %}</span>
+      <span class="hub-card-text">{% trans "People, average ticket and takings against last year." %}</span>
+    </a>
+  </div>
+  <div class="col-sm-6 col-lg-4">
     <a class="hub-card" href="{% url 'sales:upload' %}">
       <span class="hub-card-icon">📥</span>
       <span class="hub-card-title">{% trans "Upload reports" %}</span>

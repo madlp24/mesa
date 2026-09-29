@@ -8,7 +8,7 @@ from sales.importers.tickets import (
     read_covers_from_workbook,
     read_daily_covers,
 )
-from sales.models import DailyCovers
+from sales.models import DailySummary
 from tenants.utils import resolve_restaurant
 
 
@@ -42,10 +42,17 @@ class Command(BaseCommand):
 
         created = updated = 0
         for day in days:
-            _, was_created = DailyCovers.objects.update_or_create(
+            _, was_created = DailySummary.objects.update_or_create(
                 restaurant=restaurant,
                 date=day.date,
-                defaults={"guests": day.guests, "accounts": day.accounts},
+                defaults={
+                    "guests": day.guests,
+                    "accounts": day.accounts,
+                    "bar_sales": day.bar_sales,
+                    "bar_cost": day.bar_cost,
+                    "kitchen_sales": day.kitchen_sales,
+                    "kitchen_cost": day.kitchen_cost,
+                },
             )
             created += was_created
             updated += not was_created

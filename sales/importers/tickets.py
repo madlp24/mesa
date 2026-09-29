@@ -15,6 +15,7 @@ import datetime
 import io
 import re
 from collections import defaultdict
+from decimal import Decimal
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -32,11 +33,19 @@ _DAY_STARTS_AT = datetime.timedelta(hours=6)
 
 @dataclass(frozen=True)
 class DayCovers:
-    """One operating day's turnout."""
+    """One operating day: who came, and -- when known -- what they left.
+
+    The money is optional: the bill-level export carries turnout only, while
+    the owner's sheet carries both.
+    """
 
     date: datetime.date
     guests: int
     accounts: int
+    bar_sales: Decimal | None = None
+    bar_cost: Decimal | None = None
+    kitchen_sales: Decimal | None = None
+    kitchen_cost: Decimal | None = None
 
 
 class TicketExportError(ValueError):
@@ -67,6 +76,8 @@ def operating_day(closed_at: datetime.datetime) -> datetime.date:
 # Columns of the owner's "Datos totales" sheet: date, guests, accounts.
 _SHEET = "Datos totales"
 _DATE_COL, _GUESTS_COL, _ACCOUNTS_COL = 2, 6, 7
+# N/O/S/T: bar sales, bar cost, kitchen sales, kitchen cost.
+_MONEY_COLS = {"bar_sales": 14, "bar_cost": 15, "kitchen_sales": 19, "kitchen_cost": 20}
 
 
 def read_covers_from_workbook(path: Path) -> list[DayCovers]:
@@ -93,11 +104,18 @@ def read_covers_from_workbook(path: Path) -> list[DayCovers]:
         if guests <= 0:
             continue
         accounts = sheet.cell(row=row, column=_ACCOUNTS_COL).value
+        money = {}
+        for field, col in _MONEY_COLS.items():
+            value = sheet.cell(row=row, column=col).value
+            money[field] = (
+                Decimal(str(value)) if isinstance(value, (int, float)) else None
+            )
         days.append(
             DayCovers(
                 date=when.date(),
                 guests=int(guests),
                 accounts=int(accounts) if isinstance(accounts, (int, float)) else 0,
+                **money,
             )
         )
     return days

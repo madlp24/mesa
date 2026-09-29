@@ -12,7 +12,7 @@ from sales.importers.tickets import (
     parse_closed_at,
     read_daily_covers,
 )
-from sales.models import DailyCovers
+from sales.models import DailySummary
 
 
 def _export(path, rows):
@@ -92,19 +92,19 @@ def test_importing_twice_updates_instead_of_duplicating(tmp_path, restaurant):
     call_command("import_covers", "--file", str(path),
                  "--restaurant", restaurant.slug, stdout=StringIO())
 
-    covers = DailyCovers.objects.get(restaurant=restaurant, date=datetime.date(2026, 1, 2))
+    covers = DailySummary.objects.get(restaurant=restaurant, date=datetime.date(2026, 1, 2))
     assert (covers.guests, covers.accounts) == (9, 2)
-    assert DailyCovers.objects.count() == 1
+    assert DailySummary.objects.count() == 1
 
 
 @pytest.mark.django_db
 def test_party_size(restaurant):
-    covers = DailyCovers.objects.create(
+    covers = DailySummary.objects.create(
         restaurant=restaurant, date=datetime.date(2026, 1, 2), guests=9, accounts=3
     )
     assert covers.party_size == 3
 
-    empty = DailyCovers.objects.create(
+    empty = DailySummary.objects.create(
         restaurant=restaurant, date=datetime.date(2026, 1, 3), guests=0, accounts=0
     )
     assert empty.party_size is None
