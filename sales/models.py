@@ -79,3 +79,41 @@ class SaleItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
+
+
+class DailyCovers(models.Model):
+    """How many people the restaurant served on one operating day.
+
+    The "Productos Vendidos" reports carry money and units but never say how
+    many people came; that lives in the bill-level POS export. Turnout and
+    average ticket per person both hang off this.
+
+    The day is the *operating* day: the POS runs 06:00 to 06:00, so a bill
+    closed at 1am belongs to the night before.
+    """
+
+    restaurant = models.ForeignKey(
+        "tenants.Restaurant", on_delete=models.CASCADE, related_name="daily_covers"
+    )
+    date = models.DateField(db_index=True)
+    guests = models.PositiveIntegerField(help_text="People served that day.")
+    accounts = models.PositiveIntegerField(help_text="Bills closed that day.")
+
+    class Meta:
+        ordering = ["-date"]
+        verbose_name_plural = "daily covers"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["restaurant", "date"], name="unique_covers_per_day"
+            )
+        ]
+
+    @property
+    def party_size(self):
+        """Average people per bill; None when nothing was billed."""
+        if not self.accounts:
+            return None
+        return self.guests / self.accounts
+
+    def __str__(self):
+        return f"{self.date}: {self.guests} guests / {self.accounts} accounts"
