@@ -92,6 +92,14 @@
                                {% if quote.charges_tip %}checked{% endif %}>
                         <label class="form-check-label" for="charges_tip">{% trans "Add the suggested tip" %} (10%)</label>
                     </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="prices_are_net" name="prices_are_net"
+                               {% if quote.prices_are_net %}checked{% endif %}>
+                        <label class="form-check-label" for="prices_are_net">
+                            {% trans "The agreed price does not include the consumption tax" %}
+                            <span class="d-block text-muted small">{% trans "The tax is added on top instead of taken out of it" %}</span>
+                        </label>
+                    </div>
                     <button class="btn btn-primary w-100" type="submit">{% trans "Save" %}</button>
                 </div>
             </div>

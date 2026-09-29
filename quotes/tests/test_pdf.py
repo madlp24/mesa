@@ -562,3 +562,29 @@ class TestFooterMatchesTheTip:
             text = _text_of(render_quote_pdf(self._quote(restaurant, charges_tip=False)))
 
         assert "La propina es voluntaria" in text
+
+
+class TestNetPricesOnThePdf:
+    """A net ticket has to read as net on the page the client receives."""
+
+    def _net_quote(self, restaurant):
+        return Quote.objects.create(
+            restaurant=restaurant, number="CA-410", client_name="VIA SAS", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("350000"),
+            prices_are_net=True,
+        )
+
+    def test_it_shows_the_agreed_price_and_adds_the_tax_below(self, restaurant):
+        texto = _text_of(render_quote_pdf(self._net_quote(restaurant)))
+
+        assert "350.000" in texto          # the ticket agreed with the client
+        assert "14.000.000" in texto       # 40 tickets, before tax
+        assert "1.120.000" in texto        # the tax, added on top
+        assert "1.400.000" in texto        # the tip, on the net base
+        assert "16.520.000" in texto       # what the client pays
+
+    def test_the_footer_does_not_claim_the_tax_is_included(self, restaurant):
+        texto = _text_of(render_quote_pdf(self._net_quote(restaurant)))
+
+        assert "already include" not in texto
+        assert "do not include" in texto
