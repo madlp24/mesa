@@ -324,3 +324,55 @@ class TestManualCost:
 
         assert item.unit_cost is None
         assert item.is_costed is False
+
+
+class TestNetPrices:
+    """A ticket agreed before tax carries the tax on top, not inside.
+
+    VIA SAS agreed 350.000 per guest "sin ICO ni propina": the house keeps the
+    350.000 and the client pays the tax above it. Read as tax-inclusive, the
+    same figure would quietly hand the state 25.926 of every ticket.
+    """
+
+    def test_the_tax_rides_on_top_of_the_agreed_price(self, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-400", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("350000"),
+            prices_are_net=True,
+        )
+
+        assert quote.taxable_base == Decimal("14000000")
+        assert quote.tax_included == Decimal("1120000")
+
+    def test_the_tip_is_ten_percent_of_the_agreed_price(self, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-401", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("350000"),
+            prices_are_net=True,
+        )
+
+        assert quote.tip == Decimal("1400000")
+        assert quote.total == Decimal("16520000")
+
+    def test_a_tax_inclusive_quote_is_untouched(self, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-402", guests=40,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("350000"),
+        )
+
+        assert quote.subtotal == Decimal("14000000")
+        assert quote.taxable_base < Decimal("14000000")
+
+    def test_add_ons_are_quoted_net_too(self, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-403", guests=10,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("100000"),
+            prices_are_net=True, charges_tip=False,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.SERVICE, name="Alquiler del espacio",
+            quantity=Decimal("1"), unit_price=Decimal("1000000"), add_on=True,
+        )
+
+        assert quote.taxable_base == Decimal("2000000")
+        assert quote.total == Decimal("2160000")

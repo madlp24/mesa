@@ -369,11 +369,19 @@ class QuoteCanvas:
 
         # The footer has to agree with the block above it: a quote that charges
         # the tip must not also tell the client it is optional.
-        footer = (
-            _("Prices already include the consumption tax. The suggested tip is in the total.")
-            if quote.charges_tip
-            else _("Prices already include the consumption tax. The tip is voluntary.")
-        )
+        if quote.prices_are_net:
+            footer = (
+                _("Prices do not include the consumption tax or the tip, both added above.")
+                if quote.charges_tip
+                else _("Prices do not include the consumption tax, added above. "
+                       "The tip is voluntary.")
+            )
+        else:
+            footer = (
+                _("Prices already include the consumption tax. The suggested tip is in the total.")
+                if quote.charges_tip
+                else _("Prices already include the consumption tax. The tip is voluntary.")
+            )
         self.text_right(footer, COL_TOTAL, self.y, 7.4, color=MUTED)
         self.y -= 14
 

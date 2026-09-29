@@ -183,6 +183,11 @@ class Quote(models.Model):
     show_quantities = models.BooleanField(default=True)
     tip_rate = models.DecimalField(max_digits=4, decimal_places=3, default=DEFAULT_TIP_RATE)
     charges_tip = models.BooleanField(default=True)
+    #: Some clients negotiate a net ticket: the agreed figure is what the house
+    #: keeps, and the tax rides on top of it instead of being carved out of it.
+    prices_are_net = models.BooleanField(
+        default=False, verbose_name=_("Prices do not include the consumption tax")
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -246,7 +251,11 @@ class Quote(models.Model):
             if self.pricing_mode == PricingMode.PER_GUEST
             else self.lines_total
         )
-        return base * self.days + self.add_ons_total
+        charged = base * self.days + self.add_ons_total
+        # A net ticket is quoted before tax, so the tax is added on top of it
+        # rather than carved out of it. Everything below still reads the
+        # subtotal as tax-inclusive, and stays right.
+        return charged * (Decimal(1) + TAX_RATE) if self.prices_are_net else charged
 
     @property
     def taxable_base(self) -> Decimal:

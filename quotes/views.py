@@ -120,6 +120,7 @@ def _apply_event_fields(request: HttpRequest, quote: Quote) -> None:
     quote.payment_terms = request.POST.get("payment_terms", "").strip()
     quote.notes = request.POST.get("notes", "").strip()
     quote.charges_tip = request.POST.get("charges_tip") == "on"
+    quote.prices_are_net = request.POST.get("prices_are_net") == "on"
     quote.show_quantities = request.POST.get("show_quantities") == "on"
     quote.price_per_guest = _decimal(request.POST.get("price_per_guest"))
     quote.pricing_mode = (
