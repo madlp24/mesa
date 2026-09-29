@@ -1,0 +1,31 @@
+{% load i18n humanize %}
+<div class="table-responsive">
+  <table class="table table-sm align-middle mb-0">
+    <thead>
+      <tr>
+        <th>{% trans "Product" %}</th>
+        <th>{% trans "Group" %}</th>
+        <th class="text-end">{% trans "Units" %}</th>
+        <th class="text-end">{% trans "Revenue" %}</th>
+        <th class="text-end">{% trans "Margin" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td><a href="{% url 'catalog:product_detail' row.product_id %}">{{ row.name }}</a></td>
+        <td class="text-muted small">{{ row.category }}</td>
+        <td class="text-end">{{ row.units|intcomma }}</td>
+        <td class="text-end">{{ row.revenue|floatformat:0|intcomma }}</td>
+        <td class="text-end">
+          {% if row.margin_pct is None %}
+            <span class="text-muted">—</span>
+          {% else %}
+            <strong{% if row.margin_pct < 0 %} class="text-danger"{% endif %}>{{ row.margin_pct|floatformat:1 }}%</strong>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
