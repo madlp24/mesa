@@ -64,6 +64,45 @@ def operating_day(closed_at: datetime.datetime) -> datetime.date:
     return (closed_at - _DAY_STARTS_AT).date()
 
 
+# Columns of the owner's "Datos totales" sheet: date, guests, accounts.
+_SHEET = "Datos totales"
+_DATE_COL, _GUESTS_COL, _ACCOUNTS_COL = 2, 6, 7
+
+
+def read_covers_from_workbook(path: Path) -> list[DayCovers]:
+    """Read turnout straight from the owner's master workbook.
+
+    The bill-level export only reaches back as far as the POS keeps it, while
+    the workbook carries the whole history by hand -- four years of it. Rows
+    without a day's turnout are skipped rather than stored as zero, so an empty
+    cell stays unknown instead of becoming "nobody came".
+    """
+    workbook = load_workbook(io.BytesIO(Path(path).read_bytes()), data_only=True)
+    sheet = next(
+        (workbook[n] for n in workbook.sheetnames if n.strip() == _SHEET), None
+    )
+    if sheet is None:
+        raise TicketExportError(f'No "{_SHEET}" sheet in {Path(path).name}')
+
+    days: list[DayCovers] = []
+    for row in range(2, sheet.max_row + 1):
+        when = sheet.cell(row=row, column=_DATE_COL).value
+        guests = sheet.cell(row=row, column=_GUESTS_COL).value
+        if not isinstance(when, datetime.datetime) or not isinstance(guests, (int, float)):
+            continue
+        if guests <= 0:
+            continue
+        accounts = sheet.cell(row=row, column=_ACCOUNTS_COL).value
+        days.append(
+            DayCovers(
+                date=when.date(),
+                guests=int(guests),
+                accounts=int(accounts) if isinstance(accounts, (int, float)) else 0,
+            )
+        )
+    return days
+
+
 def read_daily_covers(path: Path) -> list[DayCovers]:
     """Group the export's bills into operating days, newest rule applied.
 
