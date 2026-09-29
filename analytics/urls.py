@@ -9,6 +9,7 @@ urlpatterns = [
     path("margin/alerts/", views.margin_alerts_view, name="margin_alerts"),
     path("workbook/", views.workbook_update, name="workbook_update"),
     path("pnl/", views.pnl_summary, name="pnl_summary"),
+    path("comparisons/", views.comparisons, name="comparisons"),
     path(
         "api/revenue-over-time/",
         views.revenue_over_time,

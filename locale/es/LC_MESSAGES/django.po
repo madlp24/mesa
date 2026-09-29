@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 14:50-0500\n"
+"POT-Creation-Date: 2026-09-29 16:59-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -37,47 +37,47 @@ msgstr "Eso no es un archivo .xlsx. Sube tu Excel de análisis."
 msgid "The file is too large (%(size)s). The limit is %(limit)s."
 msgstr "El archivo es demasiado grande (%(size)s). El límite es %(limit)s."
 
-#: analytics/views.py:35 templates/quotes/menu_list.html:83
+#: analytics/views.py:36 templates/quotes/menu_list.html:83
 msgid "Name"
 msgstr "Nombre"
 
-#: analytics/views.py:36 templates/catalog/product_list.html:26
+#: analytics/views.py:37 templates/catalog/product_list.html:26
 msgid "Category"
 msgstr "Categoría"
 
-#: analytics/views.py:37 templates/quotes/menu_list.html:128
+#: analytics/views.py:38 templates/quotes/menu_list.html:128
 #: templates/quotes/quote_detail.html:145
 #: templates/quotes/quote_detail.html:353 templates/quotes/quote_list.html:46
 msgid "Cost"
 msgstr "Costo"
 
-#: analytics/views.py:38
+#: analytics/views.py:39
 msgid "Sale price"
 msgstr "Precio de venta"
 
-#: analytics/views.py:39
+#: analytics/views.py:40
 msgid "Margin $"
 msgstr "Margen $"
 
-#: analytics/views.py:40
+#: analytics/views.py:41
 msgid "Margin %"
 msgstr "Margen %"
 
-#: analytics/views.py:41 templates/catalog/product_detail.html:34
+#: analytics/views.py:42 templates/catalog/product_detail.html:34
 #: templates/catalog/product_detail.html:118
 msgid "Units sold"
 msgstr "Unidades vendidas"
 
-#: analytics/views.py:42 templates/catalog/product_detail.html:46
+#: analytics/views.py:43 templates/catalog/product_detail.html:46
 msgid "Total margin"
 msgstr "Margen total"
 
-#: analytics/views.py:244
+#: analytics/views.py:245
 #, python-format
 msgid "%(column)s updated: %(matched)d products matched."
 msgstr "%(column)s actualizada: %(matched)d productos emparejados."
 
-#: analytics/views.py:248
+#: analytics/views.py:249
 #, python-format
 msgid ""
 "%(count)d product was added as a new row -- check it is not a renamed one: "
@@ -487,7 +487,7 @@ msgstr "Recuérdame"
 msgid "Don't have an account?"
 msgstr "¿No tienes una cuenta?"
 
-#: templates/account/login.html:58 templates/base.html:69
+#: templates/account/login.html:58 templates/base.html:70
 msgid "Sign up"
 msgstr "Regístrate"
 
@@ -530,6 +530,69 @@ msgstr "Ingresos"
 #: templates/quotes/quote_detail.html:260 templates/quotes/quote_list.html:47
 msgid "Margin"
 msgstr "Margen"
+
+#: templates/analytics/comparisons.html:4
+#: templates/analytics/comparisons.html:8 templates/base.html:32
+#: templates/pages/home.html:46
+msgid "Comparisons"
+msgstr "Comparativos"
+
+#: templates/analytics/comparisons.html:10
+msgid ""
+"How many people came, what each left on average, and what you billed — each "
+"period next to the same one a year earlier."
+msgstr "Cuánta gente vino, cuánto dejó cada una en promedio y cuánto facturaste — cada período al lado del mismo de hace un año."
+
+#: templates/analytics/comparisons.html:15
+msgid "By day"
+msgstr "Por día"
+
+#: templates/analytics/comparisons.html:16
+msgid "By week"
+msgstr "Por semana"
+
+#: templates/analytics/comparisons.html:17
+msgid "By month"
+msgstr "Por mes"
+
+#: templates/analytics/comparisons.html:26 templates/analytics/pnl.html:14
+msgid "Period"
+msgstr "Período"
+
+#: templates/analytics/comparisons.html:27
+msgid "People"
+msgstr "Personas"
+
+#: templates/analytics/comparisons.html:28
+#: templates/analytics/comparisons.html:31
+msgid "vs last year"
+msgstr "vs año anterior"
+
+#: templates/analytics/comparisons.html:29
+msgid "Bills"
+msgstr "Cuentas"
+
+#: templates/analytics/comparisons.html:30
+msgid "Takings"
+msgstr "Facturación"
+
+#: templates/analytics/comparisons.html:32
+msgid "Per person"
+msgstr "Por persona"
+
+#: templates/analytics/comparisons.html:33
+msgid "Per bill"
+msgstr "Por cuenta"
+
+#: templates/analytics/comparisons.html:65
+msgid ""
+"A dash means the figure is not known for that period — turnout and takings "
+"come from different sources, and one can reach back further than the other."
+msgstr "Un guion significa que ese dato no se conoce para ese período — la rotación y la facturación vienen de fuentes distintas, y una llega más atrás que la otra."
+
+#: templates/analytics/comparisons.html:70
+msgid "No turnout recorded yet. Import it and the comparisons appear."
+msgstr "Aún no hay rotación registrada. Impórtala y aparecen los comparativos."
 
 #: templates/analytics/dashboard.html:4 templates/analytics/dashboard.html:9
 #: templates/base.html:28 templates/pages/home.html:18
@@ -630,7 +693,9 @@ msgstr "Alertas de margen"
 msgid ""
 "What Mesa would flag if it read your margins for you. Each list is ordered "
 "by revenue, so the money decides what to look at first."
-msgstr "Lo que Mesa señalaría si leyera tus márgenes por ti. Cada lista va ordenada por ingreso, así la plata decide qué mirar primero."
+msgstr ""
+"Lo que Mesa señalaría si leyera tus márgenes por ti. Cada lista va ordenada "
+"por ingreso, así la plata decide qué mirar primero."
 
 #: templates/analytics/margin_alerts.html:16
 msgid "Thin below"
@@ -646,7 +711,8 @@ msgstr "Mostrando todo tu histórico. Acótalo con las fechas de arriba."
 
 #: templates/analytics/margin_alerts.html:45
 msgid "Nothing to flag: every product carries a cost and clears the threshold."
-msgstr "Nada que señalar: todos los productos tienen costo y superan el umbral."
+msgstr ""
+"Nada que señalar: todos los productos tienen costo y superan el umbral."
 
 #: templates/analytics/margin_alerts.html:51
 msgid "Sold at a loss"
@@ -673,7 +739,9 @@ msgstr "Sin costo cargado"
 msgid ""
 "Mesa cannot tell what these earn, and today they count as pure margin — "
 "which inflates every other figure."
-msgstr "Mesa no puede saber cuánto dejan, y hoy cuentan como margen puro — lo que infla todas las demás cifras."
+msgstr ""
+"Mesa no puede saber cuánto dejan, y hoy cuentan como margen puro — lo que "
+"infla todas las demás cifras."
 
 #: templates/analytics/margin_analysis.html:4
 #: templates/analytics/margin_analysis.html:8
@@ -706,10 +774,6 @@ msgstr "Pérdidas y ganancias mensuales"
 msgid "Revenue, cost of goods sold and gross margin, month by month."
 msgstr "Ingresos, costo de ventas y margen bruto, mes a mes."
 
-#: templates/analytics/pnl.html:14
-msgid "Period"
-msgstr "Período"
-
 #: templates/analytics/pnl.html:16
 msgid "Last 12 months"
 msgstr "Últimos 12 meses"
@@ -728,8 +792,8 @@ msgid "Gross Margin %%"
 msgstr "Margen bruto %%"
 
 #: templates/analytics/workbook_update.html:4
-#: templates/analytics/workbook_update.html:10 templates/base.html:34
-#: templates/pages/home.html:53
+#: templates/analytics/workbook_update.html:10 templates/base.html:35
+#: templates/pages/home.html:60
 msgid "Update my workbook"
 msgstr "Actualizar mi Excel"
 
@@ -792,45 +856,45 @@ msgstr "Márgenes"
 msgid "P&L"
 msgstr "PyG"
 
-#: templates/base.html:32 templates/catalog/product_list.html:4
-#: templates/catalog/product_list.html:9 templates/pages/home.html:60
+#: templates/base.html:33 templates/catalog/product_list.html:4
+#: templates/catalog/product_list.html:9 templates/pages/home.html:67
 msgid "Products"
 msgstr "Productos"
 
-#: templates/base.html:33
+#: templates/base.html:34
 msgid "Upload"
 msgstr "Subir"
 
-#: templates/base.html:35 templates/pages/home.html:67
+#: templates/base.html:36 templates/pages/home.html:74
 #: templates/quotes/menu_list.html:14 templates/quotes/quote_list.html:4
 msgid "Quotes"
 msgstr "Cotizaciones"
 
-#: templates/base.html:38 templates/pages/help.html:4
+#: templates/base.html:39 templates/pages/help.html:4
 msgid "Help"
 msgstr "Ayuda"
 
-#: templates/base.html:41
+#: templates/base.html:42
 msgid "Language"
 msgstr "Idioma"
 
-#: templates/base.html:58 templates/tenants/settings.html:10
+#: templates/base.html:59 templates/tenants/settings.html:10
 msgid "Restaurant settings"
 msgstr "Ajustes del restaurante"
 
-#: templates/base.html:60
+#: templates/base.html:61
 msgid "Change password"
 msgstr "Cambiar contraseña"
 
-#: templates/base.html:64
+#: templates/base.html:65
 msgid "Logout"
 msgstr "Cerrar sesión"
 
-#: templates/base.html:68
+#: templates/base.html:69
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/base.html:91
+#: templates/base.html:92
 msgid "Mesa &middot; Business intelligence for Soft Restaurant data"
 msgstr "Mesa &middot; Inteligencia de negocio para datos de Soft Restaurant"
 
@@ -1114,39 +1178,43 @@ msgstr "Qué se vende a pérdida, qué está bajo, qué no tiene costo."
 msgid "Month-by-month profit and loss."
 msgstr "Pérdidas y ganancias mes a mes."
 
-#: templates/pages/home.html:46 templates/sales/upload.html:10
+#: templates/pages/home.html:47
+msgid "People, average ticket and takings against last year."
+msgstr "Personas, ticket promedio y facturación contra el año anterior."
+
+#: templates/pages/home.html:53 templates/sales/upload.html:10
 msgid "Upload reports"
 msgstr "Subir reportes"
 
-#: templates/pages/home.html:47
+#: templates/pages/home.html:54
 msgid "Bring in your Soft Restaurant reports, one or several."
 msgstr "Carga tus reportes de Soft Restaurant, uno o varios."
 
-#: templates/pages/home.html:54
+#: templates/pages/home.html:61
 msgid "Fill a month into your master Excel and download it."
 msgstr "Llena un mes en tu Excel maestro y descárgalo."
 
-#: templates/pages/home.html:61
+#: templates/pages/home.html:68
 msgid "Your catalog and the POS identities behind it."
 msgstr "Tu catálogo y las identidades del POS detrás de él."
 
-#: templates/pages/home.html:68
+#: templates/pages/home.html:75
 msgid "Build and send proposals for events."
 msgstr "Arma y envía propuestas para eventos."
 
-#: templates/pages/home.html:74
+#: templates/pages/home.html:81
 msgid "Event menu"
 msgstr "Menú de eventos"
 
-#: templates/pages/home.html:75
+#: templates/pages/home.html:82
 msgid "The dishes you offer at events, and their cost."
 msgstr "Los platos que ofreces en eventos, y su costo."
 
-#: templates/pages/home.html:81 templates/tenants/settings.html:4
+#: templates/pages/home.html:88 templates/tenants/settings.html:4
 msgid "Settings"
 msgstr "Ajustes"
 
-#: templates/pages/home.html:82
+#: templates/pages/home.html:89
 msgid "Your restaurant and the people who can see it."
 msgstr "Tu restaurante y las personas que pueden verlo."
 

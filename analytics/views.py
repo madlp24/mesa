@@ -18,6 +18,7 @@ from sales.models import Sale
 
 from .exports import build_analysis_workbook, build_productos_vendidos_workbook
 from .alerts import DEFAULT_THRESHOLD, margin_alerts
+from .comparisons import GRAINS, compare
 from .forms import WorkbookUpdateForm
 from .unified_excel import UnifiedUpdateError, update_productos_vendidos
 from .services import (
@@ -284,4 +285,18 @@ def margin_alerts_view(request: HttpRequest) -> HttpResponse:
         request,
         "analytics/margin_alerts.html",
         {"alerts": alerts, "start": start, "end": end, "threshold": threshold},
+    )
+
+
+@login_required
+def comparisons(request: HttpRequest) -> HttpResponse:
+    """Turnout, average ticket and takings, each against a year earlier (US42)."""
+    grain = request.GET.get("grain", "month")
+    if grain not in GRAINS:
+        grain = "month"
+    limit = 31 if grain == "day" else (26 if grain == "week" else 24)
+    return render(
+        request,
+        "analytics/comparisons.html",
+        {"periods": compare(request.restaurant, grain, limit), "grain": grain},
     )

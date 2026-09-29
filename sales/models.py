@@ -81,12 +81,17 @@ class SaleItem(models.Model):
         return f"{self.quantity} x {self.product.name}"
 
 
-class DailyCovers(models.Model):
-    """How many people the restaurant served on one operating day.
+class DailySummary(models.Model):
+    """What one operating day amounted to: who came, and what they left.
 
     The "Productos Vendidos" reports carry money and units but never say how
-    many people came; that lives in the bill-level POS export. Turnout and
-    average ticket per person both hang off this.
+    many people came; that lives in the bill-level POS export. Average ticket
+    needs both, so they sit together here.
+
+    The money is optional because it has two sources: the current year is
+    derived from the PDFs, while the years behind it come from the owner's
+    sheet. A day can therefore know its turnout without knowing its takings,
+    and saying so is better than reporting a wrong average.
 
     The day is the *operating* day: the POS runs 06:00 to 06:00, so a bill
     closed at 1am belongs to the night before.
@@ -98,15 +103,34 @@ class DailyCovers(models.Model):
     date = models.DateField(db_index=True)
     guests = models.PositiveIntegerField(help_text="People served that day.")
     accounts = models.PositiveIntegerField(help_text="Bills closed that day.")
+    bar_sales = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
+    bar_cost = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
+    kitchen_sales = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
+    kitchen_cost = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
 
     class Meta:
         ordering = ["-date"]
-        verbose_name_plural = "daily covers"
+        verbose_name_plural = "daily summaries"
         constraints = [
             models.UniqueConstraint(
                 fields=["restaurant", "date"], name="unique_covers_per_day"
             )
         ]
+
+    @property
+    def sales(self):
+        """The day's takings, or None when no source has filled them in."""
+        if self.bar_sales is None and self.kitchen_sales is None:
+            return None
+        return (self.bar_sales or 0) + (self.kitchen_sales or 0)
 
     @property
     def party_size(self):
