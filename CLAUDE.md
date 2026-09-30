@@ -118,6 +118,25 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
 
+US43 fill "Estados de Resultados" from the accountant's statements (#152): the
+owner's P&L sheet stops where his accountant's statements start. `analytics/
+estado_resultados.py` reads the UNO 8.5 "ESTADO DE RESULTADOS" PDF -- up to four
+monthly columns per file, PUC accounts at level 08 -- assigning each amount to a
+month by its **x position** (a row prints only the months it moved in, so order
+on the line means nothing) and undoubling the bold subtotal lines (bold is drawn
+by overprinting, so every glyph comes out twice: "11,,000000"). The sheet is
+deliberately not a mirror of the statement: `ROW_ACCOUNTS` maps every leaf
+account onto exactly one row (APORTES SOCIALES gathers the four aportes plus
+gastos medicos; OTROS gathers what is left of DIVERSOS), and `reconcile()`
+rebuilds the statement's own printed totals from the mapped rows and refuses to
+write when they disagree. Row 12 takes the statement's whole COSTOS total (which
+carries bajas, desperdicios y traspasos), matching what the owner typed by hand
+from ago-2024 on -- so "% Costo/Venta" is noisier than rows 10+11 alone.
+`update_estados_resultados --file <xlsx> --pdf <statement> [--pdf ...]` appends a
+column per month, replicating the sheet's own formula rows; rows the accountant
+books nothing on stay blank, not zero. Validated on ene-ago 2026: 123 accounts,
+0 descuadres.
+
 US31 multi-file upload (#63): `/upload/` accepts several files at once
 (`sales/forms.py MultipleFileField`); `upload_report` imports each (one ImportBatch per
 file), a per-file error is reported without aborting the batch.

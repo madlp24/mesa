@@ -46,6 +46,9 @@ _DT_VENTA_BAR = 14      # N
 _DT_COSTO_BAR = 15      # O
 _DT_VENTA_COCINA = 19   # S
 _DT_COSTO_COCINA = 20   # T
+# --- "Estados de Resultados" sheet (US43) ---
+ER_SHEET = "Estados de Resultados"
+
 _WEEKDAYS_ES = (
     "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"
 )
@@ -309,5 +312,106 @@ def update_datos_totales(path, totals_by_date: dict) -> dict:
         "copy": copy,
         "filled": filled,
         "appended": [d.isoformat() for d in appended],
+        "warnings": warnings,
+    }
+
+
+# --- "Estados de Resultados" sheet (US43) ---------------------------------
+
+
+def _find_estados_sheet(workbook):
+    for name in workbook.sheetnames:
+        if name.strip().lower() == ER_SHEET.lower():
+            return workbook[name]
+    raise UnifiedUpdateError(f'Sheet "{ER_SHEET}" not found.')
+
+
+def _index_months(ws) -> dict[str, int]:
+    """Map each month already in the header row to its column."""
+    index = {}
+    for col in range(2, ws.max_column + 1):
+        value = ws.cell(row=1, column=col).value
+        if isinstance(value, (datetime.datetime, datetime.date)):
+            index[f"{value.year}-{value.month:02d}"] = col
+    return index
+
+
+def _copy_column_formulas(ws, template: int, target: int, rows) -> None:
+    """Replicate a column's formulas onto ``target``.
+
+    The sheet's totals reference their own column (``=+AW3+AW4-AW6-AW5``), which
+    openpyxl does not translate on copy, so rewrite the template's column letter
+    to the target's.
+    """
+    source = get_column_letter(template)
+    destination = get_column_letter(target)
+    pattern = re.compile(r"\b" + source + r"(\d+)\b")
+    for row in rows:
+        value = ws.cell(row=row, column=template).value
+        if isinstance(value, str) and value.startswith("="):
+            ws.cell(
+                row=row,
+                column=target,
+                value=pattern.sub(lambda m: f"{destination}{m.group(1)}", value),
+            )
+
+
+def update_estados_resultados(path, statement) -> dict:
+    """Append the statement's months to a copy of the workbook's P&L sheet.
+
+    ``statement`` is an :class:`analytics.estado_resultados.Statement`. Each of
+    its months gets a column: the mapped rows are written as numbers, the
+    workbook's own subtotal rows get their formulas replicated from the last
+    month already present, and rows the accountant does not book anything on are
+    left blank rather than zeroed. A month already in the header is overwritten
+    in place. Writes a copy; returns a summary.
+    """
+    from .estado_resultados import FORMULA_ROWS, ROW_ACCOUNTS
+
+    path = Path(path)
+    if not path.exists():
+        raise UnifiedUpdateError(f"File not found: {path}")
+
+    workbook = load_workbook(path)
+    ws = _find_estados_sheet(workbook)
+    warnings = _detect_warnings(path, workbook)
+
+    existing = _index_months(ws)
+    if not existing:
+        raise UnifiedUpdateError(
+            f'Sheet "{ER_SHEET}" has no month dates in its header row.'
+        )
+    template = max(existing.values())
+    append_at = max(ws.max_column, template) + 1
+
+    written: list[str] = []
+    overwritten: list[str] = []
+    for month in statement.months:
+        column = existing.get(month)
+        if column is None:
+            column = append_at
+            append_at += 1
+            year, number = (int(part) for part in month.split("-"))
+            header = ws.cell(row=1, column=column, value=datetime.datetime(year, number, 1))
+            header._style = ws.cell(row=1, column=template)._style
+            written.append(month)
+        else:
+            overwritten.append(month)
+
+        for row in sorted(ROW_ACCOUNTS):
+            cell = ws.cell(row=row, column=column)
+            cell._style = ws.cell(row=row, column=template)._style
+            if not statement.tracked(row):
+                cell.value = None
+                continue
+            cell.value = float(statement.row_value(row, month))
+        _copy_column_formulas(ws, template, column, FORMULA_ROWS)
+
+    copy = path.with_name(f"{path.stem} (Mesa Estados de Resultados){path.suffix}")
+    workbook.save(copy)
+    return {
+        "copy": copy,
+        "written": written,
+        "overwritten": overwritten,
         "warnings": warnings,
     }
