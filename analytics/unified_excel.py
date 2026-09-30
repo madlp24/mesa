@@ -415,3 +415,109 @@ def update_estados_resultados(path, statement) -> dict:
         "overwritten": overwritten,
         "warnings": warnings,
     }
+
+
+# --- pruning the days the restaurant was closed (US44) --------------------
+
+_DT_PEOPLE = 6    # F
+_DT_ACCOUNTS = 7  # G
+
+_ROW_REF = re.compile(r"(\$?[A-Z]{1,3}\$?)(\d+)")
+
+
+def _is_blank_day(ws, row: int) -> bool:
+    """A dated row with no people, no accounts and no sales on either side.
+
+    A literal zero counts as no movement: some closures were typed as ``0``
+    rather than left empty, and a day with nobody in it and nothing sold is a
+    day the restaurant did not open.
+    """
+    columns = (_DT_PEOPLE, _DT_ACCOUNTS, _DT_VENTA_BAR, _DT_VENTA_COCINA)
+    return not any(
+        isinstance(value := ws.cell(row=row, column=col).value, (int, float))
+        and value != 0
+        for col in columns
+    )
+
+
+def _repoint_row_formulas(ws, row: int) -> int:
+    """Make every formula on ``row`` reference ``row``.
+
+    The sheet's formulas are all self-row (``=N2+S2``), but openpyxl does not
+    translate them when rows shift, so after a deletion a row still points at
+    the row number it used to live on. Rewriting the row number in place keeps
+    each row's own set of formula columns, which differs across the sheet (only
+    some rows carry the madurado block).
+    """
+    changed = 0
+    for col in range(1, ws.max_column + 1):
+        cell = ws.cell(row=row, column=col)
+        if not (isinstance(cell.value, str) and cell.value.startswith("=")):
+            continue
+        rewritten = _ROW_REF.sub(lambda m: f"{m.group(1)}{row}", cell.value)
+        if rewritten != cell.value:
+            cell.value = rewritten
+            changed += 1
+    return changed
+
+
+def prune_closed_days(
+    path, weekday: int | None = 0, through: datetime.date | None = None
+) -> dict:
+    """Delete the empty rows of ``Datos totales`` for days the place was shut.
+
+    ``weekday`` is a :meth:`datetime.date.weekday` number (0 = Monday) and
+    limits the deletion to that day of the week; ``None`` prunes every empty
+    dated row. Rows that carry people, accounts or sales are always kept -- a
+    holiday Monday is a day the restaurant opened.
+
+    Only days up to ``through`` (today by default) are considered. The sheet
+    runs a calendar skeleton ahead of itself -- empty rows, weekday already
+    typed, waiting to be filled -- and those are not closures; deleting them
+    would also send a future holiday Monday to the bottom of the sheet when its
+    report finally arrives. Writes a copy.
+    """
+    if through is None:
+        through = datetime.date.today()
+    path = Path(path)
+    if not path.exists():
+        raise UnifiedUpdateError(f"File not found: {path}")
+
+    workbook = load_workbook(path)
+    ws = _find_datos_sheet(workbook)
+    warnings = _detect_warnings(path, workbook)
+
+    doomed: list[tuple[int, datetime.date]] = []
+    kept = 0
+    for row in range(2, ws.max_row + 1):
+        value = ws.cell(row=row, column=_DT_DATE).value
+        if isinstance(value, datetime.datetime):
+            day = value.date()
+        elif isinstance(value, datetime.date):
+            day = value
+        else:
+            continue
+        if day > through:
+            continue
+        if weekday is not None and day.weekday() != weekday:
+            continue
+        if _is_blank_day(ws, row):
+            doomed.append((row, day))
+        else:
+            kept += 1
+
+    # Delete from the bottom up so the pending row numbers stay valid.
+    for row, _day in reversed(doomed):
+        ws.delete_rows(row)
+
+    repaired = sum(_repoint_row_formulas(ws, row) for row in range(2, ws.max_row + 1))
+
+    copy = path.with_name(f"{path.stem} (Mesa sin dias cerrados){path.suffix}")
+    workbook.save(copy)
+    return {
+        "copy": copy,
+        "deleted": [day.isoformat() for _row, day in doomed],
+        "kept": kept,
+        "formulas_repaired": repaired,
+        "warnings": warnings,
+    }
