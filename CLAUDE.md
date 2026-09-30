@@ -118,6 +118,24 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
 
+US44 drop the closed days from "Datos totales" (#154): the restaurant does not
+open on ordinary Mondays, only on holiday ones, so `prune_closed_days --file
+<xlsx> [--weekday lunes] [--through YYYY-MM-DD]` deletes the empty Monday rows
+and keeps every Monday that had movement. Two traps it has to handle: a closure
+was sometimes typed as `0` rather than left blank (a literal zero counts as no
+movement), and the sheet runs a calendar skeleton ahead of itself -- empty rows
+with the weekday already typed, waiting to be filled -- so only days up to
+`--through` (today by default) are considered; pruning a future holiday Monday
+would just send it to the bottom of the sheet when its report arrives.
+Deleting rows mid-sheet is not free: the per-row formulas are self-row
+references and openpyxl does not translate them when rows shift, so
+`_repoint_row_formulas` rewrites every surviving row's formulas to its own row,
+preserving each row's own formula columns (only some rows carry the madurado
+block). Run on the real workbook: 17 closed Mondays removed, 38 holiday Mondays
+kept, 13 future skeleton rows untouched, 2879 formulas re-pointed -- which also
+fixed two rows that already pointed at a neighbour (row 136's madurado formula
+and the appended 2026-01-26 row).
+
 US43 fill "Estados de Resultados" from the accountant's statements (#152): the
 owner's P&L sheet stops where his accountant's statements start. `analytics/
 estado_resultados.py` reads the UNO 8.5 "ESTADO DE RESULTADOS" PDF -- up to four
