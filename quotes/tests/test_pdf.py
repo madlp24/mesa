@@ -588,3 +588,36 @@ class TestNetPricesOnThePdf:
 
         assert "already include" not in texto
         assert "do not include" in texto
+
+
+class TestPerGuestLinesUseTheWholeRow:
+    """A per-guest quote with no quantities prints nothing right of its dishes.
+
+    Its descriptions were still held to half the row, so every one wrapped,
+    and a long menu pushed the totals onto a second sheet of their own.
+    """
+
+    PICADA = "Longaniza artesanal, arepa de maíz nixtamalizado con queso, mazorca asada y morcilla."
+
+    def _quote(self, restaurant, show_quantities):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-420", guests=110,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("230000"),
+            show_quantities=show_quantities,
+        )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.STARTERS, name="Picada al centro para compartir",
+            description=self.PICADA,
+        )
+        return quote
+
+    def test_a_description_runs_across_the_page(self, restaurant):
+        texto = _text_of(render_quote_pdf(self._quote(restaurant, show_quantities=False)))
+
+        assert self.PICADA in texto.splitlines()
+
+    def test_with_quantities_it_keeps_clear_of_the_column(self, restaurant):
+        texto = _text_of(render_quote_pdf(self._quote(restaurant, show_quantities=True)))
+
+        assert self.PICADA not in texto.splitlines()
+
