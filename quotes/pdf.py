@@ -284,7 +284,14 @@ class QuoteCanvas:
     def lines(self):
         quote = self.quote
         per_guest = quote.pricing_mode == PricingMode.PER_GUEST
-        desc_w = COL_QTY - MARGIN - 66
+        # A per-guest quote prints no price beside its dishes, and without
+        # quantities nothing at all: the columns on the right stay empty. Held
+        # to half the row anyway, every description wrapped and pushed the
+        # totals onto a second sheet of their own.
+        if per_guest and not quote.show_quantities:
+            desc_w = COL_TOTAL - MARGIN
+        else:
+            desc_w = COL_QTY - MARGIN - 66
         all_lines = quote.food_lines + quote.included_lines
 
         for value, label in Course.choices:
