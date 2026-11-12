@@ -49,6 +49,12 @@ def _money(value) -> str:
     return f"{Decimal(value or 0):,.0f}".replace(",", ".")
 
 
+def _body_charges(quote):
+    """Charges that buy something -- bar, staff, the grill -- and so print with
+    the menu. A discount buys nothing and stays in the totals."""
+    return [line for line in quote.charged_add_ons if line.line_total > 0]
+
+
 def _wrap(text, font, size, width):
     words, lines, current = str(text or "").split(), [], ""
     for word in words:
@@ -271,10 +277,11 @@ class QuoteCanvas:
 
     def table_head(self):
         per_guest = self.quote.pricing_mode == PricingMode.PER_GUEST
+        charges = bool(_body_charges(self.quote))
         self.text(_("DESCRIPTION"), MARGIN, self.y, 6.8, color=ACCENT, spacing=1.3)
-        if self.quote.show_quantities:
+        if self.quote.show_quantities or charges:
             self.text_right(pgettext("column heading", "QTY"), COL_QTY, self.y, 6.8, color=ACCENT, spacing=0.6)
-        if not per_guest:
+        if not per_guest or charges:
             self.text_right(pgettext("column heading", "UNIT"), COL_UNIT, self.y, 6.8, color=ACCENT, spacing=0.6)
             self.text_right(pgettext("column heading", "TOTAL"), COL_TOTAL, self.y, 6.8, color=ACCENT, spacing=0.6)
         self.y -= 7
@@ -284,15 +291,22 @@ class QuoteCanvas:
     def lines(self):
         quote = self.quote
         per_guest = quote.pricing_mode == PricingMode.PER_GUEST
-        # A per-guest quote prints no price beside its dishes, and without
-        # quantities nothing at all: the columns on the right stay empty. Held
-        # to half the row anyway, every description wrapped and pushed the
-        # totals onto a second sheet of their own.
-        if per_guest and not quote.show_quantities:
-            desc_w = COL_TOTAL - MARGIN
-        else:
-            desc_w = COL_QTY - MARGIN - 66
-        all_lines = quote.food_lines + quote.included_lines
+        # What the client pays for on top -- the bar, the staff, the grill --
+        # is listed with the menu, under its own heading and with its price,
+        # so the page reads as one list of what the event brings.
+        charges = _body_charges(quote)
+        all_lines = quote.food_lines + quote.included_lines + charges
+
+        def priced(line):
+            return not per_guest or line in charges
+
+        def width(line):
+            # A per-guest dish prints no price, and without quantities nothing
+            # at all to its right. Held to half the row anyway, every
+            # description wrapped and pushed the totals onto a second sheet.
+            if per_guest and not quote.show_quantities and not priced(line):
+                return COL_TOTAL - MARGIN
+            return COL_QTY - MARGIN - 66
 
         for value, label in Course.choices:
             course_lines = [line for line in all_lines if line.course == value]
@@ -303,12 +317,13 @@ class QuoteCanvas:
             self.band(self.y - 4, 14)
             self.text(str(label).upper(), MARGIN + 8, self.y, 7.6, bold=True,
                       color=ACCENT_DEEP, spacing=1.7)
-            if not per_guest:
-                subtotal = sum(line.line_total for line in course_lines)
+            if any(priced(line) for line in course_lines):
+                subtotal = sum(line.line_total for line in course_lines if priced(line))
                 self.text_right(_money(subtotal), COL_TOTAL - 7, self.y, 8, bold=True, color=MUTED)
             self.y -= self.gap(19)
 
             for line in course_lines:
+                desc_w = width(line)
                 name_lines = _wrap(line.name, BOLD, 9.5, desc_w)
                 desc_lines = _wrap(line.description, REG, 7.8, desc_w) if line.description else []
                 height = (
@@ -326,9 +341,9 @@ class QuoteCanvas:
                     self.text(text, MARGIN, y + 1, 7.8, color=MUTED)
                     y -= 9.6
 
-                if quote.show_quantities:
+                if quote.show_quantities or line in charges:
                     self.text_right(f"{line.quantity:,.0f}".replace(",", "."), COL_QTY, self.y, 9.5)
-                if not per_guest:
+                if priced(line):
                     self.text_right(_money(line.unit_price), COL_UNIT, self.y, 9.5)
                     self.text_right(_money(line.line_total), COL_TOTAL, self.y, 9.5, bold=True)
 
@@ -349,12 +364,25 @@ class QuoteCanvas:
             rows.append((_("Guests"), str(quote.guests), False))
             if quote.days > 1:
                 rows.append((_("Days"), str(quote.days), False))
+            # The charges are itemised above; here each heading adds up, so
+            # the sum from the per-guest price to the subtotal can be followed.
+            charges = _body_charges(quote)
+            for value, label in Course.choices:
+                section = [line for line in charges if line.course == value]
+                if section:
+                    rows.append((str(label), _money(sum(line.line_total for line in section)), False))
+        # A discount is not something the event brings: it stays with the money.
         for line in quote.charged_add_ons:
+            if line.line_total >= 0:
+                continue
             label = line.name
             if line.quantity != 1:
                 label = f"{label}  x{line.quantity:,.0f}".replace(",", ".")
             rows.append((label, _money(line.line_total), False))
-        rows.append((_("Subtotal before tax and tip"), _money(quote.taxable_base), True))
+        rows.append((
+            _("Subtotal before tax and tip") if quote.charges_tip else _("Subtotal before tax"),
+            _money(quote.taxable_base), True,
+        ))
         rows.append((_("Consumption tax 8%"), _money(quote.tax_included), False))
         if quote.charges_tip:
             rows.append((_("Suggested tip 10%"), _money(quote.tip), False))
@@ -374,20 +402,20 @@ class QuoteCanvas:
         self.text_right(_money(quote.total), COL_TOTAL - 12, self.y - 13, 15, bold=True, color=WHITE)
         self.y -= 34
 
-        # The footer has to agree with the block above it: a quote that charges
-        # the tip must not also tell the client it is optional.
+        # The footer has to agree with the block above it. A quote that charges
+        # the tip says so; one that does not leaves the tip out altogether,
+        # since an event quoted without it is not inviting one.
         if quote.prices_are_net:
             footer = (
                 _("Prices do not include the consumption tax or the tip, both added above.")
                 if quote.charges_tip
-                else _("Prices do not include the consumption tax, added above. "
-                       "The tip is voluntary.")
+                else _("Prices do not include the consumption tax, added above.")
             )
         else:
             footer = (
                 _("Prices already include the consumption tax. The suggested tip is in the total.")
                 if quote.charges_tip
-                else _("Prices already include the consumption tax. The tip is voluntary.")
+                else _("Prices already include the consumption tax.")
             )
         self.text_right(footer, COL_TOTAL, self.y, 7.4, color=MUTED)
         self.y -= 14

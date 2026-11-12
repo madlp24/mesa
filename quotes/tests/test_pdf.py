@@ -463,10 +463,12 @@ class TestInclusions:
 
         assert "Personal: 2 cocineros" in text
         assert "Transporte de parrilla" in text
-        # the inclusion sits above the totals block, the charge inside it
+        # Both sit with the menu, above the totals: what the event brings is
+        # one list. The charge carries its price there; the totals add it up.
         antes, despues = text.split("Precio por persona", 1)
         assert "Personal: 2 cocineros" in antes
-        assert "Transporte de parrilla" in despues
+        assert "Transporte de parrilla" in antes
+        assert "Transporte de parrilla" not in despues
         assert quote.total == Decimal("6550000")
 
 
@@ -557,11 +559,13 @@ class TestFooterMatchesTheTip:
         assert "Propina sugerida" in text
         assert "La propina es voluntaria" not in text
 
-    def test_an_uncharged_tip_is_still_called_voluntary(self, restaurant):
+    def test_an_uncharged_tip_is_not_mentioned_at_all(self, restaurant):
+        """An event quoted without a tip is not inviting one: the page used to
+        call it voluntary, and the client read that as a tip being added."""
         with translation.override("es"):
             text = _text_of(render_quote_pdf(self._quote(restaurant, charges_tip=False)))
 
-        assert "La propina es voluntaria" in text
+        assert "propina" not in text.lower()
 
 
 class TestNetPricesOnThePdf:
@@ -621,3 +625,63 @@ class TestPerGuestLinesUseTheWholeRow:
 
         assert self.PICADA not in texto.splitlines()
 
+
+@pytest.mark.django_db
+class TestChargesPrintWithTheMenu:
+    """The bar and the staff are part of what the event brings, so they are
+    listed with the menu, priced, under their own headings. Only a discount,
+    which brings nothing, stays down with the money."""
+
+    def _quote(self, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-430", client_name="Daniela Betancur",
+            guests=110, pricing_mode=PricingMode.PER_GUEST,
+            price_per_guest=Decimal("230000"), charges_tip=False, show_quantities=False,
+        )
+        QuoteLine.objects.create(quote=quote, course=Course.MAINS, name="Picanha americana")
+        for curso, nombre, cant, precio in [
+            (Course.ALCOHOL, "Cerveza Stella Artois", 440, 9000),
+            (Course.SOFT, "Gaseosas", 220, 6000),
+            (Course.SERVICE, "Bartenders", 2, 300000),
+        ]:
+            QuoteLine.objects.create(
+                quote=quote, course=curso, name=nombre, quantity=Decimal(cant),
+                unit_price=Decimal(precio), add_on=True,
+            )
+        QuoteLine.objects.create(
+            quote=quote, course=Course.OTHER, name="Descuento", quantity=Decimal(1),
+            unit_price=Decimal("-1180000"), add_on=True,
+        )
+        return quote
+
+    def test_a_charge_is_listed_with_its_quantity_and_price(self, restaurant):
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(self._quote(restaurant)))
+
+        menu, totales = text.split("Precio por persona", 1)
+        assert "Cerveza Stella Artois 440 9.000 3.960.000" in menu.splitlines()
+        assert "Bartenders 2 300.000 600.000" in menu.splitlines()
+        assert "Cerveza Stella Artois" not in totales
+
+    def test_the_totals_add_up_each_heading(self, restaurant):
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(self._quote(restaurant)))
+
+        _, totales = text.split("Precio por persona", 1)
+        assert "Bebidas con alcohol 3.960.000" in totales.splitlines()
+        assert "Bebidas sin alcohol 1.320.000" in totales.splitlines()
+
+    def test_a_discount_stays_with_the_money(self, restaurant):
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(self._quote(restaurant)))
+
+        menu, totales = text.split("Precio por persona", 1)
+        assert "Descuento" not in menu
+        assert "Descuento -1.180.000" in totales.splitlines()
+
+    def test_without_a_tip_the_subtotal_does_not_name_one(self, restaurant):
+        with translation.override("es"):
+            text = _text_of(render_quote_pdf(self._quote(restaurant)))
+
+        assert "Subtotal sin impuesto" in text
+        assert "propina" not in text.lower()
