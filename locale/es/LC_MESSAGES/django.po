@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 16:59-0500\n"
+"POT-Creation-Date: 2026-11-12 16:36-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -188,7 +188,7 @@ msgstr "Otros"
 msgid "By consumption"
 msgstr "Por consumo"
 
-#: quotes/models.py:59 quotes/pdf.py:341 templates/quotes/quote_detail.html:71
+#: quotes/models.py:59 quotes/pdf.py:363 templates/quotes/quote_detail.html:71
 #: templates/quotes/quote_detail.html:75
 msgid "Price per guest"
 msgstr "Precio por persona"
@@ -221,59 +221,59 @@ msgstr "Los precios no incluyen el impuesto al consumo"
 msgid "No client"
 msgstr "Sin cliente"
 
-#: quotes/pdf.py:179
+#: quotes/pdf.py:185
 #, python-format
 msgid "Page %(n)s"
 msgstr "Página %(n)s"
 
-#: quotes/pdf.py:191 quotes/pdf.py:208
+#: quotes/pdf.py:197 quotes/pdf.py:214
 msgid "Quotation"
 msgstr "Cotización"
 
-#: quotes/pdf.py:210
+#: quotes/pdf.py:216
 msgid "EVENTS"
 msgstr "EVENTOS"
 
-#: quotes/pdf.py:212
+#: quotes/pdf.py:218
 msgid "No."
 msgstr "N.º"
 
-#: quotes/pdf.py:222
+#: quotes/pdf.py:228
 #, python-format
 msgid " x %(n)s days"
 msgstr " x %(n)s días"
 
-#: quotes/pdf.py:225 templates/quotes/quote_detail.html:40
+#: quotes/pdf.py:231 templates/quotes/quote_detail.html:40
 #: templates/quotes/quote_list.html:42
 msgid "Client"
 msgstr "Cliente"
 
-#: quotes/pdf.py:226 templates/quotes/quote_detail.html:44
+#: quotes/pdf.py:232 templates/quotes/quote_detail.html:44
 msgid "Concept"
 msgstr "Concepto"
 
-#: quotes/pdf.py:227
+#: quotes/pdf.py:233
 msgid "Quote date"
 msgstr "Fecha de la cotización"
 
-#: quotes/pdf.py:229 templates/quotes/quote_detail.html:49
+#: quotes/pdf.py:235 templates/quotes/quote_detail.html:49
 msgid "Event date"
 msgstr "Fecha del evento"
 
-#: quotes/pdf.py:230
+#: quotes/pdf.py:236
 msgid "To be defined"
 msgstr "Por definir"
 
-#: quotes/pdf.py:232 quotes/pdf.py:342 templates/quotes/quote_detail.html:54
+#: quotes/pdf.py:238 quotes/pdf.py:364 templates/quotes/quote_detail.html:54
 #: templates/quotes/quote_detail.html:204 templates/quotes/quote_list.html:44
 msgid "Guests"
 msgstr "Personas"
 
-#: quotes/pdf.py:233 templates/quotes/quote_detail.html:63
+#: quotes/pdf.py:239 templates/quotes/quote_detail.html:63
 msgid "Payment terms"
 msgstr "Forma de pago"
 
-#: quotes/pdf.py:258
+#: quotes/pdf.py:264
 msgid ""
 "To confirm and hold the date, transfer the deposit agreed in the payment "
 "terms above."
@@ -281,59 +281,60 @@ msgstr ""
 "Para confirmar y separar la fecha, transferir el anticipo acordado en la "
 "forma de pago indicada arriba."
 
-#: quotes/pdf.py:274
+#: quotes/pdf.py:281
 msgid "DESCRIPTION"
 msgstr "DESCRIPCIÓN"
 
-#: quotes/pdf.py:276
+#: quotes/pdf.py:283
 msgctxt "column heading"
 msgid "QTY"
 msgstr "CANT."
 
-#: quotes/pdf.py:278
+#: quotes/pdf.py:285
 msgctxt "column heading"
 msgid "UNIT"
 msgstr "V / UNI"
 
-#: quotes/pdf.py:279
+#: quotes/pdf.py:286
 msgctxt "column heading"
 msgid "TOTAL"
 msgstr "V / TOTAL"
 
-#: quotes/pdf.py:344 templates/quotes/quote_detail.html:58
+#: quotes/pdf.py:366 templates/quotes/quote_detail.html:58
 msgid "Days"
 msgstr "Días"
 
-#: quotes/pdf.py:350
+#: quotes/pdf.py:383
 msgid "Subtotal before tax and tip"
 msgstr "Subtotal sin impuesto ni propina"
 
-#: quotes/pdf.py:351
+#: quotes/pdf.py:383
+msgid "Subtotal before tax"
+msgstr "Subtotal sin impuesto"
+
+#: quotes/pdf.py:386
 msgid "Consumption tax 8%"
 msgstr "Impuesto al consumo 8%"
 
-#: quotes/pdf.py:353
+#: quotes/pdf.py:388
 msgid "Suggested tip 10%"
 msgstr "Propina sugerida 10%"
 
-#: quotes/pdf.py:366
+#: quotes/pdf.py:401
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: quotes/pdf.py:374
+#: quotes/pdf.py:410
 msgid "Prices do not include the consumption tax or the tip, both added above."
 msgstr ""
 "Los precios no incluyen el impuesto al consumo ni la propina; ambos se suman "
 "arriba."
 
-#: quotes/pdf.py:376
-msgid ""
-"Prices do not include the consumption tax, added above. The tip is voluntary."
-msgstr ""
-"Los precios no incluyen el impuesto al consumo, que se suma arriba. La "
-"propina es voluntaria."
+#: quotes/pdf.py:412
+msgid "Prices do not include the consumption tax, added above."
+msgstr "Los precios no incluyen el impuesto al consumo, que se suma arriba."
 
-#: quotes/pdf.py:381
+#: quotes/pdf.py:416
 msgid ""
 "Prices already include the consumption tax. The suggested tip is in the "
 "total."
@@ -341,10 +342,9 @@ msgstr ""
 "Los precios ya incluyen el impuesto al consumo. La propina sugerida está "
 "incluida en el total."
 
-#: quotes/pdf.py:383
-msgid "Prices already include the consumption tax. The tip is voluntary."
-msgstr ""
-"Los precios ya incluyen el impuesto al consumo. La propina es voluntaria."
+#: quotes/pdf.py:418
+msgid "Prices already include the consumption tax."
+msgstr "Los precios ya incluyen el impuesto al consumo."
 
 #: quotes/views.py:26
 msgid "Standing cocktail"
@@ -541,7 +541,9 @@ msgstr "Comparativos"
 msgid ""
 "How many people came, what each left on average, and what you billed — each "
 "period next to the same one a year earlier."
-msgstr "Cuánta gente vino, cuánto dejó cada una en promedio y cuánto facturaste — cada período al lado del mismo de hace un año."
+msgstr ""
+"Cuánta gente vino, cuánto dejó cada una en promedio y cuánto facturaste — "
+"cada período al lado del mismo de hace un año."
 
 #: templates/analytics/comparisons.html:15
 msgid "By day"
@@ -588,7 +590,10 @@ msgstr "Por cuenta"
 msgid ""
 "A dash means the figure is not known for that period — turnout and takings "
 "come from different sources, and one can reach back further than the other."
-msgstr "Un guion significa que ese dato no se conoce para ese período — la rotación y la facturación vienen de fuentes distintas, y una llega más atrás que la otra."
+msgstr ""
+"Un guion significa que ese dato no se conoce para ese período — la rotación "
+"y la facturación vienen de fuentes distintas, y una llega más atrás que la "
+"otra."
 
 #: templates/analytics/comparisons.html:70
 msgid "No turnout recorded yet. Import it and the comparisons appear."
