@@ -685,3 +685,62 @@ class TestChargesPrintWithTheMenu:
 
         assert "Subtotal sin impuesto" in text
         assert "propina" not in text.lower()
+
+
+@pytest.mark.django_db
+class TestTotalsNeverStandAlone:
+    """A second sheet holding nothing but the totals reads as a page printed by
+    mistake. When they cannot stay on the first sheet, the last heading goes
+    over with them. CA-156 was the case: 110 guests, a menu, a bar and staff."""
+
+    def _quote(self, restaurant):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-156", client_name="Daniela Betancur",
+            concept="Asado Premium con barra", guests=110,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("230000"),
+            charges_tip=False, show_quantities=False,
+            payment_terms="50% de anticipo y 50% el día del evento",
+            notes="Asado en sus oficinas; llevamos la parrilla. El precio por persona es la "
+                  "comida del Asado Premium, con parrillero y ayudante de cocina incluidos. "
+                  "Para separar la fecha, transferir el anticipo indicado en la forma de pago.",
+        )
+        for i, (curso, nombre, desc) in enumerate([
+            (Course.STARTERS, "Chicharrón al barril", "Con guacamole y ají de vegetales tatemados."),
+            (Course.STARTERS, "Picada al centro para compartir",
+             "Longaniza artesanal, arepa de maíz nixtamalizado con queso, mazorca asada y morcilla."),
+            (Course.MAINS, "Picanha americana y New York steak", "Dos cortes a la parrilla, con salsa."),
+            (Course.MAINS, "Opción vegetariana",
+             "Reemplaza el fuerte: risotto de hongos o berenjena a la parmigiana."),
+            (Course.SIDES, "Ensalada cítrica",
+             "Mix de hojas asiáticas, vinagreta de yuzu, tomates cherry, encurtido de rábano y "
+             "cebolla, y pistachos."),
+        ]):
+            QuoteLine.objects.create(quote=quote, course=curso, name=nombre,
+                                     description=desc, position=i)
+        for i, (curso, nombre, desc, cant, precio) in enumerate([
+            (Course.ALCOHOL, "Cerveza Stella Artois", "4 por persona.", 440, 9000),
+            (Course.ALCOHOL, "Cócteles", "Margarita o moscow mule. 3 por persona.", 330, 25000),
+            (Course.SOFT, "Gaseosas", "Coca-Cola, Coca-Cola Zero, Sprite o Ginger. 2 por persona.",
+             220, 6000),
+            (Course.SERVICE, "Bartenders", "", 2, 300000),
+            (Course.SERVICE, "Meseros", "", 4, 300000),
+            (Course.SERVICE, "Flete de la parrilla", "", 1, 550000),
+            (Course.OTHER, "Descuento", "", 1, -1180000),
+        ]):
+            QuoteLine.objects.create(quote=quote, course=curso, name=nombre, description=desc,
+                                     quantity=Decimal(cant), unit_price=Decimal(precio),
+                                     add_on=True, position=900 + i)
+        return quote
+
+    def test_the_last_heading_goes_over_with_the_totals(self, restaurant):
+        with translation.override("es"):
+            data = render_quote_pdf(self._quote(restaurant))
+
+        with pdfplumber.open(BytesIO(data)) as pdf:
+            pages = [page.extract_text() or "" for page in pdf.pages]
+
+        last = pages[-1]
+        assert "TOTAL" in last
+        assert "Meseros" in last                # not the totals on their own
+        assert all("Meseros" not in page for page in pages[:-1])
+
