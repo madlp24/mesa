@@ -288,6 +288,11 @@ class QuoteCanvas:
         self.rule(self.y, ACCENT, 0.9)
         self.y -= self.gap(13)
 
+    def _line_height(self, line, desc_w):
+        names = len(_wrap(line.name, BOLD, 9.5, desc_w))
+        descs = len(_wrap(line.description, REG, 7.8, desc_w)) if line.description else 0
+        return names * 11.3 + descs * 9.2 + self.gap(4)
+
     def lines(self):
         quote = self.quote
         per_guest = quote.pricing_mode == PricingMode.PER_GUEST
@@ -308,10 +313,25 @@ class QuoteCanvas:
                 return COL_TOTAL - MARGIN
             return COL_QTY - MARGIN - 66
 
-        for value, label in Course.choices:
-            course_lines = [line for line in all_lines if line.course == value]
-            if not course_lines:
-                continue
+        sections = [
+            (label, [line for line in all_lines if line.course == value])
+            for value, label in Course.choices
+        ]
+        sections = [(label, lines) for label, lines in sections if lines]
+
+        for index, (label, course_lines) in enumerate(sections):
+            if index == len(sections) - 1:
+                # The totals may not stand on a sheet by themselves -- it reads
+                # as a page printed by mistake. When the last heading would fit
+                # here but leave the totals no room, it moves over with them.
+                section = self.gap(19) + self.gap(4) + sum(
+                    self._line_height(line, width(line)) + self.gap(3) for line in course_lines
+                )
+                fits_alone = self.y - section >= self.FLOOR
+                fits_with_totals = self.y - section - self.totals_height() >= self.FLOOR_TOTALS
+                if fits_alone and not fits_with_totals:
+                    self.finish_page()
+                    self.start_page(first=False)
 
             self.room(46)
             self.band(self.y - 4, 14)
@@ -326,11 +346,7 @@ class QuoteCanvas:
                 desc_w = width(line)
                 name_lines = _wrap(line.name, BOLD, 9.5, desc_w)
                 desc_lines = _wrap(line.description, REG, 7.8, desc_w) if line.description else []
-                height = (
-                    len(name_lines) * 11.3
-                    + len(desc_lines) * 9.2
-                    + self.gap(4)
-                )
+                height = self._line_height(line, desc_w)
                 self.room(height + 12)
 
                 y = self.y
@@ -352,7 +368,7 @@ class QuoteCanvas:
                 self.y -= self.gap(3)
             self.y -= self.gap(4)
 
-    def totals(self):
+    def total_rows(self):
         """The breakdown the client asked for: what the food costs before the
         state and the staff take their share, then each of those named."""
         quote = self.quote
@@ -386,8 +402,15 @@ class QuoteCanvas:
         rows.append((_("Consumption tax 8%"), _money(quote.tax_included), False))
         if quote.charges_tip:
             rows.append((_("Suggested tip 10%"), _money(quote.tip), False))
+        return rows
 
-        self.room(8 + len(rows) * 15 + 4 + 34 + 8, floor=self.FLOOR_TOTALS)
+    def totals_height(self):
+        return 8 + len(self.total_rows()) * 15 + 4 + 34 + 8
+
+    def totals(self):
+        quote = self.quote
+        rows = self.total_rows()
+        self.room(self.totals_height(), floor=self.FLOOR_TOTALS)
         self.y -= 8
 
         box_x = MARGIN + CONTENT_W - 258
