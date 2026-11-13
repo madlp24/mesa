@@ -18,7 +18,9 @@ from .models import Availability, Course, MenuItem, PricingMode, Quote, QuoteLin
 from .pdf import render_quote_pdf
 
 #: Margin to judge a quote against, taken from events this restaurant already billed.
-TARGET_MARGIN = Decimal(60)
+#: Fallback floor for a restaurant created before the setting existed; the
+#: live one lives on ``Restaurant.minimum_quote_margin``.
+DEFAULT_MINIMUM_MARGIN = Decimal(60)
 
 #: Lazy, because this dict is built once at import: gettext here would freeze
 #: the labels in whatever language happened to be active at startup.
@@ -47,19 +49,24 @@ def _next_number(restaurant) -> str:
 
 
 def _quote_context(quote: Quote) -> dict:
-    lines = list(quote.lines.select_related("menu_item").all())
+    lines = list(quote.lines.select_related("menu_item__product").all())
     by_course = []
     for value, label in Course.choices:
         course_lines = [line for line in lines if line.course == value]
         if course_lines:
             by_course.append({"label": label, "lines": course_lines})
 
-    margin = quote.margin_pct
-    if not quote.is_costed:
+    # Judged on today's costs when they are known: approving a quote on a
+    # snapshot taken before the supply costs landed is how a thin one gets out.
+    minimum = quote.restaurant.minimum_quote_margin
+    margin = quote.current_margin_pct
+    if margin is None and quote.is_costed:
+        margin = quote.margin_pct
+    if margin is None:
         verdict = "unknown"
-    elif margin >= TARGET_MARGIN:
+    elif margin >= minimum:
         verdict = "good"
-    elif margin >= TARGET_MARGIN - 10:
+    elif margin >= minimum - 10:
         verdict = "fair"
     else:
         verdict = "poor"
@@ -68,20 +75,39 @@ def _quote_context(quote: Quote) -> dict:
         "quote": quote,
         "courses": by_course,
         "uncosted_lines": [line for line in lines if line.unit_cost is None],
+        "stale_lines": [line for line in lines if line.cost_is_stale],
         "margin_verdict": verdict,
-        "target_margin": TARGET_MARGIN,
+        "live_margin": margin,
+        "target_margin": minimum,
+        "below_minimum": quote.is_below(minimum),
         "profiles": PROFILE_LABELS.items(),
     }
 
 
 @login_required
 def quote_list(request: HttpRequest) -> HttpResponse:
-    quotes = Quote.objects.filter(restaurant=request.restaurant).prefetch_related("lines")
+    minimum = request.restaurant.minimum_quote_margin
+    quotes = (
+        Quote.objects.filter(restaurant=request.restaurant)
+        .prefetch_related("lines__menu_item__product__recipe__supply")
+    )
+    rows = [
+        {
+            "quote": quote,
+            "margin": quote.current_margin_pct
+            or (quote.margin_pct if quote.is_costed else None),
+            "below": quote.is_below(minimum),
+        }
+        for quote in quotes
+    ]
     return render(
         request,
         "quotes/quote_list.html",
         {
             "quotes": quotes,
+            "rows": rows,
+            "minimum_margin": minimum,
+            "below_count": sum(1 for row in rows if row["below"]),
             "unmapped_count": MenuItem.objects.filter(
                 restaurant=request.restaurant, is_active=True, product__isnull=True
             ).count(),
@@ -492,3 +518,33 @@ def menu_item_edit(request: HttpRequest, pk: int) -> HttpResponse:
 
     messages.success(request, _("%(name)s updated.") % {"name": item.name})
     return redirect("quotes:menu_list")
+
+
+@login_required
+@require_POST
+def quote_refresh_costs(request: HttpRequest, pk: int) -> HttpResponse:
+    """Copy today's menu costs onto this quote's lines.
+
+    Deliberately a button and not a side effect: the stored cost is what the
+    quote was priced on, and overwriting it silently would rewrite the record of
+    a quote already sent. Lines typed by hand keep their own cost -- there is no
+    menu item behind them to read.
+    """
+    quote = get_object_or_404(Quote, pk=pk, restaurant=request.restaurant)
+    changed = []
+    for line in quote.lines.select_related("menu_item__product"):
+        current = line.current_unit_cost
+        if current is None or current == line.unit_cost:
+            continue
+        changed.append(line.name)
+        line.unit_cost = current
+        line.save(update_fields=["unit_cost"])
+
+    if changed:
+        messages.success(
+            request,
+            _("Costs refreshed on %(count)d line(s).") % {"count": len(changed)},
+        )
+    else:
+        messages.info(request, _("The costs on this quote are already current."))
+    return redirect("quotes:quote_detail", pk=quote.pk)

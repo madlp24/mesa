@@ -45,8 +45,19 @@ class RestaurantSettingsForm(forms.ModelForm):
 
     class Meta:
         model = Restaurant
-        fields = ["name", "autofacturas_token"]
+        fields = ["name", "autofacturas_token", "minimum_quote_margin"]
         labels = {"name": _("Restaurant name")}
+
+
+    minimum_quote_margin = forms.DecimalField(
+        required=False, min_value=0, max_value=100,
+        label=_("Minimum quote margin (%)"),
+        help_text=_("Quotes under this margin are flagged."),
+    )
+
+    def clean_minimum_quote_margin(self):
+        typed = self.cleaned_data.get("minimum_quote_margin")
+        return self.instance.minimum_quote_margin if typed is None else typed
 
     def clean_autofacturas_token(self):
         typed = (self.cleaned_data.get("autofacturas_token") or "").strip()

@@ -240,9 +240,14 @@
             <div class="col-6 col-xl-3">
                 <div class="card h-100"><div class="card-body">
                     <div class="text-muted small text-uppercase">{% trans "Event cost" %}</div>
-                    <div class="h4 mb-0 text-nowrap">{% if quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
+                    <div class="h4 mb-0 text-nowrap">
+                        {% if quote.current_cost is not None %}{{ quote.current_cost|floatformat:0|intcomma }}
+                        {% elif quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}
+                        {% else %}—{% endif %}
+                    </div>
                     <div class="text-muted small">
-                        {% if quote.is_costed %}{{ quote.cost_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}
+                        {% if quote.current_cost is not None %}{% trans "at today's supply costs" %}
+                        {% elif quote.is_costed %}{{ quote.cost_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}
                         {% else %}{% trans "not fully costed" %}{% endif %}
                     </div>
                 </div></div>
@@ -259,13 +264,44 @@
                     <div class="card-body">
                         <div class="text-muted small text-uppercase">{% trans "Margin" %}</div>
                         <div class="h4 mb-0 text-nowrap">
-                            {% if quote.is_costed %}{{ quote.margin_pct|floatformat:1 }}%{% else %}—{% endif %}
+                            {% if live_margin is not None %}{{ live_margin|floatformat:1 }}%{% else %}—{% endif %}
+                            {% if below_minimum %}
+                            <span class="badge text-bg-danger align-middle">{% trans "below minimum" %}</span>
+                            {% endif %}
                         </div>
-                        <div class="text-muted small">{% trans "target" %} {{ target_margin|floatformat:0 }}%</div>
+                        <div class="text-muted small">{% trans "minimum" %} {{ target_margin|floatformat:0 }}%</div>
                     </div>
                 </div>
             </div>
         </div>
+
+        {% if stale_lines %}
+        <div class="alert alert-info d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                {% blocktrans count counter=stale_lines|length trimmed %}
+                {{ counter }} line was priced on a cost that has since changed.
+                {% plural %}
+                {{ counter }} lines were priced on costs that have since changed.
+                {% endblocktrans %}
+                {% if quote.cost_drift %}
+                <strong>
+                    {% if quote.cost_drift > 0 %}{% trans "The event costs" %} +{{ quote.cost_drift|floatformat:0|intcomma }}
+                    {% else %}{% trans "The event costs" %} {{ quote.cost_drift|floatformat:0|intcomma }}{% endif %}
+                    {% trans "more than this quote says." %}
+                </strong>
+                {% endif %}
+                <span class="text-muted small d-block">
+                    {% trans "The figures above already use today's costs; the quote's own stored costs are untouched." %}
+                </span>
+            </div>
+            <form method="post" action="{% url 'quotes:quote_refresh_costs' quote.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-primary">
+                    {% trans "Update the quote's costs" %}
+                </button>
+            </form>
+        </div>
+        {% endif %}
 
         {% if uncosted_lines %}
         <div class="alert alert-warning">

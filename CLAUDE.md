@@ -118,6 +118,22 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
 
+US46 quote margin from the live supply cost, with a minimum (#164): a
+`QuoteLine.unit_cost` is a snapshot taken when the line is added, so a quote
+already sent does not change under the client's feet -- which also means a quote
+priced before the costs landed keeps reporting the old margin. `Quote.current_cost`
+/ `current_margin_pct` / `cost_drift` read through to the menu instead, so the
+drift is visible, and the pages judge on those; the stored costs are only
+rewritten by an explicit "Update the quote's costs" button. `Product.effective_cost`
+is the live answer (`recipe_cost` when the recipe is complete, else `cost_price`)
+and `MenuItem.unit_cost` reads it, so a supply price rise reaches the quote
+without waiting for a sync -- `recost_products` persists the same figure onto
+`cost_price` so analytics and the margin alerts see it too. The target margin
+stopped being `TARGET_MARGIN = 60` in views.py: it is
+`Restaurant.minimum_quote_margin`, editable in settings, and quotes under it are
+flagged on the list and the detail. A quote nobody can cost is reported as
+unknown, never as "below".
+
 US45 cost products from AutoFacturas supplies, with recipes (#162): AutoFacturas
 (the owner's invoice-reading project, `~/Documents/Integracion Siesa`) publishes
 `GET /conector/costos` -- Bearer per company -- with what one unit of consumption

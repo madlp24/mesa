@@ -125,13 +125,14 @@ class MenuItem(models.Model):
     def unit_cost(self) -> Decimal | None:
         """Cost of one unit, or ``None`` when it is not known.
 
-        The POS is believed first, since its cost moves with what is actually
-        being bought; a cost typed by hand covers what the POS never sells.
+        The product is believed first -- its recipe, when it has one, else the
+        cost the POS reported -- since that moves with what is actually being
+        bought; a cost typed by hand covers what the POS never sells.
         Absent both, the cost is unknown -- not zero, which would quietly
         inflate the margin of every quote that used the item.
         """
         if self.product_id is not None:
-            cost = self.product.cost_price
+            cost = self.product.effective_cost
             if cost is not None and cost > ZERO:
                 return cost * self.product_units
         return self.manual_cost
@@ -291,6 +292,55 @@ class Quote(models.Model):
         food = self.food_lines
         return bool(food) and all(line.unit_cost is not None for line in food)
 
+    # -- what it would cost today --------------------------------------------
+    #
+    # The line costs above are a snapshot, taken when the line was added, so a
+    # quote already sent does not change under the client's feet. That is also
+    # why a quote priced before the supply costs landed keeps reporting the old
+    # margin. These read through to the menu instead, so the drift is visible.
+
+    @property
+    def current_cost(self) -> Decimal | None:
+        """Food cost at today's menu costs, or ``None`` if any line is unknown."""
+        costs = [line.current_unit_cost for line in self.food_lines]
+        if not costs or any(cost is None for cost in costs):
+            return None
+        food = sum(
+            (line.quantity * cost for line, cost in zip(self.food_lines, costs)), ZERO
+        )
+        return food * self.days + sum((line.line_cost for line in self.add_on_lines), ZERO)
+
+    @property
+    def current_margin_pct(self) -> Decimal | None:
+        cost = self.current_cost
+        base = self.taxable_base
+        if cost is None or not base:
+            return None
+        return (base - cost) / base * 100
+
+    @property
+    def cost_drift(self) -> Decimal | None:
+        """What the quote's own figure understates (or overstates) by, in pesos.
+
+        Positive means the event costs more today than the quote says.
+        """
+        current = self.current_cost
+        if current is None or not self.is_costed:
+            return None
+        return current - self.cost
+
+    def is_below(self, minimum) -> bool:
+        """Whether this quote's margin is under the house's floor.
+
+        Judged on today's costs when they are known -- an old snapshot is not
+        the number to approve a quote on -- and on the snapshot otherwise. A
+        quote nobody can cost is not "below": it is unknown, and says so.
+        """
+        margin = self.current_margin_pct
+        if margin is None:
+            margin = self.margin_pct if self.is_costed else None
+        return margin is not None and margin < minimum
+
     @property
     def profit(self) -> Decimal:
         """Revenue net of tax and tip, minus cost. The tip is not the house's."""
@@ -351,3 +401,19 @@ class QuoteLine(models.Model):
     @property
     def line_cost(self) -> Decimal:
         return self.quantity * (self.unit_cost or ZERO)
+
+    @property
+    def current_unit_cost(self) -> Decimal | None:
+        """What this line's item costs now, read through the menu.
+
+        A line typed by hand has no menu item behind it, so its own cost is the
+        only one there is.
+        """
+        if self.menu_item_id is not None:
+            return self.menu_item.unit_cost
+        return self.unit_cost
+
+    @property
+    def cost_is_stale(self) -> bool:
+        current = self.current_unit_cost
+        return current is not None and current != self.unit_cost
