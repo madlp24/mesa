@@ -118,6 +118,27 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
 
+US45 cost products from AutoFacturas supplies, with recipes (#162): AutoFacturas
+(the owner's invoice-reading project, `~/Documents/Integracion Siesa`) publishes
+`GET /conector/costos` -- Bearer per company -- with what one unit of consumption
+of each insumo costs (unidad/ml/g), taxes the restaurant cannot discount already
+inside. `catalog/supplies.py` splits the job in three so each is testable on its
+own: `fetch_costs` (stdlib urllib, no new dependency), `sync_supplies` (upsert by
+`clave`, the only field that survives a rename), `recost_products`.
+`catalog.Supply` mirrors an insumo; `catalog.RecipeLine` says how much of one a
+single unit of a product consumes, in the supply's own unit -- one line is the
+simple link (a bottle poured by the glass), several make a cocktail, which is the
+only way a negroni can carry a cost. Rules that matter: a zero cost is NO cost
+(the connector sends null for what it could not cost); a recipe with one uncosted
+supply reports no cost AT ALL and leaves the POS cost standing, rather than a
+short sum that would read as real; supplies the payload stops mentioning are kept,
+because AutoFacturas drops an insumo it cannot cost and deleting it would take its
+recipes with it. `MenuItem.unit_cost` follows for free through `product_units`.
+The Bearer token is per tenant (`Restaurant.autofacturas_token`), write-only in
+the UI and never rendered back. Command `sync_supply_costs --restaurant <slug>
+[--days 90] [--file <saved.json>] [--dry-run]`; page `/products/supplies/`, recipe
+editor on the product detail page.
+
 US44 drop the closed days from "Datos totales" (#154): the restaurant does not
 open on ordinary Mondays, only on holiday ones, so `prune_closed_days --file
 <xlsx> [--weekday lunes] [--through YYYY-MM-DD]` deletes the empty Monday rows

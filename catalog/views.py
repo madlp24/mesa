@@ -1,4 +1,6 @@
-"""Catalog views: product list/detail, identity management, and chart endpoint."""
+"""Catalog views: product list/detail, identity management, supply costs, charts."""
+from decimal import Decimal, InvalidOperation
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, DecimalField, ExpressionWrapper, F, QuerySet, Sum
@@ -13,7 +15,8 @@ from sales.models import SaleItem
 
 from . import services
 from .duplicates import find_possible_duplicates
-from .models import Product, ProductAlias
+from .models import Product, ProductAlias, RecipeLine, Supply
+from .supplies import SupplyCostError, sync_costs
 
 _REVENUE = ExpressionWrapper(
     F("unit_price") * F("quantity"),
@@ -161,6 +164,10 @@ def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
         "other_products": Product.objects.filter(restaurant=request.restaurant)
         .exclude(pk=product.pk)
         .order_by("name"),
+        "recipe": product.recipe.select_related("supply"),
+        "recipe_cost": product.recipe_cost,
+        "uncosted_supplies": product.uncosted_supplies,
+        "supplies": Supply.objects.filter(restaurant=request.restaurant).order_by("name"),
     }
     return render(request, "catalog/product_detail.html", context)
 
@@ -215,3 +222,101 @@ def merge_pair(request: HttpRequest) -> HttpResponse:
             % {"merged": merge.name, "kept": keep.name},
         )
     return redirect("catalog:duplicates")
+
+
+# --- supply costs from AutoFacturas (US45) --------------------------------
+
+
+@login_required
+def supply_list(request: HttpRequest) -> HttpResponse:
+    """The insumos AutoFacturas costs, and the button that refreshes them."""
+    supplies = (
+        Supply.objects.filter(restaurant=request.restaurant)
+        .annotate(used_by=Count("recipe_lines"))
+        .order_by("group", "name")
+    )
+    return render(
+        request,
+        "catalog/supply_list.html",
+        {
+            "supplies": supplies,
+            "uncosted": sum(1 for s in supplies if not s.is_costed),
+            "unused": sum(1 for s in supplies if not s.used_by),
+            "has_token": request.restaurant.has_autofacturas_token,
+            "last_sync": max(
+                (s.synced_at for s in supplies if s.synced_at), default=None
+            ),
+        },
+    )
+
+
+@login_required
+@require_POST
+def supply_sync(request: HttpRequest) -> HttpResponse:
+    """Fetch the costs now and re-cost whatever the recipes allow."""
+    try:
+        summary = sync_costs(request.restaurant)
+    except SupplyCostError as exc:
+        messages.error(request, str(exc))
+        return redirect("catalog:supplies")
+
+    messages.success(
+        request,
+        _("%(seen)d supplies read (%(new)d new), %(recosted)d product(s) re-costed.")
+        % {
+            "seen": summary.supplies_seen,
+            "new": summary.created,
+            "recosted": len(summary.recosted),
+        },
+    )
+    if summary.blocked:
+        messages.warning(
+            request,
+            _("%(count)d product(s) kept their old cost: their recipe has a "
+              "supply AutoFacturas could not cost.") % {"count": len(summary.blocked)},
+        )
+    return redirect("catalog:supplies")
+
+
+@login_required
+@require_POST
+def recipe_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    """Add, change or remove one line of a product's recipe."""
+    product = get_object_or_404(Product, pk=pk, restaurant=request.restaurant)
+    action = request.POST.get("action", "add")
+
+    if action == "remove":
+        RecipeLine.objects.filter(
+            pk=request.POST.get("line"), product=product
+        ).delete()
+        messages.success(request, _("Ingredient removed."))
+    else:
+        supply = Supply.objects.filter(
+            pk=request.POST.get("supply"), restaurant=request.restaurant
+        ).first()
+        quantity = _positive_decimal(request.POST.get("quantity"))
+        if supply is None or quantity is None:
+            messages.error(request, _("Pick a supply and a quantity above zero."))
+        else:
+            RecipeLine.objects.update_or_create(
+                product=product,
+                supply=supply,
+                defaults={"quantity": quantity, "note": request.POST.get("note", "")[:200]},
+            )
+            messages.success(request, _("Recipe updated."))
+
+    # The cost only moves for a recipe that is complete; an incomplete one
+    # leaves the POS cost standing rather than replacing it with a short sum.
+    cost = product.recipe_cost
+    if cost is not None:
+        product.cost_price = Decimal(cost).quantize(Decimal("0.01"))
+        product.save(update_fields=["cost_price"])
+    return redirect("catalog:product_detail", pk=product.pk)
+
+
+def _positive_decimal(raw) -> Decimal | None:
+    try:
+        value = Decimal(str(raw).replace(",", "."))
+    except (InvalidOperation, AttributeError, TypeError):
+        return None
+    return value if value > 0 else None

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load i18n humanize %}
+
+{% block title %}{% trans "Supply costs" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">{% trans "Supply costs" %}</h1>
+        <p class="text-muted mb-0">
+            {% trans "What each insumo costs per unit of consumption, read from your purchase invoices in AutoFacturas. Taxes included." %}
+        </p>
+    </div>
+    <form method="post" action="{% url 'catalog:supply_sync' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" {% if not has_token %}disabled{% endif %}>
+            {% trans "Refresh costs" %}
+        </button>
+    </form>
+</div>
+
+{% if not has_token %}
+<div class="alert alert-warning">
+    {% blocktrans trimmed %}
+    This restaurant has no AutoFacturas token yet, so costs cannot be fetched.
+    Add it in Restaurant settings.
+    {% endblocktrans %}
+    <a href="{% url 'tenants:settings' %}" class="alert-link">{% trans "Go to settings" %}</a>
+</div>
+{% endif %}
+
+{% if supplies %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-muted small">{% trans "Supplies" %}</div>
+            <div class="h4 mb-0">{{ supplies|length|intcomma }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-muted small">{% trans "Without a cost" %}</div>
+            <div class="h4 mb-0">{{ uncosted|intcomma }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-muted small">{% trans "Not used in any recipe" %}</div>
+            <div class="h4 mb-0">{{ unused|intcomma }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-muted small">{% trans "Last refreshed" %}</div>
+            <div class="h6 mb-0">{{ last_sync|date:"d M Y H:i"|default:"-" }}</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="card"><div class="card-body p-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Supply" %}</th>
+                    <th>{% trans "Group" %}</th>
+                    <th class="text-end">{% trans "Cost per unit" %}</th>
+                    <th class="text-end">{% trans "Average" %}</th>
+                    <th>{% trans "Last purchase" %}</th>
+                    <th class="text-end">{% trans "Used in" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supply in supplies %}
+                <tr>
+                    <td>
+                        <div>{{ supply.name }}</div>
+                        <div class="text-muted small">{{ supply.clave }}</div>
+                    </td>
+                    <td class="text-muted small">{{ supply.group|default:"-" }}</td>
+                    <td class="text-end">
+                        {% if supply.unit_cost %}
+                            ${{ supply.unit_cost|floatformat:2|intcomma }}
+                            <span class="text-muted small">/ {{ supply.unit|default:"und" }}</span>
+                        {% else %}
+                            <span class="badge text-bg-warning">{% trans "No cost" %}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end text-muted">
+                        {% if supply.average_cost %}${{ supply.average_cost|floatformat:2|intcomma }}{% else %}-{% endif %}
+                    </td>
+                    <td class="small text-muted">
+                        {% if supply.last_purchase_date %}
+                            {{ supply.last_purchase_date|date:"d M Y" }}
+                            {% if supply.last_purchase_supplier %}&middot; {{ supply.last_purchase_supplier }}{% endif %}
+                        {% else %}-{% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if supply.used_by %}
+                            {{ supply.used_by }}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div></div>
+{% else %}
+<div class="card"><div class="card-body text-center py-5">
+    <p class="mb-1">{% trans "No supplies yet." %}</p>
+    <p class="text-muted mb-0">
+        {% trans "Refresh the costs to bring in what AutoFacturas has costed from your invoices." %}
+    </p>
+</div></div>
+{% endif %}
+{% endblock %}

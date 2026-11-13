@@ -27,8 +27,18 @@ class Restaurant(models.Model):
     #: for one image per tenant.
     logo = models.BinaryField(null=True, blank=True, editable=False)
 
+    #: Bearer token for this company's AutoFacturas connector, which publishes
+    #: what each insumo costs per unit of consumption (US45). It is per company,
+    #: so it belongs on the tenant rather than in settings. Never printed back:
+    #: the UI shows only whether one is set.
+    autofacturas_token = models.CharField(max_length=200, blank=True)
+
     class Meta:
         ordering = ["name"]
+
+    @property
+    def has_autofacturas_token(self) -> bool:
+        return bool(self.autofacturas_token)
 
     def save(self, *args, **kwargs):
         if not self.slug:

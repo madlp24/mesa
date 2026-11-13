@@ -30,3 +30,9 @@ def user(db, restaurant):
 def logged_client(client, user):
     client.force_login(user)
     return client
+
+
+@pytest.fixture
+def other_restaurant(db):
+    """A second tenant, for proving one restaurant cannot reach another's rows."""
+    return Restaurant.objects.create(name="Otro Restaurante", slug="otro-restaurante")
