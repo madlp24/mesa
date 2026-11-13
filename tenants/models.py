@@ -1,5 +1,6 @@
 import secrets
 from datetime import timedelta
+from decimal import Decimal
 
 from django.conf import settings
 from django.urls import reverse
@@ -32,6 +33,14 @@ class Restaurant(models.Model):
     #: so it belongs on the tenant rather than in settings. Never printed back:
     #: the UI shows only whether one is set.
     autofacturas_token = models.CharField(max_length=200, blank=True)
+
+    #: The margin below which a quote is worth a second look, as a percentage of
+    #: the taxable base (US46). It is the house's call, not a constant in the
+    #: code: a grill taken to a finca and a seated dinner do not live off the
+    #: same margin.
+    minimum_quote_margin = models.DecimalField(
+        max_digits=5, decimal_places=2, default=Decimal("60.00")
+    )
 
     class Meta:
         ordering = ["name"]

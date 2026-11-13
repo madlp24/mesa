@@ -11,6 +11,7 @@ urlpatterns = [
     path("<int:pk>/", views.quote_detail, name="quote_detail"),
     path("<int:pk>/compose/", views.quote_compose, name="quote_compose"),
     path("<int:pk>/pdf/", views.quote_pdf, name="quote_pdf"),
+    path("<int:pk>/refresh-costs/", views.quote_refresh_costs, name="quote_refresh_costs"),
     path("<int:pk>/charges/", views.quote_add_charge, name="quote_add_charge"),
     path("<int:pk>/services/", views.quote_add_service, name="quote_add_service"),
     path("<int:pk>/dishes/", views.quote_add_dish, name="quote_add_dish"),

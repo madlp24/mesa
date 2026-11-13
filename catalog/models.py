@@ -71,6 +71,19 @@ class Product(models.Model):
         return sum(costs)
 
     @property
+    def effective_cost(self):
+        """What one unit really costs right now.
+
+        The recipe when it has one and every ingredient is costed -- it follows
+        the supplier's invoices without waiting for anyone to press a button --
+        and the POS cost otherwise. ``cost_price`` is where this gets persisted
+        so the rest of the app sees it too, but reading it live is what keeps a
+        quote's margin honest the moment a supply price moves.
+        """
+        recipe = self.recipe_cost
+        return recipe if recipe is not None else self.cost_price
+
+    @property
     def uncosted_supplies(self):
         """The recipe lines holding the product's cost back, for the UI to name."""
         return [line for line in self.recipe.all() if line.line_cost is None]

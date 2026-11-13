@@ -4,6 +4,16 @@
 {% block title %}{% trans "Quotes" %} - Mesa{% endblock %}
 
 {% block content %}
+{% if below_count %}
+<div class="alert alert-warning">
+    {% blocktrans count counter=below_count with minimum=minimum_margin|floatformat:0 trimmed %}
+    {{ counter }} quote is under the {{ minimum }}% minimum margin.
+    {% plural %}
+    {{ counter }} quotes are under the {{ minimum }}% minimum margin.
+    {% endblocktrans %}
+    <a href="{% url 'tenants:settings' %}" class="alert-link">{% trans "Change the minimum" %}</a>
+</div>
+{% endif %}
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
         <h1 class="h3 mb-1">{% trans "Event quotes" %}</h1>
@@ -48,27 +58,34 @@
                 </tr>
             </thead>
             <tbody>
-                {% for quote in quotes %}
-                <tr>
-                    <td><a href="{% url 'quotes:quote_detail' quote.pk %}">{{ quote.number }}</a></td>
+                {% for row in rows %}{% with quote=row.quote %}
+                <tr{% if row.below %} class="table-warning"{% endif %}>
+                    <td>
+                        <a href="{% url 'quotes:quote_detail' quote.pk %}">{{ quote.number }}</a>
+                        {% if row.below %}
+                        <span class="badge text-bg-danger ms-1">{% trans "below minimum" %}</span>
+                        {% endif %}
+                    </td>
                     <td>{{ quote.client_name|default:"—" }}</td>
                     <td class="text-muted">{{ quote.event_date|default:"—" }}</td>
                     <td class="text-end">{{ quote.guests }}</td>
                     <td class="text-end">{{ quote.total|floatformat:0|intcomma }}</td>
                     <td class="text-end text-muted">
-                        {% if quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}{% else %}—{% endif %}
+                        {% if quote.current_cost is not None %}{{ quote.current_cost|floatformat:0|intcomma }}
+                        {% elif quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}
+                        {% else %}—{% endif %}
                     </td>
                     <td class="text-end">
-                        {% if quote.is_costed %}
-                        <span class="badge {% if quote.margin_pct >= 60 %}text-bg-success{% elif quote.margin_pct >= 50 %}text-bg-warning{% else %}text-bg-danger{% endif %}">
-                            {{ quote.margin_pct|floatformat:1 }}%
+                        {% if row.margin is not None %}
+                        <span class="badge {% if row.below %}text-bg-danger{% elif row.margin >= minimum_margin %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                            {{ row.margin|floatformat:1 }}%
                         </span>
                         {% else %}
                         <span class="text-muted">{% trans "not costed" %}</span>
                         {% endif %}
                     </td>
                 </tr>
-                {% endfor %}
+                {% endwith %}{% endfor %}
             </tbody>
         </table>
     </div>

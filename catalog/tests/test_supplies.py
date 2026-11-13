@@ -269,8 +269,10 @@ def test_the_menu_item_cost_follows_through_product_units(restaurant, product):
     recost_products(restaurant)
 
     item.refresh_from_db()
-    item.product.refresh_from_db()
-    assert item.unit_cost == Decimal("2358.62")
+    # Read live off the recipe, so it carries the full precision; the rounded
+    # 2358.62 is what gets persisted onto the product for the rest of the app.
+    assert item.unit_cost == Decimal("2358.6165")
+    assert item.product.cost_price == Decimal("2358.62")
 
 
 # -- the HTTP call --------------------------------------------------------

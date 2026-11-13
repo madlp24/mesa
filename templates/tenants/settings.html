@@ -44,6 +44,20 @@
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
           </div>
+          <div class="mb-3">
+            <label for="{{ form.minimum_quote_margin.id_for_label }}" class="form-label">
+              {{ form.minimum_quote_margin.label }}
+            </label>
+            <input type="number" step="0.01" min="0" max="100"
+                   name="{{ form.minimum_quote_margin.html_name }}"
+                   id="{{ form.minimum_quote_margin.id_for_label }}"
+                   class="form-control {% if form.minimum_quote_margin.errors %}is-invalid{% endif %}"
+                   value="{{ form.minimum_quote_margin.value|default:'' }}">
+            <div class="form-text">{{ form.minimum_quote_margin.help_text }}</div>
+            {% for error in form.minimum_quote_margin.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
           <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
         </form>
       </div>
