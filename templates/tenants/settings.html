@@ -24,6 +24,26 @@
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
           </div>
+          <div class="mb-3">
+            <label for="{{ form.autofacturas_token.id_for_label }}" class="form-label">
+              {{ form.autofacturas_token.label }}
+              {% if request.restaurant.has_autofacturas_token %}
+                <span class="badge text-bg-success ms-1">{% trans "set" %}</span>
+              {% else %}
+                <span class="badge text-bg-secondary ms-1">{% trans "not set" %}</span>
+              {% endif %}
+            </label>
+            <input type="password" name="{{ form.autofacturas_token.html_name }}"
+                   id="{{ form.autofacturas_token.id_for_label }}" autocomplete="off"
+                   class="form-control {% if form.autofacturas_token.errors %}is-invalid{% endif %}">
+            <div class="form-text">
+              {% trans "Used to read your supply costs from AutoFacturas." %}
+              {{ form.autofacturas_token.help_text }}
+            </div>
+            {% for error in form.autofacturas_token.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
           <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
         </form>
       </div>

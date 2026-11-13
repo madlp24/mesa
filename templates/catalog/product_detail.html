@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n humanize %}
 
 {% block title %}{{ product.name }} - Mesa{% endblock %}
 
@@ -52,6 +52,101 @@
 <div class="card mb-4"><div class="card-body">
     <h2 class="h6 text-muted">{% trans "Units sold per day" %}</h2>
     <canvas id="salesChart" height="100"></canvas>
+</div></div>
+
+<div class="card mb-4"><div class="card-body">
+    <h2 class="h6 text-muted mb-1">{% trans "Recipe" %}</h2>
+    <p class="text-muted small">
+        {% trans "What one unit of this product consumes, in the supplies AutoFacturas costs. One ingredient is enough for a bottle poured by the glass; a cocktail needs several." %}
+    </p>
+
+    {% if recipe_cost is not None %}
+    <p class="mb-3">
+        {% trans "Cost from the recipe" %}:
+        <strong>${{ recipe_cost|floatformat:2|intcomma }}</strong>
+        <span class="text-muted small">
+            &middot; {% trans "POS cost" %} ${{ product.cost_price|floatformat:2|intcomma }}
+        </span>
+    </p>
+    {% elif uncosted_supplies %}
+    <div class="alert alert-warning py-2">
+        {% trans "This recipe has no cost yet: AutoFacturas has not costed" %}
+        {% for line in uncosted_supplies %}<strong>{{ line.supply.name }}</strong>{% if not forloop.last %}, {% endif %}{% endfor %}.
+        {% trans "The product keeps its POS cost until every ingredient is costed." %}
+    </div>
+    {% endif %}
+
+    {% if recipe %}
+    <div class="table-responsive mb-3">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans "Supply" %}</th>
+                    <th scope="col" class="text-end">{% trans "Portion" %}</th>
+                    <th scope="col" class="text-end">{% trans "Cost per unit" %}</th>
+                    <th scope="col" class="text-end">{% trans "Line cost" %}</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line in recipe %}
+                <tr>
+                    <td>
+                        {{ line.supply.name }}
+                        {% if line.note %}<div class="text-muted small">{{ line.note }}</div>{% endif %}
+                    </td>
+                    <td class="text-end">{{ line.quantity|floatformat:"-4" }} {{ line.supply.unit|default:"und" }}</td>
+                    <td class="text-end text-muted">
+                        {% if line.supply.unit_cost %}${{ line.supply.unit_cost|floatformat:2|intcomma }}{% else %}
+                        <span class="badge text-bg-warning">{% trans "No cost" %}</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if line.line_cost is not None %}${{ line.line_cost|floatformat:2|intcomma }}{% else %}-{% endif %}
+                    </td>
+                    <td class="text-end">
+                        <form method="post" action="{% url 'catalog:recipe_edit' product.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="remove">
+                            <input type="hidden" name="line" value="{{ line.pk }}">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">{% trans "Remove" %}</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">{% trans "No recipe yet. This product is costed by the POS." %}</p>
+    {% endif %}
+
+    <form method="post" action="{% url 'catalog:recipe_edit' product.pk %}"
+          class="row g-2 align-items-end">
+        {% csrf_token %}
+        <div class="col-12 col-md-5">
+            <label for="supply" class="form-label small mb-1">{% trans "Supply" %}</label>
+            <select name="supply" id="supply" class="form-select form-select-sm" required>
+                {% for supply in supplies %}
+                <option value="{{ supply.pk }}">{{ supply.name }}{% if supply.unit %} ({{ supply.unit }}){% endif %}</option>
+                {% empty %}
+                <option value="" disabled>{% trans "No supplies yet" %}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-2">
+            <label for="quantity" class="form-label small mb-1">{% trans "Portion" %}</label>
+            <input type="text" inputmode="decimal" name="quantity" id="quantity"
+                   class="form-control form-control-sm" placeholder="45" required>
+        </div>
+        <div class="col-6 col-md-3">
+            <label for="note" class="form-label small mb-1">{% trans "Note" %}</label>
+            <input type="text" name="note" id="note" class="form-control form-control-sm">
+        </div>
+        <div class="col-12 col-md-2 d-grid">
+            <button type="submit" class="btn btn-sm btn-primary"
+                    {% if not supplies %}disabled{% endif %}>{% trans "Add ingredient" %}</button>
+        </div>
+    </form>
 </div></div>
 
 <div class="card"><div class="card-body">
