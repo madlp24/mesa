@@ -238,7 +238,14 @@ class QuoteCanvas:
             (_("Guests"), guests),
             (_("Payment terms"), quote.payment_terms or "-"),
         ]
-        col_w, row_h = CONTENT_W / 3, self.gap(32)
+        col_w = CONTENT_W / 3
+        # Values stack upward from their rule, so a two-line value in the
+        # second row reaches up toward the labels of the first. The pitch may
+        # shrink with the squeeze, but never below what keeps them apart --
+        # squeezed to 23 points, "50% de anticipo y 50% el día del evento"
+        # printed straight over "Fecha de la cotización".
+        tallest = max(len(_wrap(value, BOLD, 10, col_w - 14)[:2]) for _, value in fields[3:])
+        row_h = max(self.gap(32), 21 + 10.6 * (tallest - 1))
         for i, (label, value) in enumerate(fields):
             x = MARGIN + (i % 3) * col_w
             top = self.y - (i // 3) * row_h
