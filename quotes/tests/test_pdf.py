@@ -8,7 +8,7 @@ from django.utils import translation
 from django.urls import reverse
 
 from quotes.models import Course, PricingMode, Quote, QuoteLine
-from quotes.pdf import QuoteCanvas, render_quote_pdf
+from quotes.pdf import FIT_STEPS, QuoteCanvas, render_quote_pdf
 from tenants.models import Restaurant
 
 
@@ -743,4 +743,36 @@ class TestTotalsNeverStandAlone:
         assert "TOTAL" in last
         assert "Meseros" in last                # not the totals on their own
         assert all("Meseros" not in page for page in pages[:-1])
+
+
+@pytest.mark.django_db
+class TestHeaderDoesNotOverprint:
+    """Squeezed to fit one page, a payment term on two lines used to print
+    straight over the "Fecha de la cotización" label above it."""
+
+    def _overlaps(self, data):
+        with pdfplumber.open(BytesIO(data)) as pdf:
+            page = pdf.pages[0]
+            chars = [c for c in page.chars if c["top"] < 260 and c["text"].strip()]
+        hits = []
+        for i, a in enumerate(chars):
+            for b in chars[i + 1:]:
+                dx = min(a["x1"], b["x1"]) - max(a["x0"], b["x0"])
+                dy = min(a["bottom"], b["bottom"]) - max(a["top"], b["top"])
+                if dx > 1 and dy > 1:
+                    hits.append(a["text"] + b["text"])
+        return hits
+
+    @pytest.mark.parametrize("tight", FIT_STEPS)
+    def test_a_two_line_payment_term_stays_clear_of_the_labels(self, restaurant, tight):
+        quote = Quote.objects.create(
+            restaurant=restaurant, number="CA-440", client_name="Natalia Hoyos",
+            concept="Opción 2 · Cena Especial", guests=20,
+            pricing_mode=PricingMode.PER_GUEST, price_per_guest=Decimal("275000"),
+            payment_terms="50% de anticipo y 50% el día del evento",
+        )
+        with translation.override("es"):
+            data = QuoteCanvas(quote, tight=tight).build()
+
+        assert self._overlaps(data) == []
 
