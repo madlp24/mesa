@@ -15,6 +15,13 @@ env/
 *.log
 db.sqlite3
 db.sqlite3-journal
+# Hand-made backups, including Postgres dumps of production. These sat here
+# untracked for months: one `git add -A` would have published the production
+# database to a public repository.
+db.sqlite3.bak*
+*.dump
+respaldo/
+.omc/
 staticfiles/
 media/
 
