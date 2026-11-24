@@ -252,10 +252,13 @@ def product_margins(
 ) -> list[dict]:
     """One row per active product with its margins and in-range sales totals.
 
-    Static product economics (cost, sale price, unit margin) come straight from
-    the catalog; ``units_sold`` and ``total_margin`` are summed from SaleItems
-    in the window (0 when the product had no sales). Sorted by ``sort`` (one of
-    ``MARGIN_SORT_KEYS``), defaulting to margin % descending.
+    Unit economics come from the catalog as it stands today: the price of the
+    newest sale and the effective cost (a complete recipe, else the newest POS
+    cost; see US47). A product with no cost has no margin (``None``) rather
+    than 100%, and sorts last either way. ``units_sold`` and ``total_margin``
+    are summed from SaleItems in the window (0 when the product had no sales).
+    Sorted by ``sort`` (one of ``MARGIN_SORT_KEYS``), defaulting to margin %
+    descending.
     """
     if sort not in MARGIN_SORT_KEYS:
         sort = "margin_pct"
@@ -268,16 +271,18 @@ def product_margins(
     by_product = {row["product_id"]: row for row in totals}
 
     rows = []
-    products = Product.objects.filter(
-        restaurant=restaurant, is_active=True
-    ).select_related("category")
+    products = (
+        Product.objects.filter(restaurant=restaurant, is_active=True)
+        .select_related("category")
+        .prefetch_related("recipe__supply")
+    )
     for product in products:
         stats = by_product.get(product.id)
         rows.append(
             {
                 "name": product.name,
                 "category": product.category.name,
-                "cost": product.cost_price,
+                "cost": product.effective_cost if product.is_costed else None,
                 "sale_price": product.sale_price,
                 "margin_amount": product.margin_amount,
                 "margin_pct": product.margin_pct,
@@ -286,8 +291,11 @@ def product_margins(
             }
         )
 
-    rows.sort(key=lambda row: row[sort], reverse=descending)
-    return rows
+    # Rows with nothing to sort on go last in both directions.
+    known = [row for row in rows if row[sort] is not None]
+    unknown = [row for row in rows if row[sort] is None]
+    known.sort(key=lambda row: row[sort], reverse=descending)
+    return known + unknown
 
 
 def _months_back(anchor: datetime.date, count: int) -> list[datetime.date]:

@@ -40,7 +40,7 @@ def test_margin_pct_is_margin_over_sale_price(category):
 
 
 @pytest.mark.django_db
-def test_margin_pct_returns_zero_when_sale_price_is_zero(category):
+def test_margin_pct_is_unknown_when_sale_price_is_zero(category):
     product = Product.objects.create(
         restaurant=category.restaurant,
         name="Freebie",
@@ -50,7 +50,8 @@ def test_margin_pct_returns_zero_when_sale_price_is_zero(category):
         sale_price=Decimal("0.00"),
     )
 
-    assert product.margin_pct == 0
+    # A giveaway has no margin to judge, as on the alerts page.
+    assert product.margin_pct is None
 
 
 @pytest.mark.django_db

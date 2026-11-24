@@ -60,10 +60,10 @@
             <tr>
                 <td>{{ row.name }}</td>
                 <td>{{ row.category }}</td>
-                <td>${{ row.cost }}</td>
+                <td>{% if row.cost is None %}<span class="badge text-bg-warning">{% trans "No cost" %}</span>{% else %}${{ row.cost }}{% endif %}</td>
                 <td>${{ row.sale_price }}</td>
-                <td>${{ row.margin_amount }}</td>
-                <td>{{ row.margin_pct|floatformat:1 }}%</td>
+                <td>{% if row.margin_amount is None %}-{% else %}${{ row.margin_amount }}{% endif %}</td>
+                <td>{% if row.margin_pct is None %}-{% else %}{{ row.margin_pct|floatformat:1 }}%{% endif %}</td>
                 <td>{{ row.units_sold }}</td>
                 <td>${{ row.total_margin }}</td>
             </tr>

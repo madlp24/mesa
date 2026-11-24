@@ -26,7 +26,8 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.display(description="Margin %")
     def margin_display(self, obj: Product) -> str:
-        return f"{obj.margin_pct:.1f}%"
+        margin = obj.margin_pct
+        return "-" if margin is None else f"{margin:.1f}%"
 
 
 @admin.register(ProductAlias)
