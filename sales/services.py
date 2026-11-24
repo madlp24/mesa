@@ -3,8 +3,10 @@ from pathlib import Path
 
 from django.db import transaction
 
+from catalog.pricing import refresh_product_prices
+
 from .importers import get_importer_for, persist
-from .models import ImportBatch, Sale
+from .models import ImportBatch, Sale, SaleItem
 
 
 class AggregateReportError(ValueError):
@@ -62,11 +64,17 @@ def undo_import(batch: ImportBatch) -> int:
     """Delete the sales created by ``batch`` (items cascade), then the batch.
 
     Products and identities created during the import are kept; only the sales
-    are removed. Returns the number of sales deleted.
+    are removed, and the products they carried fall back to the cost and price
+    of their newest remaining sale. Returns the number of sales deleted.
     """
     with transaction.atomic():
         sales = Sale.objects.filter(import_batch=batch)
+        products = set(
+            SaleItem.objects.filter(sale__in=sales).values_list("product_id", flat=True)
+        )
         count = sales.count()
+        restaurant = batch.restaurant
         sales.delete()  # SaleItems cascade
         batch.delete()
+        refresh_product_prices(restaurant, products)
     return count

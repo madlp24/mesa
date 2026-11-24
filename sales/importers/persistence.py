@@ -2,6 +2,7 @@ from django.db import transaction
 
 from catalog.identity import ProductResolver
 from catalog.models import Product
+from catalog.pricing import refresh_product_prices
 from sales.models import Sale, SaleItem
 
 from .canonical import CanonicalSale, CanonicalSaleItem
@@ -16,10 +17,15 @@ def persist(canonical_sales: list[CanonicalSale], restaurant, import_batch=None)
     only a SKU (e.g. the Excel importer) fall back to a direct SKU lookup. All
     rows are scoped to ``restaurant`` and tagged with ``import_batch`` (when
     given) so the import can be reviewed and undone later.
+
+    Every product the import touched is then pointed at the cost and price of
+    its newest sale day, so the catalog follows the POS instead of keeping the
+    figures from the day the product first appeared.
     """
     new_count = 0
     item_count = 0
     skipped_count = 0
+    touched: set[int] = set()
     resolver = ProductResolver(restaurant)
     products_by_sku = {
         p.sku: p for p in Product.objects.filter(restaurant=restaurant)
@@ -53,8 +59,10 @@ def persist(canonical_sales: list[CanonicalSale], restaurant, import_batch=None)
                 unit_cost=item.unit_cost,
             )
             item_count += 1
+            touched.add(product.pk)
         new_count += 1
 
+    refresh_product_prices(restaurant, touched)
     return {"new": new_count, "items": item_count, "skipped_duplicate": skipped_count}
 
 
