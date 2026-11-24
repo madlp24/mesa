@@ -61,7 +61,8 @@ US26 first-run experience (#57/PR58), US28 import history + undo (#59/PR60),
 US29 manage product identity in the UI (#61/PR62),
 US30 update master 'Productos vendidos' sheet (#64/PR65),
 US32 fill 'Datos totales' N/O/S/T from PDF footer (#66/PR68),
-US31 multi-file upload (#63/PR69).
+US31 multi-file upload (#63/PR69), US47 current product costs (#169/PR170),
+US48 correct re-imported days (#171/PR172).
 IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
@@ -118,6 +119,31 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
 
+US48 correct a re-imported day instead of skipping it (#171/PR172): `persist()`
+used to skip any existing `external_id`, so a daily report printed before close
+and re-imported in full stayed partial forever. A stored sale with different
+figures (compared to the cent) is now rewritten in place, keeping its ORIGINAL
+batch -- option B, agreed with the owner: a correction is NOT undone by undoing
+the correcting import. Guard against an older partial copy: corrections apply
+per day only when the file's total over that day's stored sales is >= what is
+stored; otherwise counted as `skipped_older`. `ImportBatch.sales_corrected` /
+`skipped_older` are shown on the upload page, undo message and CLI.
+
+US47 product cost and price follow the newest sale (#169/PR170): `cost_price`
+/`sale_price` used to be written once at creation (223 of 359 costs and 78
+prices stale on the real catalog; NEW YORK STEAK showed 61.1% vs a real 71.1%).
+`catalog/pricing.py::refresh_product_prices` sets them from each product's
+NEWEST SALE DAY (by date, not import order -- folders arrive out of order),
+quantity-weighted, ignoring zeros (courtesies, uncosted lines). Called by
+`persist()`, `undo_import`, merge/re-point/split. `cost_price` now BELONGS TO
+THE POS: the supply sync and recipe editor no longer write it; a complete
+recipe wins live via `Product.effective_cost`. `/margin/` reads
+`effective_cost`, and an uncosted product shows "No cost" / no margin (was
+100%), sorted last. Backfill: `refresh_product_costs --restaurant <slug>
+[--dry-run]` (run on the local DB 2026-11-24: 232 products changed).
+Remaining difference: `/margin/alerts/` still judges on the POS cost stored on
+each sale line, so a product with a recipe can differ between the two pages.
+
 US46 quote margin from the live supply cost, with a minimum (#164): a
 `QuoteLine.unit_cost` is a snapshot taken when the line is added, so a quote
 already sent does not change under the client's feet -- which also means a quote
@@ -127,8 +153,8 @@ drift is visible, and the pages judge on those; the stored costs are only
 rewritten by an explicit "Update the quote's costs" button. `Product.effective_cost`
 is the live answer (`recipe_cost` when the recipe is complete, else `cost_price`)
 and `MenuItem.unit_cost` reads it, so a supply price rise reaches the quote
-without waiting for a sync -- `recost_products` persists the same figure onto
-`cost_price` so analytics and the margin alerts see it too. The target margin
+without waiting for a sync. (Since US47 nothing writes the recipe cost onto
+`cost_price`; see below.) The target margin
 stopped being `TARGET_MARGIN = 60` in views.py: it is
 `Restaurant.minimum_quote_margin`, editable in settings, and quotes under it are
 flagged on the list and the detail. A quote nobody can cost is reported as
