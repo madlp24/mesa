@@ -305,12 +305,8 @@ def recipe_edit(request: HttpRequest, pk: int) -> HttpResponse:
             )
             messages.success(request, _("Recipe updated."))
 
-    # The cost only moves for a recipe that is complete; an incomplete one
-    # leaves the POS cost standing rather than replacing it with a short sum.
-    cost = product.recipe_cost
-    if cost is not None:
-        product.cost_price = Decimal(cost).quantize(Decimal("0.01"))
-        product.save(update_fields=["cost_price"])
+    # Nothing to persist: a complete recipe is read live through
+    # Product.effective_cost, and cost_price stays the POS's (US47).
     return redirect("catalog:product_detail", pk=product.pk)
 
 

@@ -202,7 +202,9 @@ def test_the_average_stands_in_when_the_last_cost_is_missing(restaurant, product
 
 
 @pytest.mark.django_db
-def test_recost_writes_the_recipe_cost_onto_the_product(restaurant, product):
+def test_the_recipe_cost_wins_without_touching_the_pos_cost(restaurant, product):
+    # cost_price belongs to the POS and every import refreshes it (US47); a
+    # recipe cost stored there would be overwritten by the next report.
     sync_supplies(restaurant, _payload(_insumo()))
     RecipeLine.objects.create(
         product=product, supply=Supply.objects.get(), quantity=Decimal("45")
@@ -210,8 +212,9 @@ def test_recost_writes_the_recipe_cost_onto_the_product(restaurant, product):
 
     summary = recost_products(restaurant)
 
-    product.refresh_from_db()
-    assert product.cost_price == Decimal("2358.62")
+    product = Product.objects.get(pk=product.pk)
+    assert product.cost_price == Decimal("6000.00")
+    assert product.effective_cost == Decimal("2358.6165")
     assert summary.recosted == [("NEGRONI", Decimal("6000.00"), Decimal("2358.62"))]
 
 
@@ -242,16 +245,27 @@ def test_an_incomplete_recipe_holds_the_old_cost_and_is_reported(restaurant, pro
 
 
 @pytest.mark.django_db
-def test_recost_reports_nothing_when_the_cost_did_not_move(restaurant, product):
+def test_a_sync_reports_nothing_when_no_recipe_cost_moved(restaurant, product):
     sync_supplies(restaurant, _payload(_insumo(costo=100)))
     RecipeLine.objects.create(
         product=product, supply=Supply.objects.get(), quantity=Decimal("60")
     )
-    recost_products(restaurant)
 
-    summary = recost_products(restaurant)
+    summary = sync_costs(restaurant, payload=_payload(_insumo(costo=100)))
 
     assert summary.recosted == []
+
+
+@pytest.mark.django_db
+def test_a_sync_reports_the_recipe_costs_it_moved(restaurant, product):
+    sync_supplies(restaurant, _payload(_insumo(costo=100)))
+    RecipeLine.objects.create(
+        product=product, supply=Supply.objects.get(), quantity=Decimal("60")
+    )
+
+    summary = sync_costs(restaurant, payload=_payload(_insumo(costo=110)))
+
+    assert summary.recosted == [("NEGRONI", Decimal("6000.00"), Decimal("6600.00"))]
 
 
 @pytest.mark.django_db
@@ -269,10 +283,9 @@ def test_the_menu_item_cost_follows_through_product_units(restaurant, product):
     recost_products(restaurant)
 
     item.refresh_from_db()
-    # Read live off the recipe, so it carries the full precision; the rounded
-    # 2358.62 is what gets persisted onto the product for the rest of the app.
+    # Read live off the recipe, at full precision; the POS cost is untouched.
     assert item.unit_cost == Decimal("2358.6165")
-    assert item.product.cost_price == Decimal("2358.62")
+    assert item.product.cost_price == Decimal("6000.00")
 
 
 # -- the HTTP call --------------------------------------------------------
@@ -362,8 +375,8 @@ def test_sync_costs_can_replay_a_saved_answer(restaurant, product):
 
     summary = sync_costs(restaurant, payload=_payload(_insumo()))
 
-    product.refresh_from_db()
-    assert product.cost_price == Decimal("2358.62")
+    product = Product.objects.get(pk=product.pk)
+    assert product.effective_cost == Decimal("2358.6165")
     assert summary.company == "Casablanca Capital SAS"
 
 
@@ -409,7 +422,7 @@ def test_sync_button_reports_a_connector_failure(logged_client, restaurant, monk
 
 
 @pytest.mark.django_db
-def test_adding_an_ingredient_recosts_the_product(logged_client, restaurant, product):
+def test_adding_an_ingredient_costs_the_product(logged_client, restaurant, product):
     sync_supplies(restaurant, _payload(_insumo()))
     supply = Supply.objects.get()
 
@@ -418,9 +431,10 @@ def test_adding_an_ingredient_recosts_the_product(logged_client, restaurant, pro
         {"supply": supply.pk, "quantity": "45"},
     )
 
-    product.refresh_from_db()
+    product = Product.objects.get(pk=product.pk)
     assert product.recipe.count() == 1
-    assert product.cost_price == Decimal("2358.62")
+    assert product.effective_cost == Decimal("2358.6165")
+    assert product.cost_price == Decimal("6000.00")
 
 
 @pytest.mark.django_db
