@@ -42,3 +42,17 @@ class Command(BaseCommand):
             f"{batch.skipped_duplicate} skipped as duplicate "
             f"(restaurant: {restaurant.name})"
         )
+        if batch.sales_corrected:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"{batch.sales_corrected} sales corrected with this file's "
+                    "figures (not undone by undoing this import)"
+                )
+            )
+        if batch.skipped_older:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"{batch.skipped_older} sales kept: this file has less for "
+                    "their day than what was already imported"
+                )
+            )

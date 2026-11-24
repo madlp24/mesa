@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 12:11-0500\n"
+"POT-Creation-Date: 2026-11-24 16:00-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -121,17 +121,17 @@ msgid "“%(merged)s” is now part of “%(kept)s”."
 msgstr "“%(merged)s” ahora forma parte de “%(kept)s”."
 
 #: catalog/views.py:265
-#, python-format
+# python-format
 msgid ""
 "%(seen)d supplies read (%(new)d new), %(recosted)d product(s) re-costed."
-msgstr ""
+msgstr "%(seen)d insumos leídos (%(new)d nuevos), %(recosted)d producto(s) recosteado(s)."
 
 #: catalog/views.py:275
-#, python-format
+# python-format
 msgid ""
 "%(count)d product(s) kept their old cost: their recipe has a supply "
 "AutoFacturas could not cost."
-msgstr ""
+msgstr "%(count)d producto(s) conservaron su costo anterior: su receta tiene un insumo que AutoFacturas no pudo costear."
 
 #: catalog/views.py:292
 msgid "Ingredient removed."
@@ -213,7 +213,7 @@ msgstr "Otros"
 msgid "By consumption"
 msgstr "Por consumo"
 
-#: quotes/models.py:59 quotes/pdf.py:379 templates/quotes/quote_detail.html:71
+#: quotes/models.py:59 quotes/pdf.py:386 templates/quotes/quote_detail.html:71
 #: templates/quotes/quote_detail.html:75
 msgid "Price per guest"
 msgstr "Precio por persona"
@@ -289,7 +289,7 @@ msgstr "Fecha del evento"
 msgid "To be defined"
 msgstr "Por definir"
 
-#: quotes/pdf.py:238 quotes/pdf.py:380 templates/quotes/quote_detail.html:54
+#: quotes/pdf.py:238 quotes/pdf.py:387 templates/quotes/quote_detail.html:54
 #: templates/quotes/quote_detail.html:204 templates/quotes/quote_list.html:54
 msgid "Guests"
 msgstr "Personas"
@@ -298,7 +298,7 @@ msgstr "Personas"
 msgid "Payment terms"
 msgstr "Forma de pago"
 
-#: quotes/pdf.py:264
+#: quotes/pdf.py:271
 msgid ""
 "To confirm and hold the date, transfer the deposit agreed in the payment "
 "terms above."
@@ -306,60 +306,60 @@ msgstr ""
 "Para confirmar y separar la fecha, transferir el anticipo acordado en la "
 "forma de pago indicada arriba."
 
-#: quotes/pdf.py:281
+#: quotes/pdf.py:288
 msgid "DESCRIPTION"
 msgstr "DESCRIPCIÓN"
 
-#: quotes/pdf.py:283
+#: quotes/pdf.py:290
 msgctxt "column heading"
 msgid "QTY"
 msgstr "CANT."
 
-#: quotes/pdf.py:285
+#: quotes/pdf.py:292
 msgctxt "column heading"
 msgid "UNIT"
 msgstr "V / UNI"
 
-#: quotes/pdf.py:286
+#: quotes/pdf.py:293
 msgctxt "column heading"
 msgid "TOTAL"
 msgstr "V / TOTAL"
 
-#: quotes/pdf.py:382 templates/quotes/quote_detail.html:58
+#: quotes/pdf.py:389 templates/quotes/quote_detail.html:58
 msgid "Days"
 msgstr "Días"
 
-#: quotes/pdf.py:399
+#: quotes/pdf.py:406
 msgid "Subtotal before tax and tip"
 msgstr "Subtotal sin impuesto ni propina"
 
-#: quotes/pdf.py:399
+#: quotes/pdf.py:406
 msgid "Subtotal before tax"
 msgstr "Subtotal sin impuesto"
 
-#: quotes/pdf.py:402
+#: quotes/pdf.py:409
 msgid "Consumption tax 8%"
 msgstr "Impuesto al consumo 8%"
 
-#: quotes/pdf.py:404
+#: quotes/pdf.py:411
 msgid "Suggested tip 10%"
 msgstr "Propina sugerida 10%"
 
-#: quotes/pdf.py:424
+#: quotes/pdf.py:431
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: quotes/pdf.py:433
+#: quotes/pdf.py:440
 msgid "Prices do not include the consumption tax or the tip, both added above."
 msgstr ""
 "Los precios no incluyen el impuesto al consumo ni la propina; ambos se suman "
 "arriba."
 
-#: quotes/pdf.py:435
+#: quotes/pdf.py:442
 msgid "Prices do not include the consumption tax, added above."
 msgstr "Los precios no incluyen el impuesto al consumo, que se suma arriba."
 
-#: quotes/pdf.py:439
+#: quotes/pdf.py:446
 msgid ""
 "Prices already include the consumption tax. The suggested tip is in the "
 "total."
@@ -367,7 +367,7 @@ msgstr ""
 "Los precios ya incluyen el impuesto al consumo. La propina sugerida está "
 "incluida en el total."
 
-#: quotes/pdf.py:441
+#: quotes/pdf.py:448
 msgid "Prices already include the consumption tax."
 msgstr "Los precios ya incluyen el impuesto al consumo."
 
@@ -450,7 +450,6 @@ msgstr "%(name)s actualizado."
 
 #: quotes/views.py:546
 #, python-format
-#| msgid "Imported %(count)d report(s)."
 msgid "Costs refreshed on %(count)d line(s)."
 msgstr "Costos actualizados en %(count)d linea(s)."
 
@@ -488,10 +487,17 @@ msgstr ""
 "No pudimos leer '%(name)s'. Asegúrate de que sea una exportación 'Productos "
 "Vendidos' de Soft Restaurant e inténtalo de nuevo."
 
-#: sales/views.py:93
+#: sales/views.py:96
 #, python-format
 msgid "Import undone: %(count)d sales removed."
 msgstr "Importación deshecha: %(count)d ventas eliminadas."
+
+#: sales/views.py:101
+# python-format
+msgid ""
+"The %(count)d sale(s) this import corrected keep the corrected figures: a "
+"correction cannot be undone."
+msgstr "Las %(count)d venta(s) que esta importación corrigió conservan las cifras corregidas: una corrección no se puede deshacer."
 
 #: templates/account/login.html:5 templates/account/login.html:53
 #: templates/account/signup.html:48
@@ -644,11 +650,11 @@ msgstr "Panel"
 msgid "Sales performance at a glance for the selected period."
 msgstr "Rendimiento de ventas de un vistazo para el período seleccionado."
 
-#: templates/analytics/dashboard.html:15 templates/sales/upload.html:65
+#: templates/analytics/dashboard.html:15 templates/sales/upload.html:78
 msgid "Download Products-Sold matrix (Excel)"
 msgstr "Descargar matriz de Productos Vendidos (Excel)"
 
-#: templates/analytics/dashboard.html:18 templates/sales/upload.html:66
+#: templates/analytics/dashboard.html:18 templates/sales/upload.html:79
 msgid "Download analysis report (Excel)"
 msgstr "Descargar reporte de análisis (Excel)"
 
@@ -798,6 +804,12 @@ msgid "Active products ranked by gross margin. Click a column to sort."
 msgstr ""
 "Productos activos ordenados por margen bruto. Haz clic en una columna para "
 "ordenar."
+
+#: templates/analytics/margin_analysis.html:63
+#: templates/catalog/product_detail.html:101
+#: templates/catalog/supply_list.html:86
+msgid "No cost"
+msgstr "Sin costo"
 
 #: templates/analytics/margin_analysis.html:71
 msgid "No active products."
@@ -1094,11 +1106,6 @@ msgstr "Costo por unidad"
 msgid "Line cost"
 msgstr "Costo de la línea"
 
-#: templates/catalog/product_detail.html:101
-#: templates/catalog/supply_list.html:86
-msgid "No cost"
-msgstr "Sin costo"
-
 #: templates/catalog/product_detail.html:111
 #: templates/quotes/quote_detail.html:123
 #: templates/quotes/quote_detail.html:458 templates/tenants/settings.html:79
@@ -1207,7 +1214,7 @@ msgstr "Actualizar costos"
 msgid ""
 "This restaurant has no AutoFacturas token yet, so costs cannot be fetched. "
 "Add it in Restaurant settings."
-msgstr ""
+msgstr "Este restaurante aún no tiene token de AutoFacturas, así que no se pueden traer los costos. Agrégalo en la configuración del restaurante."
 
 #: templates/catalog/supply_list.html:28
 msgid "Go to settings"
@@ -1851,7 +1858,6 @@ msgid "Event cost"
 msgstr "Costo del evento"
 
 #: templates/quotes/quote_detail.html:249
-#| msgid "Supply costs"
 msgid "at today's supply costs"
 msgstr "con los costos de insumos de hoy"
 
@@ -1884,7 +1890,6 @@ msgstr[1] "%(counter)s líneas se cotizaron con costos que ya cambiaron."
 
 #: templates/quotes/quote_detail.html:288
 #: templates/quotes/quote_detail.html:289
-#| msgid "Event cost"
 msgid "The event costs"
 msgstr "El evento cuesta"
 
@@ -1896,7 +1901,9 @@ msgstr "mas de lo que dice esta cotizacion."
 msgid ""
 "The figures above already use today's costs; the quote's own stored costs "
 "are untouched."
-msgstr "Las cifras de arriba ya usan los costos de hoy; los costos guardados en la cotizacion no se tocaron."
+msgstr ""
+"Las cifras de arriba ya usan los costos de hoy; los costos guardados en la "
+"cotizacion no se tocaron."
 
 #: templates/quotes/quote_detail.html:300
 msgid "Update the quote's costs"
@@ -2028,8 +2035,10 @@ msgstr "Todavía no hay líneas. Arma un menú por presupuesto para empezar."
 #, python-format
 msgid "%(counter)s quote is under the %(minimum)s%% minimum margin."
 msgid_plural "%(counter)s quotes are under the %(minimum)s%% minimum margin."
-msgstr[0] "%(counter)s cotización está por debajo del margen mínimo de %(minimum)s%%."
-msgstr[1] "%(counter)s cotizaciones están por debajo del margen mínimo de %(minimum)s%%."
+msgstr[0] ""
+"%(counter)s cotización está por debajo del margen mínimo de %(minimum)s%%."
+msgstr[1] ""
+"%(counter)s cotizaciones están por debajo del margen mínimo de %(minimum)s%%."
 
 #: templates/quotes/quote_list.html:14
 msgid "Change the minimum"
@@ -2128,11 +2137,11 @@ msgstr "Subir e importar"
 msgid "Import summary"
 msgstr "Resumen de importación"
 
-#: templates/sales/upload.html:43 templates/sales/upload.html:80
+#: templates/sales/upload.html:43 templates/sales/upload.html:93
 msgid "File"
 msgstr "Archivo"
 
-#: templates/sales/upload.html:44 templates/sales/upload.html:82
+#: templates/sales/upload.html:44 templates/sales/upload.html:95
 msgid "Sales"
 msgstr "Ventas"
 
@@ -2141,30 +2150,60 @@ msgid "Lines"
 msgstr "Líneas"
 
 #: templates/sales/upload.html:46
+msgid "Corrected"
+msgstr "Corregidas"
+
+#: templates/sales/upload.html:47
 msgid "Duplicate"
 msgstr "Duplicado"
 
-#: templates/sales/upload.html:47
+#: templates/sales/upload.html:48
+msgid "Older copy"
+msgstr "Copia anterior"
+
+#: templates/sales/upload.html:49
 msgid "Unreadable"
 msgstr "Ilegibles"
 
-#: templates/sales/upload.html:64
+#: templates/sales/upload.html:68
+msgid ""
+"<strong>Corrected</strong>: sales already imported with different figures, "
+"usually a report printed before the day closed. The new figures replace the "
+"old ones, and Undo does not bring them back. <strong>Older copy</strong>: "
+"sales left as they were because this file has less for that day than what "
+"was already imported."
+msgstr "<strong>Corregidas</strong>: ventas ya importadas con cifras distintas, normalmente un reporte impreso antes de cerrar el día. Las cifras nuevas reemplazan las anteriores y Deshacer no las devuelve. <strong>Copia anterior</strong>: ventas que se dejaron como estaban porque este archivo tiene menos para ese día que lo ya importado."
+
+#: templates/sales/upload.html:77
 msgid "View dashboard"
 msgstr "Ver tablero"
 
-#: templates/sales/upload.html:75
+#: templates/sales/upload.html:88
 msgid "Recent imports"
 msgstr "Importaciones recientes"
 
-#: templates/sales/upload.html:81
+#: templates/sales/upload.html:94
 msgid "Date"
 msgstr "Fecha"
 
-#: templates/sales/upload.html:94
+#: templates/sales/upload.html:107
+# python-format
+msgid "%(counter)s corrected"
+msgid_plural "%(counter)s corrected"
+msgstr[0] "%(counter)s corregida"
+msgstr[1] "%(counter)s corregidas"
+
+#: templates/sales/upload.html:112
+msgid ""
+"Undo this import? The sales it created will be deleted; the ones it "
+"corrected stay corrected."
+msgstr "¿Deshacer esta importación? Se eliminarán las ventas que creó; las que corrigió seguirán corregidas."
+
+#: templates/sales/upload.html:112
 msgid "Undo this import? The sales it created will be deleted."
 msgstr "¿Deshacer esta importación? Se eliminarán las ventas que creó."
 
-#: templates/sales/upload.html:96
+#: templates/sales/upload.html:114
 msgid "Undo"
 msgstr "Deshacer"
 

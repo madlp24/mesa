@@ -43,16 +43,19 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Dry run: nothing was imported."))
             return
 
-        sales = items = duplicates = 0
+        sales = items = duplicates = corrected = older = 0
         for day in sorted(chosen):
             pdf = chosen[day]
             batch = run_import(pdf, restaurant, filename=pdf.name, source="cli")
             sales += batch.sales_created
             items += batch.items_created
             duplicates += batch.skipped_duplicate
+            corrected += batch.sales_corrected
+            older += batch.skipped_older
         self.stdout.write(
             self.style.SUCCESS(
                 f"Imported {len(chosen)} day(s) into {restaurant.name}: "
-                f"{sales} sales, {items} items, {duplicates} skipped as duplicate."
+                f"{sales} sales, {items} items, {duplicates} skipped as duplicate, "
+                f"{corrected} corrected, {older} kept as the fuller copy."
             )
         )
