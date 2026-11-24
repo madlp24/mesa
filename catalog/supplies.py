@@ -12,10 +12,13 @@ Three steps, kept apart so each can be tested and re-run on its own:
 * :func:`fetch_costs` talks to the connector and returns its payload.
 * :func:`sync_supplies` writes that payload into :class:`catalog.Supply`,
   matching on ``clave`` -- the only field that survives a rename.
-* :func:`recost_products` rebuilds ``Product.cost_price`` from the recipes.
+* :func:`recost_products` reports what the recipes now say each product costs.
 
-Only products that *have* a recipe are re-costed. The rest keep the cost the
-POS reported, which is the only one they have.
+Nothing is written onto ``Product.cost_price``: that field belongs to the POS
+and every import refreshes it (US47), so a recipe cost stored there would be
+overwritten by the next report. A complete recipe wins anyway, live, through
+:attr:`Product.effective_cost`. Products without a recipe keep the cost the POS
+reported, which is the only one they have.
 """
 from __future__ import annotations
 
@@ -55,7 +58,7 @@ class SyncSummary:
     updated: int = 0
     unchanged: int = 0
     uncosted: int = 0
-    recosted: list[tuple[str, Decimal, Decimal]] = field(default_factory=list)
+    recosted: list[tuple[str, Decimal | None, Decimal]] = field(default_factory=list)
     blocked: list[tuple[str, list[str]]] = field(default_factory=list)
     generated_at: str = ""
     company: str = ""
@@ -207,19 +210,41 @@ def sync_supplies(restaurant, payload: dict) -> SyncSummary:
     return summary
 
 
-@transaction.atomic
-def recost_products(restaurant, summary: SyncSummary | None = None) -> SyncSummary:
-    """Rebuild ``cost_price`` for every product that has a recipe.
+def recipe_costs(restaurant) -> dict[int, Decimal | None]:
+    """Each recipe product's cost as its recipe stands now (``None``: uncostable)."""
+    products = (
+        Product.objects.filter(restaurant=restaurant, recipe__isnull=False)
+        .distinct()
+        .prefetch_related("recipe__supply")
+    )
+    return {
+        product.pk: None if (cost := product.recipe_cost) is None
+        else Decimal(cost).quantize(Decimal("0.01"))
+        for product in products
+    }
 
-    A recipe whose supplies are not all costed leaves the product's existing
-    cost alone and is reported instead: overwriting a POS cost with a partial
-    recipe would make the product look cheaper than it is.
+
+def recost_products(
+    restaurant,
+    summary: SyncSummary | None = None,
+    previous: dict[int, Decimal | None] | None = None,
+) -> SyncSummary:
+    """Report what the recipes make each product cost, without writing it.
+
+    ``previous`` is :func:`recipe_costs` taken before the supplies changed;
+    with it, only the products whose recipe cost moved are listed. Without it,
+    each recipe is compared with the POS cost it now stands in for.
+
+    A recipe whose supplies are not all costed is reported as held back: the
+    product stays on its POS cost rather than a short sum that would make it
+    look cheaper than it is.
     """
     summary = summary or SyncSummary()
     products = (
         Product.objects.filter(restaurant=restaurant, recipe__isnull=False)
         .distinct()
         .prefetch_related("recipe__supply")
+        .order_by("name")
     )
     for product in products:
         cost = product.recipe_cost
@@ -229,11 +254,12 @@ def recost_products(restaurant, summary: SyncSummary | None = None) -> SyncSumma
             )
             continue
         new_cost = Decimal(cost).quantize(Decimal("0.01"))
-        if new_cost == product.cost_price:
+        before = (
+            product.cost_price if previous is None else previous.get(product.pk)
+        )
+        if new_cost == before:
             continue
-        summary.recosted.append((product.name, product.cost_price, new_cost))
-        product.cost_price = new_cost
-        product.save(update_fields=["cost_price"])
+        summary.recosted.append((product.name, before, new_cost))
     return summary
 
 
@@ -244,7 +270,7 @@ def sync_costs(
     days: int = DEFAULT_DAYS,
     payload: dict | None = None,
 ) -> SyncSummary:
-    """Fetch, store and re-cost in one go.
+    """Fetch, store and report the recipe costs that moved, in one go.
 
     ``payload`` short-circuits the HTTP call, so a saved answer can be replayed
     without reaching the connector.
@@ -253,5 +279,6 @@ def sync_costs(
         payload = fetch_costs(
             restaurant.autofacturas_token, base_url=base_url, days=days
         )
+    previous = recipe_costs(restaurant)
     summary = sync_supplies(restaurant, payload)
-    return recost_products(restaurant, summary)
+    return recost_products(restaurant, summary, previous)

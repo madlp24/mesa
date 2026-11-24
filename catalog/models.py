@@ -76,9 +76,10 @@ class Product(models.Model):
 
         The recipe when it has one and every ingredient is costed -- it follows
         the supplier's invoices without waiting for anyone to press a button --
-        and the POS cost otherwise. ``cost_price`` is where this gets persisted
-        so the rest of the app sees it too, but reading it live is what keeps a
-        quote's margin honest the moment a supply price moves.
+        and the POS cost otherwise. ``cost_price`` is the POS's and every import
+        refreshes it (US47), so the recipe is never stored there: it is read
+        here, live, which is what keeps a margin honest the moment a supply
+        price moves.
         """
         recipe = self.recipe_cost
         return recipe if recipe is not None else self.cost_price
@@ -89,13 +90,26 @@ class Product(models.Model):
         return [line for line in self.recipe.all() if line.line_cost is None]
 
     @property
+    def is_costed(self) -> bool:
+        """A zero cost is no cost: the POS sends 0 for what it could not cost."""
+        return self.effective_cost > 0
+
+    @property
     def margin_amount(self):
-        return self.sale_price - self.cost_price
+        """What one unit leaves, or ``None`` when the product carries no cost."""
+        if not self.is_costed:
+            return None
+        return self.sale_price - self.effective_cost
 
     @property
     def margin_pct(self):
-        if self.sale_price == 0:
-            return 0
+        """Margin over the sale price, or ``None`` when there is nothing to judge.
+
+        An uncosted product used to read as 100% margin, inflating the page
+        that should have flagged it -- the alerts already call it "no cost".
+        """
+        if not self.is_costed or self.sale_price <= 0:
+            return None
         return (self.margin_amount / self.sale_price) * 100
 
     def __str__(self):

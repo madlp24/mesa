@@ -1,8 +1,8 @@
 """Pull supply costs from AutoFacturas and re-cost the products (US45).
 
 Reads ``GET /conector/costos`` for the restaurant's company, stores each insumo
-as a ``Supply``, and rebuilds ``cost_price`` for every product that has a
-recipe. ``--file`` replays a saved answer instead of calling the connector,
+as a ``Supply``, and reports the products whose recipe cost moved -- the recipe
+is read live through ``Product.effective_cost``, so nothing else is written. ``--file`` replays a saved answer instead of calling the connector,
 which is how this gets exercised without a token.
 """
 import json
@@ -14,6 +14,7 @@ from catalog.supplies import (
     DEFAULT_BASE_URL,
     DEFAULT_DAYS,
     SupplyCostError,
+    recipe_costs,
     recost_products,
     sync_costs,
     sync_supplies,
@@ -23,8 +24,8 @@ from tenants.utils import resolve_restaurant
 
 class Command(BaseCommand):
     help = (
-        "Fetch supply costs from AutoFacturas and re-cost the products whose "
-        "recipe is complete."
+        "Fetch supply costs from AutoFacturas and report the products whose "
+        "recipe cost moved."
     )
 
     def add_arguments(self, parser):
@@ -92,8 +93,9 @@ class Command(BaseCommand):
         holder = {}
         try:
             with transaction.atomic():
+                previous = recipe_costs(restaurant)
                 summary = sync_supplies(restaurant, payload)
-                holder["summary"] = recost_products(restaurant, summary)
+                holder["summary"] = recost_products(restaurant, summary, previous)
                 raise _Rollback
         except _Rollback:
             pass
@@ -119,7 +121,8 @@ class Command(BaseCommand):
 
         for name, before, after in summary.recosted[:20]:
             arrow = self.style.SUCCESS("->")
-            self.stdout.write(f"  {name}: {before:,.2f} {arrow} {after:,.2f}")
+            was = "-" if before is None else f"{before:,.2f}"
+            self.stdout.write(f"  {name}: {was} {arrow} {after:,.2f}")
         if len(summary.recosted) > 20:
             self.stdout.write(f"  ... and {len(summary.recosted) - 20} more")
 

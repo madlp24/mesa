@@ -19,6 +19,7 @@ from django.db import transaction
 from sales.models import SaleItem
 
 from .models import Product, ProductAlias
+from .pricing import refresh_product_prices
 
 
 class IdentityError(ValueError):
@@ -46,6 +47,7 @@ def merge_products(restaurant, canonical: Product, others: list[Product]) -> int
         SaleItem.objects.filter(product=product).update(product=canonical)
         ProductAlias.objects.filter(product=product).update(product=canonical)
         product.delete()
+    refresh_product_prices(restaurant, [canonical.pk])
     return len(merged)
 
 
@@ -62,9 +64,12 @@ def repoint_alias(restaurant, alias: ProductAlias, target: Product) -> int:
     if alias.product_id == target.pk:
         return 0
 
-    moved = _move_clave_sales(restaurant, alias.pos_clave, alias.product, target)
+    source = alias.product
+    moved = _move_clave_sales(restaurant, alias.pos_clave, source, target)
     alias.product = target
     alias.save(update_fields=["product"])
+    # Both sides may have lost or gained their newest sale.
+    refresh_product_prices(restaurant, [source.pk, target.pk])
     return moved
 
 
@@ -72,8 +77,9 @@ def repoint_alias(restaurant, alias: ProductAlias, target: Product) -> int:
 def split_alias(restaurant, alias: ProductAlias, new_name: str = "") -> Product:
     """Split ``alias`` off into a brand-new product and re-point it there.
 
-    The new product inherits the source product's category and prices; its name
-    defaults to the alias's raw name. Returns the created product.
+    The new product inherits the source product's category and prices, then
+    takes those of the sales it carries off; its name defaults to the alias's
+    raw name. Returns the created product.
     """
     if alias.restaurant_id != restaurant.id:
         raise IdentityError("Alias belongs to another restaurant.")
