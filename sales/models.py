@@ -15,6 +15,12 @@ class ImportBatch(models.Model):
     sales_created = models.PositiveIntegerField(default=0)
     items_created = models.PositiveIntegerField(default=0)
     skipped_duplicate = models.PositiveIntegerField(default=0)
+    # Stored sales this import rewrote with different figures (US48). They keep
+    # their original batch, so undoing this one does not bring the old back.
+    sales_corrected = models.PositiveIntegerField(default=0)
+    # Stored sales left alone because this file looked like an older, partial
+    # copy of the day (its total over them was lower than what was stored).
+    skipped_older = models.PositiveIntegerField(default=0)
     skipped_rows = models.PositiveIntegerField(default=0)
 
     class Meta:

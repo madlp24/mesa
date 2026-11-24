@@ -48,12 +48,16 @@ def run_import(
         batch.sales_created = result["new"]
         batch.items_created = result["items"]
         batch.skipped_duplicate = result["skipped_duplicate"]
+        batch.sales_corrected = result["corrected"]
+        batch.skipped_older = result["older_copy"]
         batch.skipped_rows = getattr(importer, "skipped_rows", 0)
         batch.save(
             update_fields=[
                 "sales_created",
                 "items_created",
                 "skipped_duplicate",
+                "sales_corrected",
+                "skipped_older",
                 "skipped_rows",
             ]
         )
@@ -64,7 +68,8 @@ def undo_import(batch: ImportBatch) -> int:
     """Delete the sales created by ``batch`` (items cascade), then the batch.
 
     Products and identities created during the import are kept; only the sales
-    are removed, and the products they carried fall back to the cost and price
+    it created are removed -- sales it corrected keep the corrected figures,
+    since the partial ones were not kept (US48) -- and the products they carried fall back to the cost and price
     of their newest remaining sale. Returns the number of sales deleted.
     """
     with transaction.atomic():

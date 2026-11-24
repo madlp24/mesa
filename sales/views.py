@@ -78,6 +78,8 @@ def _import_upload(request: HttpRequest, upload) -> dict | None:
         "new": batch.sales_created,
         "items": batch.items_created,
         "skipped_duplicate": batch.skipped_duplicate,
+        "corrected": batch.sales_corrected,
+        "older_copy": batch.skipped_older,
         "skipped_rows": batch.skipped_rows,
     }
 
@@ -87,9 +89,16 @@ def _import_upload(request: HttpRequest, upload) -> dict | None:
 def undo_import_view(request: HttpRequest, pk: int) -> HttpResponse:
     """Undo an import: delete the sales it created (scoped to my restaurant)."""
     batch = get_object_or_404(ImportBatch, pk=pk, restaurant=request.restaurant)
+    corrected = batch.sales_corrected
     deleted = undo_import(batch)
     messages.success(
         request,
         _("Import undone: %(count)d sales removed.") % {"count": deleted},
     )
+    if corrected:
+        messages.warning(
+            request,
+            _("The %(count)d sale(s) this import corrected keep the corrected "
+              "figures: a correction cannot be undone.") % {"count": corrected},
+        )
     return redirect("sales:upload")

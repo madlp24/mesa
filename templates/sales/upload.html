@@ -43,7 +43,9 @@
                 <th>{% trans "File" %}</th>
                 <th class="text-end">{% trans "Sales" %}</th>
                 <th class="text-end">{% trans "Lines" %}</th>
+                <th class="text-end">{% trans "Corrected" %}</th>
                 <th class="text-end">{% trans "Duplicate" %}</th>
+                <th class="text-end">{% trans "Older copy" %}</th>
                 <th class="text-end">{% trans "Unreadable" %}</th>
               </tr>
             </thead>
@@ -53,13 +55,24 @@
                 <td>{{ summary.filename }}</td>
                 <td class="text-end">{{ summary.new }}</td>
                 <td class="text-end">{{ summary.items }}</td>
+                <td class="text-end">{{ summary.corrected }}</td>
                 <td class="text-end">{{ summary.skipped_duplicate }}</td>
+                <td class="text-end">{{ summary.older_copy }}</td>
                 <td class="text-end">{{ summary.skipped_rows }}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
+        <p class="small text-muted">
+          {% blocktrans trimmed %}
+          <strong>Corrected</strong>: sales already imported with different figures, usually a
+          report printed before the day closed. The new figures replace the old ones, and
+          Undo does not bring them back.
+          <strong>Older copy</strong>: sales left as they were because this file has less for
+          that day than what was already imported.
+          {% endblocktrans %}
+        </p>
         <div class="d-flex flex-wrap gap-2">
           <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:dashboard' %}">{% trans "View dashboard" %}</a>
           <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:export_productos_vendidos' %}">{% trans "Download Products-Sold matrix (Excel)" %}</a>
@@ -88,10 +101,15 @@
               <tr>
                 <td>{{ batch.filename }}</td>
                 <td class="text-muted small">{{ batch.created_at|date:"Y-m-d H:i" }}</td>
-                <td class="text-end">{{ batch.sales_created }}</td>
+                <td class="text-end">
+                  {{ batch.sales_created }}
+                  {% if batch.sales_corrected %}
+                    <span class="badge text-bg-secondary">{% blocktrans count counter=batch.sales_corrected %}{{ counter }} corrected{% plural %}{{ counter }} corrected{% endblocktrans %}</span>
+                  {% endif %}
+                </td>
                 <td class="text-end">
                   <form method="post" action="{% url 'sales:undo_import' batch.pk %}"
-                        onsubmit="return confirm('{% trans "Undo this import? The sales it created will be deleted." %}');">
+                        onsubmit="return confirm('{% if batch.sales_corrected %}{% trans "Undo this import? The sales it created will be deleted; the ones it corrected stay corrected." %}{% else %}{% trans "Undo this import? The sales it created will be deleted." %}{% endif %}');">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-danger btn-sm">{% trans "Undo" %}</button>
                   </form>
