@@ -52,11 +52,24 @@ def test_dashboard_defaults_to_last_30_days(logged_client, product):
     response = logged_client.get(reverse("analytics:dashboard"))
 
     assert response.status_code == 200
-    today = timezone.localdate()
-    assert response.context["end"] == today
-    assert response.context["start"] == today - timedelta(days=DEFAULT_RANGE_DAYS - 1)
+    # The window ends on the newest day with sales, not on today (US49).
+    newest = timezone.localdate() - timedelta(days=5)
+    assert response.context["end"] == newest
+    assert response.context["start"] == newest - timedelta(days=DEFAULT_RANGE_DAYS - 1)
     # Only the recent sale counts under the default range.
     assert response.context["kpis"]["items_sold"] == 2
+
+
+@pytest.mark.django_db
+def test_reports_that_stopped_weeks_ago_still_fill_the_dashboard(logged_client, product):
+    # Reports arrive in batches; the newest is 60 days old. Ending the window
+    # on today showed nothing but zeros.
+    _add_sale(product, "LAST", days_ago=60, quantity=7)
+
+    response = logged_client.get(reverse("analytics:dashboard"))
+
+    assert response.context["kpis"]["items_sold"] == 7
+    assert response.context["window"].days_behind == 59
 
 
 @pytest.mark.django_db
