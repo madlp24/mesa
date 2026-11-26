@@ -6,9 +6,9 @@ zero and the owner had to type two dates to see anything. A window now ends on
 the latest day that has sales, and the page says how far behind the reports
 are.
 
-Presets are what an owner actually asks for: the last week, the last month,
-this calendar month, the previous one, this year. The rolling ones (7 and 30
-days) end on the latest day with data; the calendar ones are the calendar.
+Presets are what an owner actually asks for: the last week, month or quarter,
+this calendar month, the previous one, this year. The rolling ones (7, 30 and
+90 days) end on the latest day with data; the calendar ones are the calendar.
 """
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ DEFAULT_PRESET = "30d"
 PRESETS = (
     ("7d", _("7 days")),
     ("30d", _("30 days")),
+    ("90d", _("90 days")),
     ("month", _("This month")),
     ("last_month", _("Last month")),
     ("year", _("This year")),
@@ -86,11 +87,12 @@ def window_for(
     params,
     *,
     today: datetime.date | None = None,
+    default: str = DEFAULT_PRESET,
 ) -> Window:
     """Resolve ``?period=`` or ``?start=&end=`` into a :class:`Window`.
 
-    Explicit dates win. With neither, the 30 days ending on the latest day
-    with sales (or today, when that is earlier) are shown.
+    Explicit dates win. With neither, ``default`` applies -- the 30 days ending
+    on the latest day with sales (or today, when that is earlier).
     """
     today = today or timezone.localdate()
     latest = latest_sale_day(restaurant)
@@ -107,9 +109,11 @@ def window_for(
 
     preset = params.get("period", "")
     if preset not in _PRESET_KEYS:
-        preset = DEFAULT_PRESET
+        preset = default
     if preset == "7d":
         start, end = anchor - datetime.timedelta(days=6), anchor
+    elif preset == "90d":
+        start, end = anchor - datetime.timedelta(days=89), anchor
     elif preset == "month":
         start, end = _month_start(today), today
     elif preset == "last_month":
