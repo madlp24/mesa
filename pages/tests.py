@@ -16,17 +16,21 @@ def test_landing_is_public(client):
 
 
 @pytest.mark.django_db
-def test_signed_in_user_gets_the_home_hub(logged_client):
-    """`/` stops being the dashboard: it asks where you want to go (US35)."""
+def test_signed_in_user_goes_straight_to_the_overview(logged_client):
+    """The hub of cards was one more click before anything useful (US49)."""
     response = logged_client.get(reverse("pages:landing"))
 
-    assert response.status_code == 200
-    assert "pages/home.html" in [t.name for t in response.templates]
-    body = response.content.decode()
-    # Every job is one click away from the hub.
-    for name in ("analytics:dashboard", "analytics:margin_analysis",
-                 "analytics:pnl_summary", "sales:upload", "catalog:product_list",
-                 "quotes:quote_list", "quotes:menu_list", "tenants:settings"):
+    assert response.status_code == 302
+    assert response.url == reverse("analytics:dashboard")
+
+
+@pytest.mark.django_db
+def test_every_section_is_one_click_away(logged_client):
+    body = logged_client.get(reverse("analytics:dashboard")).content.decode()
+    for name in ("analytics:dashboard", "analytics:comparisons",
+                 "analytics:margin_alerts", "catalog:product_list",
+                 "quotes:quote_list", "analytics:workbook_update",
+                 "sales:upload", "tenants:settings"):
         assert reverse(name) in body, name
 
 
@@ -66,8 +70,8 @@ def test_dashboard_still_requires_login_at_new_url(client):
 @pytest.mark.django_db
 def test_menu_lists_destinations_and_change_password(logged_client):
     body = logged_client.get(reverse("analytics:dashboard")).content.decode()
-    # A single hamburger menu holds every destination...
-    assert 'id="mainMenu"' in body
+    # The side navigation holds every destination...
+    assert 'id="rail"' in body
     for name in ("analytics:margin_analysis", "catalog:product_list",
                  "sales:upload", "quotes:quote_list", "pages:help"):
         assert reverse(name) in body

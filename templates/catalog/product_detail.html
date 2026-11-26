@@ -1,58 +1,48 @@
 {% extends "base.html" %}
-{% load i18n humanize %}
+{% load i18n humanize mesa %}
 
 {% block title %}{{ product.name }} - Mesa{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-4">
+<div class="page-head">
     <div>
-        <h1 class="h3 mb-1">{{ product.name }}</h1>
-        <p class="text-muted mb-0">
-            {% trans "SKU" %} {{ product.sku }} &middot; {{ product.category.name }}
-            {% if not product.is_active %}<span class="badge bg-secondary">{% trans "inactive" %}</span>{% endif %}
+        <h1>{{ product.name }}</h1>
+        <p>
+            {{ product.category.name }}, {% trans "POS code" %} {{ product.sku }}
+            {% if not product.is_active %}<span class="badge text-bg-secondary">{% trans "inactive" %}</span>{% endif %}
         </p>
     </div>
+    {% include "includes/period.html" with allow_all=True %}
 </div>
 
-<form method="get" class="row g-2 align-items-end mb-4">
-    <div class="col-auto">
-        <label for="start" class="form-label mb-0">{% trans "From" %}</label>
-        <input type="date" id="start" name="start" value="{{ start|date:'Y-m-d' }}" class="form-control">
-    </div>
-    <div class="col-auto">
-        <label for="end" class="form-label mb-0">{% trans "To" %}</label>
-        <input type="date" id="end" name="end" value="{{ end|date:'Y-m-d' }}" class="form-control">
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">{% trans "Apply" %}</button>
-    </div>
-</form>
-
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6 text-muted">{% trans "Units sold" %}</h2>
-            <p class="h3 mb-0">{{ units_sold }}</p>
-        </div></div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6 text-muted">{% trans "Total revenue" %}</h2>
-            <p class="h3 mb-0">{{ total_revenue }}</p>
-        </div></div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6 text-muted">{% trans "Total margin" %}</h2>
-            <p class="h3 mb-0">{{ total_margin }}</p>
-        </div></div>
-    </div>
-</div>
-
-<div class="card mb-4"><div class="card-body">
-    <h2 class="h6 text-muted">{% trans "Units sold per day" %}</h2>
-    <canvas id="salesChart" height="100"></canvas>
-</div></div>
+<section class="panel mb-4" aria-labelledby="product-figures">
+    <h2 id="product-figures" class="visually-hidden">{% trans "Figures" %}</h2>
+    <dl class="stats mb-4">
+        <div>
+            <dt>{% trans "Sales" %}</dt>
+            <dd class="figure">{{ total_revenue|cop }}</dd>
+        </div>
+        <div>
+            <dt>{% trans "Margin left" %}</dt>
+            <dd class="figure">{{ total_margin|cop }}</dd>
+        </div>
+        <div>
+            <dt>{% trans "Units sold" %}</dt>
+            <dd class="figure">{{ units_sold|num }}</dd>
+        </div>
+        <div>
+            <dt>{% trans "Sells today for" %}</dt>
+            <dd class="figure">{{ product.sale_price|cop }}</dd>
+        </div>
+        <div>
+            <dt>{% trans "Costs today" %}</dt>
+            <dd class="figure">{% if product.is_costed %}{{ product.effective_cost|cop }}{% else %}<span class="badge text-bg-warning">{% trans "No cost" %}</span>{% endif %}</dd>
+            {% if product.margin_pct is not None %}<span class="delta flat">{% blocktrans trimmed with pct=product.margin_pct|pct %}{{ pct }} margin{% endblocktrans %}</span>{% endif %}
+        </div>
+    </dl>
+    <div class="days"><canvas id="salesChart" role="img" aria-label="{% trans 'Units sold per day' %}"></canvas></div>
+    <p class="days-legend">{% trans "Units sold per day. Cuts sold by weight count grams." %}</p>
+</section>
 
 <div class="card mb-4"><div class="card-body">
     <h2 class="h6 text-muted mb-1">{% trans "Recipe" %}</h2>
@@ -198,27 +188,37 @@
     {% endif %}
 </div></div>
 
+
+{% endblock %}
+
+{% block scripts %}
 <script>
 (function () {
-    const params = window.location.search;
-    const url = "{% url 'catalog:product_sales_series' product.pk %}" + params;
+    const url = "{% url 'catalog:product_sales_series' product.pk %}" + window.location.search;
+    const css = getComputedStyle(document.documentElement);
     fetch(url, {headers: {"X-Requested-With": "XMLHttpRequest"}})
         .then(function (r) { return r.json(); })
         .then(function (series) {
             new Chart(document.getElementById("salesChart"), {
-                type: "line",
+                type: "bar",
                 data: {
                     labels: series.labels,
                     datasets: [{
-                        label: "{% trans 'Units sold' %}",
                         data: series.data,
-                        borderColor: "#0d6efd",
-                        backgroundColor: "rgba(13,110,253,0.1)",
-                        tension: 0.2,
-                        fill: true,
+                        backgroundColor: css.getPropertyValue("--ink-2").trim(),
+                        borderRadius: 2,
+                        maxBarThickness: 24,
                     }],
                 },
-                options: {scales: {y: {beginAtZero: true}}},
+                options: {
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {legend: {display: false}},
+                    scales: {
+                        x: {grid: {display: false}, ticks: {autoSkipPadding: 14, maxRotation: 0, color: css.getPropertyValue("--muted").trim()}},
+                        y: {beginAtZero: true, border: {display: false}, grid: {color: css.getPropertyValue("--line").trim()}, ticks: {maxTicksLimit: 4, color: css.getPropertyValue("--muted").trim()}},
+                    },
+                },
             });
         });
 })();

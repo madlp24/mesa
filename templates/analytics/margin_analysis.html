@@ -1,57 +1,27 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n mesa %}
 
-{% block title %}{% trans "Margin analysis" %} - Mesa{% endblock %}
+{% block title %}{% trans "Margins by product" %} - Mesa{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-    <h1 class="h3 mb-1">{% trans "Margin analysis" %}</h1>
-    <a href="{% url 'analytics:margin_alerts' %}" class="btn btn-sm btn-outline-danger mt-2">{% trans "See margin alerts" %}</a>
-    <p class="text-muted mb-0">{% trans "Active products ranked by gross margin. Click a column to sort." %}</p>
+<div class="page-head">
+    <div>
+        <h1>{% trans "Margins" %}</h1>
+        <p>{% trans "What each product costs and sells for today, and what it left in the period. Click a column to sort." %}</p>
+    </div>
+    {% include "includes/period.html" %}
 </div>
 
-<form method="get" class="row g-2 align-items-end mb-4">
-    <div class="col-auto">
-        <label for="start" class="form-label mb-0">{% trans "From" %}</label>
-        <input type="date" id="start" name="start" value="{{ start|date:'Y-m-d' }}" class="form-control">
-    </div>
-    <div class="col-auto">
-        <label for="end" class="form-label mb-0">{% trans "To" %}</label>
-        <input type="date" id="end" name="end" value="{{ end|date:'Y-m-d' }}" class="form-control">
-    </div>
-    <input type="hidden" name="sort" value="{{ sort }}">
-    <input type="hidden" name="dir" value="{{ direction }}">
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">{% trans "Apply" %}</button>
-    </div>
-</form>
-
-<div class="card"><div class="card-body p-0">
+<div class="panel p-0">
 <div class="table-responsive">
-    <table class="table table-striped table-hover align-middle mb-0">
+    <table class="table table-hover align-middle">
         <thead>
             <tr>
                 {% for key, label in columns %}
-                {% if sort == key and direction == 'desc' %}
-                    {% with next_dir='asc' arrow=' ▼' %}
-                    <th>
-                        <a class="text-decoration-none text-reset"
-                           href="?sort={{ key }}&dir={{ next_dir }}{% if start %}&start={{ start|date:'Y-m-d' }}{% endif %}{% if end %}&end={{ end|date:'Y-m-d' }}{% endif %}">{{ label }}{{ arrow }}</a>
-                    </th>
-                    {% endwith %}
-                {% elif sort == key %}
-                    {% with next_dir='desc' arrow=' ▲' %}
-                    <th>
-                        <a class="text-decoration-none text-reset"
-                           href="?sort={{ key }}&dir={{ next_dir }}{% if start %}&start={{ start|date:'Y-m-d' }}{% endif %}{% if end %}&end={{ end|date:'Y-m-d' }}{% endif %}">{{ label }}{{ arrow }}</a>
-                    </th>
-                    {% endwith %}
-                {% else %}
-                    <th>
-                        <a class="text-decoration-none text-reset"
-                           href="?sort={{ key }}&dir=desc{% if start %}&start={{ start|date:'Y-m-d' }}{% endif %}{% if end %}&end={{ end|date:'Y-m-d' }}{% endif %}">{{ label }}</a>
-                    </th>
-                {% endif %}
+                <th scope="col" class="{% if key != 'name' and key != 'category' %}num{% endif %}"
+                    {% if sort == key %}aria-sort="{% if direction == 'desc' %}descending{% else %}ascending{% endif %}"{% endif %}>
+                    <a href="?sort={{ key }}&amp;dir={% if sort == key and direction == 'desc' %}asc{% else %}desc{% endif %}&amp;{{ window.query }}">{{ label }}{% if sort == key %}{% if direction == 'desc' %} &darr;{% else %} &uarr;{% endif %}{% endif %}</a>
+                </th>
                 {% endfor %}
             </tr>
         </thead>
@@ -59,13 +29,13 @@
             {% for row in rows %}
             <tr>
                 <td>{{ row.name }}</td>
-                <td>{{ row.category }}</td>
-                <td>{% if row.cost is None %}<span class="badge text-bg-warning">{% trans "No cost" %}</span>{% else %}${{ row.cost }}{% endif %}</td>
-                <td>${{ row.sale_price }}</td>
-                <td>{% if row.margin_amount is None %}-{% else %}${{ row.margin_amount }}{% endif %}</td>
-                <td>{% if row.margin_pct is None %}-{% else %}{{ row.margin_pct|floatformat:1 }}%{% endif %}</td>
-                <td>{{ row.units_sold }}</td>
-                <td>${{ row.total_margin }}</td>
+                <td class="text-muted small">{{ row.category }}</td>
+                <td class="num">{% if row.cost is None %}<span class="badge text-bg-warning">{% trans "No cost" %}</span>{% else %}{{ row.cost|cop }}{% endif %}</td>
+                <td class="num">{{ row.sale_price|cop }}</td>
+                <td class="num">{{ row.margin_amount|cop }}</td>
+                <td class="num">{% if row.margin_pct is None %}<span class="text-muted">&ndash;</span>{% else %}<strong class="{% if row.margin_pct < 0 %}text-danger{% endif %}">{{ row.margin_pct|pct }}</strong>{% endif %}</td>
+                <td class="num">{{ row.units_sold|num }}</td>
+                <td class="num">{{ row.total_margin|cop }}</td>
             </tr>
             {% empty %}
             <tr><td colspan="{{ columns|length }}" class="text-muted">{% trans "No active products." %}</td></tr>
@@ -73,5 +43,5 @@
         </tbody>
     </table>
 </div>
-</div></div>
+</div>
 {% endblock %}

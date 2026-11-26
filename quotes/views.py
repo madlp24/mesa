@@ -1,14 +1,16 @@
 """Quote views: list, build from a budget, and keep the menu mapped to products."""
 from decimal import Decimal, InvalidOperation
+from io import StringIO
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.management import call_command
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.dateparse import parse_date
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 
 from catalog.models import Product
@@ -548,3 +550,26 @@ def quote_refresh_costs(request: HttpRequest, pk: int) -> HttpResponse:
     else:
         messages.info(request, _("The costs on this quote are already current."))
     return redirect("quotes:quote_detail", pk=quote.pk)
+
+
+@login_required
+@require_POST
+def menu_build(request: HttpRequest) -> HttpResponse:
+    """Build the event menu from the catalog, from the page (US49).
+
+    The quotes page used to tell the owner to run ``seed_menu`` in a terminal.
+    Items that already exist are left as they are.
+    """
+    before = MenuItem.objects.filter(restaurant=request.restaurant).count()
+    call_command("seed_menu", restaurant=request.restaurant.pk, stdout=StringIO())
+    created = MenuItem.objects.filter(restaurant=request.restaurant).count() - before
+    messages.success(
+        request,
+        ngettext(
+            "%(count)d dish added to the event menu from your products.",
+            "%(count)d dishes added to the event menu from your products.",
+            created,
+        )
+        % {"count": created},
+    )
+    return redirect("quotes:menu_list")

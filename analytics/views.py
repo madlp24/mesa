@@ -1,4 +1,3 @@
-import datetime
 import io
 import tempfile
 from decimal import Decimal, InvalidOperation
@@ -8,8 +7,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
-from django.utils import timezone
-from django.utils.dateparse import parse_date
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -20,6 +17,8 @@ from .exports import build_analysis_workbook, build_productos_vendidos_workbook
 from .alerts import DEFAULT_THRESHOLD, margin_alerts
 from .comparisons import GRAINS, compare
 from .forms import WorkbookUpdateForm
+from .overview import overview
+from .periods import PRESETS, window_for
 from .unified_excel import UnifiedUpdateError, update_productos_vendidos
 from .services import (
     MARGIN_SORT_KEYS,
@@ -49,29 +48,36 @@ DEFAULT_RANGE_DAYS = 30
 
 
 def _resolve_range(request: HttpRequest) -> tuple:
-    """Resolve the active date window from ?start=&end= query params.
+    """The active date window, from ``?period=`` or ``?start=&end=``.
 
-    When neither bound is supplied we fall back to the last 30 days so the
-    dashboard always opens on a sensible, bounded period rather than all-time.
+    With neither, the 30 days ending on the newest day with sales: ending on
+    *today* showed nothing but zeros whenever the reports were behind (US49).
     """
-    start = parse_date(request.GET.get("start", "") or "")
-    end = parse_date(request.GET.get("end", "") or "")
-    if start is None and end is None:
-        today = timezone.localdate()
-        end = today
-        start = today - datetime.timedelta(days=DEFAULT_RANGE_DAYS - 1)
-    return start, end
+    window = window_for(request.restaurant, request.GET)
+    return window.start, window.end
 
 
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
-    start, end = _resolve_range(request)
-    has_data = Sale.objects.filter(restaurant=request.restaurant).exists()
+    window = window_for(request.restaurant, request.GET)
+    has_data = window.latest is not None
+    summary = overview(request.restaurant, window) if has_data else None
     context = {
-        "kpis": compute_kpis(request.restaurant, start, end),
+        "kpis": compute_kpis(request.restaurant, window.start, window.end),
         "has_data": has_data,
-        "start": start,
-        "end": end,
+        "window": window,
+        "overview": summary,
+        "presets": PRESETS,
+        "start": window.start,
+        "end": window.end,
+        "series": [
+            {
+                "date": day["date"].isoformat(),
+                "revenue": float(day["revenue"]),
+                "open": day["open"],
+            }
+            for day in (summary.days if summary else [])
+        ],
     }
     return render(request, "analytics/dashboard.html", context)
 
@@ -105,7 +111,8 @@ def top_products(request: HttpRequest) -> JsonResponse:
 @login_required
 def margin_analysis(request: HttpRequest) -> HttpResponse:
     """Sortable table ranking active products by gross margin for the range."""
-    start, end = _resolve_range(request)
+    window = window_for(request.restaurant, request.GET)
+    start, end = window.start, window.end
 
     sort = request.GET.get("sort", "margin_pct")
     if sort not in MARGIN_SORT_KEYS:
@@ -124,6 +131,8 @@ def margin_analysis(request: HttpRequest) -> HttpResponse:
         "direction": direction,
         "start": start,
         "end": end,
+        "window": window,
+        "presets": PRESETS,
     }
     return render(request, "analytics/margin_analysis.html", context)
 
@@ -275,8 +284,10 @@ def margin_alerts_view(request: HttpRequest) -> HttpResponse:
     sold at a loss in March is still a problem in September, so the whole
     history is considered unless a range is asked for.
     """
-    start = parse_date(request.GET.get("start", "") or "")
-    end = parse_date(request.GET.get("end", "") or "")
+    window = None
+    if any(request.GET.get(key) for key in ("period", "start", "end")):
+        window = window_for(request.restaurant, request.GET)
+    start, end = (window.start, window.end) if window else (None, None)
     threshold = _threshold(request)
     alerts = margin_alerts(
         request.restaurant, threshold=threshold, start=start, end=end
@@ -284,7 +295,14 @@ def margin_alerts_view(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "analytics/margin_alerts.html",
-        {"alerts": alerts, "start": start, "end": end, "threshold": threshold},
+        {
+            "alerts": alerts,
+            "start": start,
+            "end": end,
+            "threshold": threshold,
+            "window": window,
+            "presets": PRESETS,
+        },
     )
 
 

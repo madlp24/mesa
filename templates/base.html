@@ -9,92 +9,107 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
     <link href="{% static 'css/site.css' %}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
-<body>
-    <nav class="navbar navbar-dark mesa-nav">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'pages:landing' %}">Mesa<span class="brand-accent">.</span></a>
-            {% with url_name=request.resolver_match.url_name %}
-            <div class="dropdown">
-                <button class="navbar-toggler" type="button" id="mainMenu"
-                        data-bs-toggle="dropdown" aria-expanded="false" aria-label="{% trans 'Menu' %}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end mesa-menu" aria-labelledby="mainMenu">
-                    {% if request.user.is_authenticated %}
-                        <li><a class="dropdown-item {% if url_name == 'dashboard' %}active{% endif %}" href="{% url 'analytics:dashboard' %}">{% trans "Dashboard" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'margin_analysis' %}active{% endif %}" href="{% url 'analytics:margin_analysis' %}">{% trans "Margins" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'margin_alerts' %}active{% endif %}" href="{% url 'analytics:margin_alerts' %}">{% trans "Margin alerts" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'pnl_summary' %}active{% endif %}" href="{% url 'analytics:pnl_summary' %}">{% trans "P&L" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'comparisons' %}active{% endif %}" href="{% url 'analytics:comparisons' %}">{% trans "Comparisons" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'product_list' or url_name == 'product_detail' %}active{% endif %}" href="{% url 'catalog:product_list' %}">{% trans "Products" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'supplies' %}active{% endif %}" href="{% url 'catalog:supplies' %}">{% trans "Supply costs" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'upload' %}active{% endif %}" href="{% url 'sales:upload' %}">{% trans "Upload" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'workbook_update' %}active{% endif %}" href="{% url 'analytics:workbook_update' %}">{% trans "Update my workbook" %}</a></li>
-                        <li><a class="dropdown-item {% if url_name == 'quote_list' or url_name == 'quote_detail' or url_name == 'menu_list' %}active{% endif %}" href="{% url 'quotes:quote_list' %}">{% trans "Quotes" %}</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                    {% endif %}
-                    <li><a class="dropdown-item {% if url_name == 'help' %}active{% endif %}" href="{% url 'pages:help' %}">{% trans "Help" %}</a></li>
+<body class="{% if request.user.is_authenticated %}has-rail{% else %}is-public{% endif %}">
+    <a class="skip-link" href="#main">{% trans "Skip to content" %}</a>
+    {% get_available_languages as LANGUAGES %}
 
-                    <li><hr class="dropdown-divider"></li>
-                    <li><h6 class="dropdown-header">{% trans "Language" %}</h6></li>
-                    <li>
-                        <form action="{% url 'set_language' %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                            {% get_available_languages as LANGUAGES %}
-                            {% for code, name in LANGUAGES %}
-                            <button type="submit" name="language" value="{{ code }}"
-                                    class="dropdown-item {% if code == LANGUAGE_CODE %}active{% endif %}">{{ name }}</button>
-                            {% endfor %}
-                        </form>
-                    </li>
+    {% if request.user.is_authenticated %}
+    <header class="topbar d-lg-none">
+        <a class="wordmark" href="{% url 'analytics:dashboard' %}">Mesa</a>
+        <a class="topbar-upload" href="{% url 'sales:upload' %}">{% trans "Upload" %}</a>
+        <button class="topbar-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#rail"
+                aria-controls="rail" aria-label="{% trans 'Open menu' %}">
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+    </header>
 
-                    <li><hr class="dropdown-divider"></li>
-                    {% if request.user.is_authenticated %}
-                        <li><span class="dropdown-item-text text-muted small">{{ request.user.email }}</span></li>
-                        {% if request.restaurant %}
-                        <li><a class="dropdown-item {% if url_name == 'settings' %}active{% endif %}" href="{% url 'tenants:settings' %}">{% trans "Restaurant settings" %}</a></li>
-                        {% endif %}
-                        <li><a class="dropdown-item" href="{% url 'account_change_password' %}">{% trans "Change password" %}</a></li>
-                        <li>
-                            <form method="post" action="{% url 'account_logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item">{% trans "Logout" %}</button>
-                            </form>
-                        </li>
-                    {% else %}
-                        <li><a class="dropdown-item" href="{% url 'account_login' %}">{% trans "Login" %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'account_signup' %}">{% trans "Sign up" %}</a></li>
-                    {% endif %}
-                </ul>
+    <aside class="rail offcanvas-lg offcanvas-start" id="rail" tabindex="-1" aria-label="{% trans 'Main menu' %}">
+        <div class="offcanvas-body">
+            <div class="d-flex align-items-start justify-content-between">
+                <div>
+                    <a class="wordmark" href="{% url 'analytics:dashboard' %}">Mesa</a>
+                    {% if request.restaurant %}<span class="rail-place">{{ request.restaurant.name }}</span>{% endif %}
+                </div>
+                <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas"
+                        data-bs-target="#rail" aria-label="{% trans 'Close menu' %}"></button>
             </div>
-            {% endwith %}
-        </div>
-    </nav>
 
-    <main class="container py-4 py-lg-5">
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <a class="rail-upload{% if nav_current == 'sales:upload' %} is-current{% endif %}" href="{% url 'sales:upload' %}"
+               {% if nav_current == 'sales:upload' %}aria-current="page"{% endif %}>
+                <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 10.5V2.5M4.5 6 8 2.5 11.5 6M2.5 10.5v3h11v-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {% trans "Upload reports" %}
+            </a>
+
+            <nav class="rail-nav" aria-label="{% trans 'Sections' %}">
+                <ul>
+                    {% for section in nav_sections %}
+                    <li><a href="{{ section.url }}"{% if section.active %} aria-current="page"{% endif %}>{{ section.label }}</a></li>
+                    {% endfor %}
+                </ul>
+            </nav>
+
+            <div class="rail-foot">
+                {% if request.restaurant %}
+                <a href="{% url 'tenants:settings' %}"{% if nav_current == 'tenants:settings' %} aria-current="page"{% endif %}>{% trans "Restaurant settings" %}</a>
+                {% endif %}
+                <a href="{% url 'account_change_password' %}">{% trans "Change password" %}</a>
+                <a href="{% url 'pages:help' %}">{% trans "Help" %}</a>
+                <form action="{% url 'set_language' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    {% for code, name in LANGUAGES %}{% if code != LANGUAGE_CODE %}
+                    <button type="submit" name="language" value="{{ code }}" lang="{{ code }}">{% if code == "es" %}Ver en español{% else %}View in English{% endif %}</button>
+                    {% endif %}{% endfor %}
+                </form>
+                <form method="post" action="{% url 'account_logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">{% trans "Log out" %}</button>
+                </form>
+            </div>
         </div>
-        {% endfor %}
-        {% endif %}
-        {% block content %}{% endblock %}
+    </aside>
+    {% else %}
+    <header class="public-bar">
+        <a class="wordmark" href="{% url 'pages:landing' %}">Mesa</a>
+        <a href="{% url 'pages:help' %}">{% trans "Help" %}</a>
+        <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            {% for code, name in LANGUAGES %}{% if code != LANGUAGE_CODE %}
+            <button class="lang-switch" type="submit" name="language" value="{{ code }}" lang="{{ code }}">{% if code == "es" %}Español{% else %}English{% endif %}</button>
+            {% endif %}{% endfor %}
+        </form>
+        <a href="{% url 'account_login' %}">{% trans "Log in" %}</a>
+        <a class="btn btn-primary btn-sm" href="{% url 'account_signup' %}">{% trans "Sign up" %}</a>
+    </header>
+    {% endif %}
+
+    <main id="main" class="page{% if not request.user.is_authenticated %} public-page{% endif %}" tabindex="-1">
+        <div class="page-inner">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% trans 'Close' %}"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% if nav_tabs %}
+            <ul class="tabs" aria-label="{% trans 'Pages in this section' %}">
+                {% for tab in nav_tabs %}
+                <li><a href="{{ tab.url }}"{% if tab.active %} aria-current="page"{% endif %}>{{ tab.label }}</a></li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
-    <footer class="mesa-footer">
-        <div class="container py-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <span>{% trans "Mesa &middot; Business intelligence for Soft Restaurant data" %}</span>
-            {% if request.restaurant %}<span class="text-muted">{{ request.restaurant.name }}</span>{% endif %}
-        </div>
-    </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

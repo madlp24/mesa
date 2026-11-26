@@ -263,3 +263,17 @@ def test_the_minimum_can_be_changed_in_settings(logged_client, restaurant):
 
     restaurant.refresh_from_db()
     assert restaurant.minimum_quote_margin == Decimal("72.50")
+
+
+@pytest.mark.django_db
+def test_the_event_menu_can_be_built_from_the_page(logged_client, restaurant):
+    category = Category.objects.create(restaurant=restaurant, name="Entradas")
+    Product.objects.create(
+        restaurant=restaurant, name="EMPANADAS", sku="9", category=category,
+        cost_price=Decimal("2000"), sale_price=Decimal("10000"),
+    )
+
+    response = logged_client.post(reverse("quotes:menu_build"), follow=True)
+
+    assert MenuItem.objects.filter(restaurant=restaurant).count() == 1
+    assert "1 dish added" in response.content.decode()

@@ -109,4 +109,4 @@ def test_pnl_page_renders_year_filter(logged_client, product):
     assert response.context["selected_year"] == 2026
     assert len(response.context["rows"]) == 12
     assert 2026 in response.context["years"]
-    assert "Mar 2026" in response.content.decode()
+    assert "March 2026" in response.content.decode()

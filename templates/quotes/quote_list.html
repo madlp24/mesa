@@ -25,9 +25,12 @@
 </div>
 
 {% if menu_count == 0 %}
-<div class="alert alert-warning">
-    {% trans "Your quoting menu is empty. Run" %} <code>python manage.py seed_menu --restaurant &lt;id&gt;</code>
-    {% trans "to build it from your catalog." %}
+<div class="notice">
+    <p>{% trans "Your event menu is empty. Mesa can build it from your products: each dish at its current price, with the tax inside and cuts sold by the kilo." %}</p>
+    <form method="post" action="{% url 'quotes:menu_build' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-sm">{% trans "Build the menu from my products" %}</button>
+    </form>
 </div>
 {% elif unmapped_count %}
 <div class="alert alert-warning d-flex justify-content-between align-items-center">

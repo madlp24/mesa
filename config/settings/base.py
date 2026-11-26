@@ -61,6 +61,7 @@ TEMPLATES = [
                 "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "pages.navigation.navigation",
             ],
         },
     },
@@ -85,6 +86,8 @@ LANGUAGES = [
     ("es", _("Spanish")),
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
+# Spanish numbers as written in Colombia: "$276.436.986", "68,6 %".
+FORMAT_MODULE_PATH = ["config.formats"]
 TIME_ZONE = "America/Bogota"
 USE_I18N = True
 USE_TZ = True

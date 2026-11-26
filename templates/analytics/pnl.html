@@ -1,53 +1,46 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n mesa %}
 
-{% block title %}{% trans "Profit & Loss" %} - Mesa{% endblock %}
+{% block title %}{% trans "Sales by month" %} - Mesa{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-    <h1 class="h3 mb-1">{% trans "Monthly profit & loss" %}</h1>
-    <p class="text-muted mb-0">{% trans "Revenue, cost of goods sold and gross margin, month by month." %}</p>
+<div class="page-head">
+    <div>
+        <h1>{% trans "Sales" %}</h1>
+        <p>{% trans "What each month sold, what it cost and what it left, from your POS reports." %}</p>
+    </div>
+    <nav class="period-presets" aria-label="{% trans 'Year' %}">
+        <a href="?"{% if not selected_year %} aria-current="true"{% endif %}>{% trans "Last 12 months" %}</a>
+        {% for y in years %}
+        <a href="?year={{ y }}"{% if selected_year == y %} aria-current="true"{% endif %}>{{ y }}</a>
+        {% endfor %}
+    </nav>
 </div>
 
-<form method="get" class="row g-2 align-items-end mb-4">
-    <div class="col-auto">
-        <label for="year" class="form-label mb-0">{% trans "Period" %}</label>
-        <select id="year" name="year" class="form-select" onchange="this.form.submit()">
-            <option value="">{% trans "Last 12 months" %}</option>
-            {% for y in years %}
-            <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">{% trans "Apply" %}</button>
-    </div>
-</form>
-
-<div class="card"><div class="card-body p-0">
+<div class="panel p-0">
 <div class="table-responsive">
-    <table class="table table-striped table-hover align-middle mb-0">
+    <table class="table table-hover align-middle">
         <thead>
             <tr>
-                <th>{% trans "Month" %}</th>
-                <th class="text-end">{% trans "Revenue" %}</th>
-                <th class="text-end">{% trans "COGS" %}</th>
-                <th class="text-end">{% trans "Gross Margin" %}</th>
-                <th class="text-end">{% trans "Gross Margin %" %}</th>
+                <th scope="col">{% trans "Month" %}</th>
+                <th scope="col" class="num">{% trans "Sales" %}</th>
+                <th scope="col" class="num">{% trans "Cost of sales" %}</th>
+                <th scope="col" class="num">{% trans "Gross margin" %}</th>
+                <th scope="col" class="num">{% trans "Margin %" %}</th>
             </tr>
         </thead>
         <tbody>
             {% for row in rows %}
-            <tr>
-                <td>{{ row.month|date:"M Y" }}</td>
-                <td class="text-end">${{ row.revenue }}</td>
-                <td class="text-end">${{ row.cogs }}</td>
-                <td class="text-end">${{ row.gross_margin }}</td>
-                <td class="text-end">{{ row.gross_margin_pct|floatformat:1 }}%</td>
+            <tr{% if not row.revenue %} class="text-muted"{% endif %}>
+                <td>{{ row.month|date:"F Y"|capfirst }}</td>
+                <td class="num">{% if row.revenue %}{{ row.revenue|cop }}{% else %}&ndash;{% endif %}</td>
+                <td class="num">{% if row.revenue %}{{ row.cogs|cop }}{% else %}&ndash;{% endif %}</td>
+                <td class="num">{% if row.revenue %}{{ row.gross_margin|cop }}{% else %}&ndash;{% endif %}</td>
+                <td class="num">{% if row.revenue %}<strong>{{ row.gross_margin_pct|pct }}</strong>{% else %}&ndash;{% endif %}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-</div></div>
+</div>
 {% endblock %}

@@ -34,8 +34,8 @@ def test_dashboard_renders_english_by_default(logged_client, dashboard_data):
     body = response.content.decode()
 
     assert response.status_code == 200
-    assert "Total revenue" in body
-    assert "Average ticket" in body
+    assert "Gross margin" in body
+    assert "What sold most" in body
 
 
 @pytest.mark.django_db
@@ -64,11 +64,11 @@ def test_dashboard_renders_spanish_when_language_is_es(logged_client, dashboard_
 
     assert response.status_code == 200
     # Translated user-facing strings from locale/es/LC_MESSAGES/django.po
-    assert "Ingresos totales" in body  # "Total revenue"
-    assert "Ticket promedio" in body  # "Average ticket"
+    assert "Resumen" in body  # "Overview"
+    assert "Lo que más se vendió" in body  # "What sold most"
     assert "Margen bruto" in body  # "Gross margin"
     # And no leftover English on the dashboard.
-    assert "Total revenue" not in body
+    assert "What sold most" not in body
 
 
 @pytest.mark.django_db
@@ -82,5 +82,5 @@ def test_margin_columns_translated_in_spanish(logged_client):
     body = response.content.decode()
 
     assert response.status_code == 200
-    assert "Análisis de márgenes" in body
+    assert "Márgenes" in body
     assert "Precio de venta" in body  # column header "Sale price" -> gettext_lazy

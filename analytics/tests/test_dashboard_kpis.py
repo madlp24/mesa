@@ -96,19 +96,19 @@ def test_compute_kpis_respects_date_range(restaurant, sales):
 
 
 @pytest.mark.django_db
-def test_dashboard_renders_four_kpis(logged_client, sales):
-    # Pass an explicit range covering the fixture data; the default window is
-    # the last 30 days (see US13), which would exclude these January sales.
+def test_dashboard_leads_with_sales_and_margin(logged_client, sales):
     response = logged_client.get(
         reverse("analytics:dashboard"), {"start": "2026-01-01", "end": "2026-01-31"}
     )
 
     assert response.status_code == 200
     content = response.content.decode()
-    assert "$9,000.00" in content  # total revenue, thousands separator
-    assert ">6</p>" in content  # items sold
-    assert "$3,000.00" in content  # average ticket
+    assert "$9,000" in content  # sales, whole pesos with a thousands separator
     assert "70.0%" in content  # gross margin
+    # Items sold added grams to bottles, and the "average ticket" divided by
+    # synthetic per-product sales, not by bills (US49): neither is shown.
+    assert "Items sold" not in content
+    assert "Average ticket" not in content
 
 
 @pytest.mark.django_db
@@ -120,4 +120,4 @@ def test_dashboard_respects_date_range(logged_client, sales):
     kpis = response.context["kpis"]
     assert kpis["total_revenue"] == Decimal("1000.00")
     assert kpis["items_sold"] == 1
-    assert "$1,000.00" in response.content.decode()
+    assert "$1,000" in response.content.decode()
