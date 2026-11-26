@@ -93,7 +93,7 @@ def test_page_renders_the_periods(logged_client, restaurant):
     response = logged_client.get(reverse("analytics:comparisons"))
 
     assert response.status_code == 200
-    assert "2026-08" in response.content.decode()
+    assert "August 2026" in response.content.decode()
     assert response.context["grain"] == "month"
 
 

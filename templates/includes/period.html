@@ -1,0 +1,27 @@
+{% load i18n %}
+{% comment %}
+One-click periods, and a custom range behind a disclosure. Needs `window` (may be
+None when `allow_all` offers the whole history) and `presets`.
+{% endcomment %}
+<div class="period">
+    <nav class="period-presets" aria-label="{% trans 'Period' %}">
+        {% if allow_all %}<a href="?"{% if not window %} aria-current="true"{% endif %}>{% trans "All history" %}</a>{% endif %}
+        {% for key, label in presets %}
+        <a href="?period={{ key }}"{% if window.preset == key %} aria-current="true"{% endif %}>{{ label }}</a>
+        {% endfor %}
+    </nav>
+    <details>
+        <summary{% if window.preset == "custom" %} aria-current="true"{% endif %}>{% if window.preset == "custom" %}{{ window.start|date:"j M" }} &ndash; {{ window.end|date:"j M Y" }}{% else %}{% trans "Dates" %}{% endif %}</summary>
+        <form method="get" class="period-custom">
+            <div>
+                <label for="period-start" class="form-label">{% trans "From" %}</label>
+                <input type="date" id="period-start" name="start" value="{{ window.start|date:'Y-m-d' }}" class="form-control">
+            </div>
+            <div>
+                <label for="period-end" class="form-label">{% trans "To" %}</label>
+                <input type="date" id="period-end" name="end" value="{{ window.end|date:'Y-m-d' }}" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">{% trans "Show these dates" %}</button>
+        </form>
+    </details>
+</div>

@@ -1,73 +1,61 @@
 {% extends "base.html" %}
-{% load i18n humanize %}
+{% load i18n mesa %}
 
-{% block title %}{% trans "Comparisons" %} - Mesa{% endblock %}
+{% block title %}{% trans "Against last year" %} - Mesa{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-  <h1 class="h3 mb-1">{% trans "Comparisons" %}</h1>
-  <p class="text-muted mb-0">
-    {% trans "How many people came, what each left on average, and what you billed — each period next to the same one a year earlier." %}
-  </p>
-</div>
-
-<div class="btn-group mb-4" role="group">
-  <a href="?grain=day" class="btn btn-sm {% if grain == 'day' %}btn-primary{% else %}btn-outline-secondary{% endif %}">{% trans "By day" %}</a>
-  <a href="?grain=week" class="btn btn-sm {% if grain == 'week' %}btn-primary{% else %}btn-outline-secondary{% endif %}">{% trans "By week" %}</a>
-  <a href="?grain=month" class="btn btn-sm {% if grain == 'month' %}btn-primary{% else %}btn-outline-secondary{% endif %}">{% trans "By month" %}</a>
+<div class="page-head">
+  <div>
+    <h1>{% trans "Sales" %}</h1>
+    <p>{% trans "People, bills and takings, each period next to the same one a year earlier." %}</p>
+  </div>
+  <nav class="period-presets" aria-label="{% trans 'Group by' %}">
+    <a href="?grain=day"{% if grain == 'day' %} aria-current="true"{% endif %}>{% trans "By day" %}</a>
+    <a href="?grain=week"{% if grain == 'week' %} aria-current="true"{% endif %}>{% trans "By week" %}</a>
+    <a href="?grain=month"{% if grain == 'month' %} aria-current="true"{% endif %}>{% trans "By month" %}</a>
+  </nav>
 </div>
 
 {% if periods %}
-<div class="card"><div class="card-body">
+<div class="panel p-0">
   <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
+    <table class="table table-hover align-middle">
       <thead>
         <tr>
-          <th>{% trans "Period" %}</th>
-          <th class="text-end">{% trans "People" %}</th>
-          <th class="text-end">{% trans "vs last year" %}</th>
-          <th class="text-end">{% trans "Bills" %}</th>
-          <th class="text-end">{% trans "Takings" %}</th>
-          <th class="text-end">{% trans "vs last year" %}</th>
-          <th class="text-end">{% trans "Per person" %}</th>
-          <th class="text-end">{% trans "Per bill" %}</th>
+          <th scope="col">{% trans "Period" %}</th>
+          <th scope="col" class="num">{% trans "People" %}</th>
+          <th scope="col" class="num">{% trans "vs last year" %}</th>
+          <th scope="col" class="num">{% trans "Bills" %}</th>
+          <th scope="col" class="num">{% trans "Takings" %}</th>
+          <th scope="col" class="num">{% trans "vs last year" %}</th>
+          <th scope="col" class="num">{% trans "Per person" %}</th>
+          <th scope="col" class="num">{% trans "Per bill" %}</th>
         </tr>
       </thead>
       <tbody>
         {% for p in periods %}
         <tr>
-          <td class="fw-semibold">{{ p.label }}</td>
-          <td class="text-end">{{ p.guests|intcomma }}</td>
-          <td class="text-end">
-            {% if p.guests_change is None %}<span class="text-muted">—</span>
-            {% else %}<span class="{% if p.guests_change < 0 %}text-danger{% else %}text-success{% endif %}">{{ p.guests_change|floatformat:1 }}%</span>{% endif %}
-          </td>
-          <td class="text-end">{{ p.accounts|intcomma }}</td>
-          <td class="text-end">
-            {% if p.sales is None %}<span class="text-muted">—</span>{% else %}{{ p.sales|floatformat:0|intcomma }}{% endif %}
-          </td>
-          <td class="text-end">
-            {% if p.sales_change is None %}<span class="text-muted">—</span>
-            {% else %}<span class="{% if p.sales_change < 0 %}text-danger{% else %}text-success{% endif %}">{{ p.sales_change|floatformat:1 }}%</span>{% endif %}
-          </td>
-          <td class="text-end">
-            {% if p.ticket_per_guest is None %}<span class="text-muted">—</span>{% else %}{{ p.ticket_per_guest|floatformat:0|intcomma }}{% endif %}
-          </td>
-          <td class="text-end">
-            {% if p.ticket_per_account is None %}<span class="text-muted">—</span>{% else %}{{ p.ticket_per_account|floatformat:0|intcomma }}{% endif %}
-          </td>
+          <td class="fw-semibold text-nowrap">{% if grain == 'month' %}{{ p.key|date:"F Y"|capfirst }}{% elif grain == 'day' %}{{ p.key|date:"D j M Y" }}{% else %}{{ p.label }}{% endif %}</td>
+          <td class="num">{{ p.guests|num }}</td>
+          <td class="num {{ p.guests_change|trend }}">{{ p.guests_change|change }}</td>
+          <td class="num">{{ p.accounts|num }}</td>
+          <td class="num">{{ p.sales|cop }}</td>
+          <td class="num {{ p.sales_change|trend }}">{{ p.sales_change|change }}</td>
+          <td class="num">{{ p.ticket_per_guest|cop }}</td>
+          <td class="num">{{ p.ticket_per_account|cop }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-  <p class="text-muted small mt-3 mb-0">
-    {% trans "A dash means the figure is not known for that period — turnout and takings come from different sources, and one can reach back further than the other." %}
-  </p>
-</div></div>
+</div>
+<p class="text-muted small mt-3">
+  {% trans "A dash means the figure is not known for that period: turnout and takings come from different reports, and one can reach back further than the other." %}
+</p>
 {% else %}
-<div class="card"><div class="card-body text-center text-muted py-5">
-  <p class="mb-0">{% trans "No turnout recorded yet. Import it and the comparisons appear." %}</p>
-</div></div>
+<div class="panel text-center py-5">
+  <h2 class="h4">{% trans "No turnout recorded yet" %}</h2>
+  <p class="text-muted mx-auto mb-0">{% trans "Import the daily covers report and each period appears here next to the year before." %}</p>
+</div>
 {% endif %}
 {% endblock %}

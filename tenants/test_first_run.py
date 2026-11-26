@@ -34,9 +34,9 @@ def test_empty_dashboard_shows_first_run_cta(logged_client):
     response = logged_client.get(reverse("analytics:dashboard"))
     body = response.content.decode()
     assert response.context["has_data"] is False
-    assert "Upload your first report" in body
+    assert "Start with one day's report" in body
     # No chart canvases when there is no data.
-    assert "revenueChart" not in body
+    assert "days-chart" not in body
 
 
 @pytest.mark.django_db
@@ -58,8 +58,8 @@ def test_dashboard_with_data_hides_cta(logged_client, restaurant):
     response = logged_client.get(reverse("analytics:dashboard"))
     body = response.content.decode()
     assert response.context["has_data"] is True
-    assert "Upload your first report" not in body
-    assert "revenueChart" in body
+    assert "Start with one day" not in body
+    assert "days-chart" in body
 
 
 @pytest.mark.django_db

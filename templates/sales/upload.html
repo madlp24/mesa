@@ -1,127 +1,149 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n mesa %}
 
-{% block title %}{% trans "Upload report" %} - Mesa{% endblock %}
+{% block title %}{% trans "Upload reports" %} - Mesa{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-8 col-xl-7">
-    <div class="mb-4">
-      <h1 class="h3 mb-1">{% trans "Upload reports" %}</h1>
-      <p class="text-muted mb-0">
-        {% trans "Upload your Soft Restaurant Productos-Vendidos exports (.pdf or .xlsx). Select several at once to import a whole month. They land in your restaurant and your dashboards update automatically." %}
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label for="{{ form.report.id_for_label }}" class="form-label">{{ form.report.label }}</label>
-            <input type="file" name="{{ form.report.html_name }}" id="{{ form.report.id_for_label }}"
-                   class="form-control {% if form.report.errors %}is-invalid{% endif %}"
-                   accept=".pdf,.xlsx" multiple required>
-            {% for error in form.report.errors %}
-              <div class="invalid-feedback">{{ error }}</div>
-            {% endfor %}
-            <div class="form-text">{% trans "Hold Ctrl/Cmd (or Shift) to select multiple files." %}</div>
-          </div>
-          <button type="submit" class="btn btn-primary">{% trans "Upload and import" %}</button>
-        </form>
-      </div>
-    </div>
-
-    {% if summaries %}
-    <div class="card mt-4">
-      <div class="card-body">
-        <h2 class="h5 mb-3">{% trans "Import summary" %}</h2>
-        <div class="table-responsive">
-          <table class="table table-sm align-middle mb-3">
-            <thead>
-              <tr>
-                <th>{% trans "File" %}</th>
-                <th class="text-end">{% trans "Sales" %}</th>
-                <th class="text-end">{% trans "Lines" %}</th>
-                <th class="text-end">{% trans "Corrected" %}</th>
-                <th class="text-end">{% trans "Duplicate" %}</th>
-                <th class="text-end">{% trans "Older copy" %}</th>
-                <th class="text-end">{% trans "Unreadable" %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for summary in summaries %}
-              <tr>
-                <td>{{ summary.filename }}</td>
-                <td class="text-end">{{ summary.new }}</td>
-                <td class="text-end">{{ summary.items }}</td>
-                <td class="text-end">{{ summary.corrected }}</td>
-                <td class="text-end">{{ summary.skipped_duplicate }}</td>
-                <td class="text-end">{{ summary.older_copy }}</td>
-                <td class="text-end">{{ summary.skipped_rows }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <p class="small text-muted">
-          {% blocktrans trimmed %}
-          <strong>Corrected</strong>: sales already imported with different figures, usually a
-          report printed before the day closed. The new figures replace the old ones, and
-          Undo does not bring them back.
-          <strong>Older copy</strong>: sales left as they were because this file has less for
-          that day than what was already imported.
-          {% endblocktrans %}
-        </p>
-        <div class="d-flex flex-wrap gap-2">
-          <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:dashboard' %}">{% trans "View dashboard" %}</a>
-          <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:export_productos_vendidos' %}">{% trans "Download Products-Sold matrix (Excel)" %}</a>
-          <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:export_analysis' %}">{% trans "Download analysis report (Excel)" %}</a>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-
-    {% if imports %}
-    <div class="card mt-4">
-      <div class="card-body">
-        <h2 class="h5 mb-3">{% trans "Recent imports" %}</h2>
-        <div class="table-responsive">
-          <table class="table table-sm align-middle mb-0">
-            <thead>
-              <tr>
-                <th>{% trans "File" %}</th>
-                <th>{% trans "Date" %}</th>
-                <th class="text-end">{% trans "Sales" %}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for batch in imports %}
-              <tr>
-                <td>{{ batch.filename }}</td>
-                <td class="text-muted small">{{ batch.created_at|date:"Y-m-d H:i" }}</td>
-                <td class="text-end">
-                  {{ batch.sales_created }}
-                  {% if batch.sales_corrected %}
-                    <span class="badge text-bg-secondary">{% blocktrans count counter=batch.sales_corrected %}{{ counter }} corrected{% plural %}{{ counter }} corrected{% endblocktrans %}</span>
-                  {% endif %}
-                </td>
-                <td class="text-end">
-                  <form method="post" action="{% url 'sales:undo_import' batch.pk %}"
-                        onsubmit="return confirm('{% if batch.sales_corrected %}{% trans "Undo this import? The sales it created will be deleted; the ones it corrected stay corrected." %}{% else %}{% trans "Undo this import? The sales it created will be deleted." %}{% endif %}');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger btn-sm">{% trans "Undo" %}</button>
-                  </form>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    {% endif %}
+<div class="page-head">
+  <div>
+    <h1>{% trans "Upload reports" %}</h1>
+    <p>{% trans "The Products Sold report from Soft Restaurant, as PDF or Excel. Drop a whole month at once: each day goes to its date, and a day uploaded twice is not counted twice." %}</p>
   </div>
 </div>
+
+<form method="post" enctype="multipart/form-data" class="mb-4" id="upload-form">
+  {% csrf_token %}
+  <div class="dropzone{% if form.report.errors %} is-invalid{% endif %}" id="dropzone">
+    <input type="file" name="{{ form.report.html_name }}" id="{{ form.report.id_for_label }}"
+           accept=".pdf,.xlsx" multiple required aria-describedby="dropzone-hint">
+    <span class="dropzone-label">{% trans "Drop the reports here, or click to choose them" %}</span>
+    <p class="dropzone-hint" id="dropzone-hint">{% trans "PDF or Excel, up to 20 MB each." %}</p>
+    <ul class="dropzone-files" id="dropzone-files" aria-live="polite"></ul>
+  </div>
+  {% for error in form.report.errors %}
+  <p class="text-danger small mt-2 mb-0">{{ error }}</p>
+  {% endfor %}
+  <button type="submit" class="btn btn-ember mt-3" id="upload-submit">{% trans "Import" %}</button>
+</form>
+
+{% if summaries %}
+<section class="panel mb-4" aria-labelledby="summary-title">
+  <div class="panel-title">
+    <h2 id="summary-title">{% trans "What was imported" %}</h2>
+    <a href="{% url 'analytics:dashboard' %}">{% trans "See the overview" %}</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th scope="col">{% trans "File" %}</th>
+          <th scope="col" class="num">{% trans "Sales" %}</th>
+          <th scope="col" class="num">{% trans "Lines" %}</th>
+          <th scope="col" class="num">{% trans "Corrected" %}</th>
+          <th scope="col" class="num">{% trans "Duplicate" %}</th>
+          <th scope="col" class="num">{% trans "Older copy" %}</th>
+          <th scope="col" class="num">{% trans "Unreadable" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for summary in summaries %}
+        <tr>
+          <td>{{ summary.filename }}</td>
+          <td class="num">{{ summary.new|num }}</td>
+          <td class="num">{{ summary.items|num }}</td>
+          <td class="num">{{ summary.corrected|num }}</td>
+          <td class="num">{{ summary.skipped_duplicate|num }}</td>
+          <td class="num">{{ summary.older_copy|num }}</td>
+          <td class="num">{{ summary.skipped_rows|num }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="small text-muted mt-3 mb-0">
+    {% blocktrans trimmed %}
+    <strong>Corrected</strong>: sales already imported with different figures, usually a
+    report printed before the day closed. The new figures replace the old ones, and
+    Undo does not bring them back.
+    <strong>Older copy</strong>: sales left as they were because this file has less for
+    that day than what was already imported.
+    {% endblocktrans %}
+  </p>
+</section>
+{% endif %}
+
+{% if imports %}
+<section class="panel" aria-labelledby="history-title">
+  <div class="panel-title">
+    <h2 id="history-title">{% trans "Recent imports" %}</h2>
+    <span class="text-muted small">{% blocktrans trimmed count n=imports|length %}{{ n }} import{% plural %}{{ n }} imports{% endblocktrans %}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th scope="col">{% trans "File" %}</th>
+          <th scope="col">{% trans "Imported" %}</th>
+          <th scope="col" class="num">{% trans "Sales" %}</th>
+          <th scope="col"><span class="visually-hidden">{% trans "Actions" %}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for batch in imports|slice:":25" %}
+        <tr>
+          <td>{{ batch.filename }}</td>
+          <td class="text-muted small">{{ batch.created_at|date:"j M Y, H:i" }}</td>
+          <td class="num">
+            {{ batch.sales_created|num }}
+            {% if batch.sales_corrected %}
+              <span class="badge text-bg-secondary">{% blocktrans count counter=batch.sales_corrected %}{{ counter }} corrected{% plural %}{{ counter }} corrected{% endblocktrans %}</span>
+            {% endif %}
+          </td>
+          <td class="num">
+            <form method="post" action="{% url 'sales:undo_import' batch.pk %}"
+                  onsubmit="return confirm('{% if batch.sales_corrected %}{% filter escapejs %}{% trans "Undo this import? The sales it created will be deleted; the ones it corrected stay corrected." %}{% endfilter %}{% else %}{% filter escapejs %}{% trans "Undo this import? The sales it created will be deleted." %}{% endfilter %}{% endif %}');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger btn-sm">{% trans "Undo" %}</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    const zone = document.getElementById("dropzone");
+    const input = zone.querySelector("input[type=file]");
+    const list = document.getElementById("dropzone-files");
+    const form = document.getElementById("upload-form");
+    const submit = document.getElementById("upload-submit");
+    const importing = "{{ _('Importing...')|escapejs }}";
+
+    function show() {
+        list.textContent = "";
+        Array.from(input.files).forEach(function (file) {
+            const item = document.createElement("li");
+            item.textContent = file.name;
+            list.appendChild(item);
+        });
+    }
+    ["dragenter", "dragover"].forEach(function (name) {
+        zone.addEventListener(name, function () { zone.classList.add("is-over"); });
+    });
+    ["dragleave", "drop"].forEach(function (name) {
+        zone.addEventListener(name, function () { zone.classList.remove("is-over"); });
+    });
+    input.addEventListener("change", show);
+    form.addEventListener("submit", function () {
+        submit.disabled = true;
+        submit.textContent = importing;
+    });
+})();
+</script>
 {% endblock %}

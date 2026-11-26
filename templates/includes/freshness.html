@@ -1,0 +1,14 @@
+{% load i18n %}
+{# Says when the reports stop short of yesterday. Needs `window`. #}
+{% if window.days_behind %}
+<div class="notice" role="status">
+    <p>
+        {% blocktrans trimmed with latest=window.latest|date:"j M Y" count days=window.days_behind %}
+        Your reports reach {{ latest }}. One day is missing since then.
+        {% plural %}
+        Your reports reach {{ latest }}. {{ days }} days are missing since then.
+        {% endblocktrans %}
+    </p>
+    <a href="{% url 'sales:upload' %}">{% trans "Upload the missing reports" %}</a>
+</div>
+{% endif %}

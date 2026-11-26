@@ -7,7 +7,6 @@ from django.db.models import Count, DecimalField, ExpressionWrapper, F, QuerySet
 from django.db.models.functions import TruncDate
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.dateparse import parse_date
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
@@ -28,12 +27,19 @@ _MARGIN = ExpressionWrapper(
 )
 
 
+def _window(request: HttpRequest):
+    """The period asked for, or ``None`` for the product's whole history."""
+    from analytics.periods import window_for
+
+    if any(request.GET.get(key) for key in ("period", "start", "end")):
+        return window_for(request.restaurant, request.GET)
+    return None
+
+
 def _date_range(request: HttpRequest) -> tuple:
-    """Parse optional ?start=&end= (YYYY-MM-DD) query params; None when absent."""
-    return (
-        parse_date(request.GET.get("start", "") or ""),
-        parse_date(request.GET.get("end", "") or ""),
-    )
+    """``(start, end)`` of the period asked for; ``(None, None)`` for all of it."""
+    window = _window(request)
+    return (window.start, window.end) if window else (None, None)
 
 
 def _items_in_range(product: Product, start, end) -> QuerySet:
@@ -153,7 +159,11 @@ def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
         revenue=Sum(_REVENUE),
         margin=Sum(_MARGIN),
     )
+    from analytics.periods import PRESETS
+
     context = {
+        "window": _window(request),
+        "presets": PRESETS,
         "product": product,
         "units_sold": totals["units"] or 0,
         "total_revenue": totals["revenue"] or 0,
