@@ -815,3 +815,14 @@ p { max-width: 72ch; }
 
 .plain-list { list-style: none; margin: 0; padding: 0; columns: 2 16rem; }
 .plain-list li { padding: .25rem 0; break-inside: avoid; }
+
+/* ---- Days and holidays --------------------------------------------------- */
+
+.verdict { display: grid; gap: .5rem; }
+.verdict p { margin: 0; color: var(--ink-2); }
+.verdict .figure-lg { color: var(--ink); }
+.weekday-table .bar-cell { min-width: 14rem; }
+.bar-cell .bar-value { display: block; font-weight: 600; margin-bottom: .3rem; }
+.bar-cell .bar { display: block; height: 6px; border-radius: 3px; background: #e7eae6; overflow: hidden; }
+.bar-cell .bar span { display: block; height: 100%; border-radius: 3px; background: var(--ink-2); }
+.bar-cell .bar span.is-best { background: var(--ember); }

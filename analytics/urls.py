@@ -6,6 +6,7 @@ app_name = "analytics"
 urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path("margin/", views.margin_analysis, name="margin_analysis"),
+    path("days/", views.days_view, name="days"),
     path("margin/menu/", views.menu_engineering_view, name="menu_engineering"),
     path("margin/alerts/", views.margin_alerts_view, name="margin_alerts"),
     path("workbook/", views.workbook_update, name="workbook_update"),
