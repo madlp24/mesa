@@ -62,7 +62,9 @@ US29 manage product identity in the UI (#61/PR62),
 US30 update master 'Productos vendidos' sheet (#64/PR65),
 US32 fill 'Datos totales' N/O/S/T from PDF footer (#66/PR68),
 US31 multi-file upload (#63/PR69), US47 current product costs (#169/PR170),
-US48 correct re-imported days (#171/PR172), US49 redesign (#174/PR175).
+US48 correct re-imported days (#171/PR172), US49 redesign (#174/PR175),
+US50 menu engineering (#176/PR177), US51 days and holidays (#178/PR179),
+US52 remaining pages redesigned (#180/PR181).
 IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
@@ -118,6 +120,25 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   `sales/importers/pdf_daily.py::parse_daily_totals` (BEBIDAS/ALIMENTOS block). Matches by
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
+
+US50 menu engineering (#176): `analytics/menu_engineering.py`, tab in Margins
+(`/margin/menu/`, default 90 days -- new `90d` preset). Kasavana-Smith WITHIN
+each category: popular = share of the group's portions >= 70% of an even share;
+profitable = contribution per portion >= the group's portion-weighted average.
+Cuts sold by the gram count in 280 g portions (`catalog/portions.py`, same
+number the quotes use) -- otherwise grams outrank pieces. Uncosted dishes are
+listed apart, never placed.
+
+US51 days and holidays (#178): `analytics/days.py`, tab in Sales (`/days/`,
+whole history by default). Colombian holidays (Emiliani Mondays) from the
+`holidays` package (runtime dep). Reads `DailySummary` when the restaurant has
+covers, else POS sales per day; weekday averages exclude holidays; a holiday
+after the newest report is "no report yet", never "closed". Upcoming holidays
+expect what same-weekday holidays sold in the last 365 days.
+
+US52 (#180): remaining pages on the new design; `.narrow` left column replaces
+centred cards (auth pages stay centred); workbook form defaults to the month of
+the newest report.
 
 US49 redesign: navigation, dashboard and design system (#174/PR175). The UI
 was a generic cream/terracotta card kit with every page behind ONE dropdown.
@@ -248,8 +269,8 @@ US31 multi-file upload (#63): `/upload/` accepts several files at once
 (`sales/forms.py MultipleFileField`); `upload_report` imports each (one ImportBatch per
 file), a per-file error is reported without aborting the batch.
 
-DEPLOYED 2026-07-08 (Heroku release v10): US29 + US30 + US32 + US31 are LIVE (US30/US32
-are local commands, no web surface). See [[mesa-heroku-deploy]].
+DEPLOYED 2026-11-26 (Heroku release v54): everything through US49 is LIVE
+(US50-US52 merged after). See [[mesa-heroku-deploy]].
 
 NEXT: US19 polished README (#20), DEFERRED TO LAST by user decision; needs user inputs
 (business story, screenshots, board link — live demo URL is now known). The old
