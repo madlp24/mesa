@@ -21,7 +21,7 @@ from .forms import WorkbookUpdateForm
 from .days import between_weekdays, holiday_report, open_days, upcoming_holidays, weekday_profile
 from .menu_engineering import menu_engineering
 from .overview import overview
-from .periods import PRESETS, window_for
+from .periods import PRESETS, latest_sale_day, window_for
 from .unified_excel import UnifiedUpdateError, update_productos_vendidos
 from .services import (
     MARGIN_SORT_KEYS,
@@ -212,8 +212,12 @@ def workbook_update(request: HttpRequest) -> HttpResponse:
     The workbook is a private business file, so it is never stored: the upload
     lands in a temporary directory, the copy is read into memory, and the
     directory is gone before the response is sent.
+
+    The month offered is the one of the newest report: the form used to open
+    on January of next year, the first entry of each list (US52).
     """
-    form = WorkbookUpdateForm()
+    newest = latest_sale_day(request.restaurant) or timezone.localdate()
+    form = WorkbookUpdateForm(initial={"year": newest.year, "month": newest.month})
     if request.method == "POST":
         form = WorkbookUpdateForm(request.POST, request.FILES)
         if form.is_valid():

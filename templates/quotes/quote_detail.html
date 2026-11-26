@@ -1,18 +1,15 @@
 {% extends "base.html" %}
-{% load i18n humanize %}
+{% load i18n humanize mesa %}
 
 {% block title %}{{ quote.number }} - Mesa{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-4">
+<div class="page-head">
     <div>
-        <h1 class="h3 mb-1">{{ quote.number }}</h1>
-        <p class="text-muted mb-0">{{ quote.client_name|default:_("No client yet") }}</p>
+        <h1>{{ quote.number }}</h1>
+        <p>{{ quote.client_name|default:_("No client yet") }}</p>
     </div>
-    <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="{% url 'quotes:quote_list' %}">{% trans "All quotes" %}</a>
-        <a class="btn btn-primary" href="{% url 'quotes:quote_pdf' quote.pk %}">{% trans "Download PDF" %}</a>
-    </div>
+    <a class="btn btn-primary" href="{% url 'quotes:quote_pdf' quote.pk %}">{% trans "Download PDF" %}</a>
 </div>
 
 <!-- One form, several buttons. Adding a dish or a charge carries the event
@@ -117,7 +114,7 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span>{{ line.name }}{% if line.quantity != 1 %} <span class="text-muted">x{{ line.quantity|floatformat:0 }}</span>{% endif %}</span>
                         <span class="d-flex align-items-center gap-2">
-                            <span>{{ line.line_total|floatformat:0|intcomma }}</span>
+                            <span>{{ line.line_total|cop }}</span>
                                 <button class="btn btn-sm btn-link text-danger p-0" type="submit"
                                         formaction="{% url 'quotes:quote_remove_line' quote.pk line.pk %}"
                                         aria-label="{% trans 'Remove' %} {{ line.name }}">&times;</button>
@@ -169,7 +166,7 @@
                         <label class="form-label small" for="service">{% trans "Or reuse one" %}</label>
                         <select class="form-select form-select-sm" id="service" name="service">
                             {% for s in services %}
-                            <option value="{{ s.pk }}">{{ s.name }}{% if s.price %} — {{ s.price|floatformat:0|intcomma }}{% endif %}</option>
+                            <option value="{{ s.pk }}">{{ s.name }}{% if s.price %} — {{ s.price|cop }}{% endif %}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -227,53 +224,30 @@
     </div>
 
     <div class="col-lg-7">
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-xl-3">
-                <div class="card h-100"><div class="card-body">
-                    <div class="text-muted small text-uppercase">{% trans "Total" %}</div>
-                    <div class="h4 mb-0 text-nowrap">{{ quote.total|floatformat:0|intcomma }}</div>
-                    <div class="text-muted small">
-                        {{ quote.total_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}{% if quote.days > 1 %} &middot; {{ quote.days }} {% trans "days" %}{% endif %}
-                    </div>
-                </div></div>
-            </div>
-            <div class="col-6 col-xl-3">
-                <div class="card h-100"><div class="card-body">
-                    <div class="text-muted small text-uppercase">{% trans "Event cost" %}</div>
-                    <div class="h4 mb-0 text-nowrap">
-                        {% if quote.current_cost is not None %}{{ quote.current_cost|floatformat:0|intcomma }}
-                        {% elif quote.is_costed %}{{ quote.cost|floatformat:0|intcomma }}
-                        {% else %}—{% endif %}
-                    </div>
-                    <div class="text-muted small">
-                        {% if quote.current_cost is not None %}{% trans "at today's supply costs" %}
-                        {% elif quote.is_costed %}{{ quote.cost_per_guest|floatformat:0|intcomma }} {% trans "per guest" %}
-                        {% else %}{% trans "not fully costed" %}{% endif %}
-                    </div>
-                </div></div>
-            </div>
-            <div class="col-6 col-xl-3">
-                <div class="card h-100"><div class="card-body">
-                    <div class="text-muted small text-uppercase">{% trans "Profit" %}</div>
-                    <div class="h4 mb-0 text-nowrap">{% if quote.is_costed %}{{ quote.profit|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
-                    <div class="text-muted small">{% trans "after tax and tip" %}</div>
-                </div></div>
-            </div>
-            <div class="col-6 col-xl-3">
-                <div class="card h-100 {% if margin_verdict == 'good' %}border-success{% elif margin_verdict == 'fair' %}border-warning{% elif margin_verdict == 'poor' %}border-danger{% endif %}">
-                    <div class="card-body">
-                        <div class="text-muted small text-uppercase">{% trans "Margin" %}</div>
-                        <div class="h4 mb-0 text-nowrap">
-                            {% if live_margin is not None %}{{ live_margin|floatformat:1 }}%{% else %}—{% endif %}
-                            {% if below_minimum %}
-                            <span class="badge text-bg-danger align-middle">{% trans "below minimum" %}</span>
-                            {% endif %}
-                        </div>
-                        <div class="text-muted small">{% trans "minimum" %} {{ target_margin|floatformat:0 }}%</div>
-                    </div>
+        <section class="panel mb-4" aria-label="{% trans 'Figures' %}">
+            <dl class="stats stats-grid">
+                <div>
+                    <dt>{% trans "Total" %}</dt>
+                    <dd class="figure">{{ quote.total|cop }}</dd>
+                    <span class="delta flat">{{ quote.total_per_guest|cop }} {% trans "per guest" %}{% if quote.days > 1 %}, {{ quote.days }} {% trans "days" %}{% endif %}</span>
                 </div>
-            </div>
-        </div>
+                <div>
+                    <dt>{% trans "Event cost" %}</dt>
+                    <dd class="figure">{% if quote.current_cost is not None %}{{ quote.current_cost|cop }}{% elif quote.is_costed %}{{ quote.cost|cop }}{% else %}&ndash;{% endif %}</dd>
+                    <span class="delta flat">{% if quote.current_cost is not None %}{% trans "at today's supply costs" %}{% elif quote.is_costed %}{{ quote.cost_per_guest|cop }} {% trans "per guest" %}{% else %}{% trans "not fully costed" %}{% endif %}</span>
+                </div>
+                <div>
+                    <dt>{% trans "Profit" %}</dt>
+                    <dd class="figure">{% if quote.is_costed %}{{ quote.profit|cop }}{% else %}&ndash;{% endif %}</dd>
+                    <span class="delta flat">{% trans "after tax and tip" %}</span>
+                </div>
+                <div>
+                    <dt>{% trans "Margin" %}</dt>
+                    <dd class="figure {% if margin_verdict == 'good' %}up{% elif margin_verdict == 'poor' %}down{% endif %}">{% if live_margin is not None %}{{ live_margin|pct }}{% else %}&ndash;{% endif %}</dd>
+                    <span class="delta flat">{% trans "minimum" %} {{ target_margin|pct:0 }}{% if below_minimum %} <span class="badge text-bg-danger">{% trans "below minimum" %}</span>{% endif %}</span>
+                </div>
+            </dl>
+        </section>
 
         {% if stale_lines %}
         <div class="alert alert-info d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -285,8 +259,8 @@
                 {% endblocktrans %}
                 {% if quote.cost_drift %}
                 <strong>
-                    {% if quote.cost_drift > 0 %}{% trans "The event costs" %} +{{ quote.cost_drift|floatformat:0|intcomma }}
-                    {% else %}{% trans "The event costs" %} {{ quote.cost_drift|floatformat:0|intcomma }}{% endif %}
+                    {% if quote.cost_drift > 0 %}{% trans "The event costs" %} +{{ quote.cost_drift|cop }}
+                    {% else %}{% trans "The event costs" %} {{ quote.cost_drift|cop }}{% endif %}
                     {% trans "more than this quote says." %}
                 </strong>
                 {% endif %}
@@ -337,7 +311,7 @@
                             {% for label, items in dish_groups %}
                             <optgroup label="{{ label }}">
                                 {% for i in items %}
-                                <option value="{{ i.pk }}">{{ i.name }} — {{ i.price|floatformat:0|intcomma }}</option>
+                                <option value="{{ i.pk }}">{{ i.name }} — {{ i.price|cop }}</option>
                                 {% endfor %}
                             </optgroup>
                             {% endfor %}
@@ -420,7 +394,7 @@
                     <tbody>
                         {% for course in courses %}
                         <tr class="table-light">
-                            <th colspan="6" class="small text-uppercase">{{ course.label }}</th>
+                            <th colspan="6" class="course-row">{{ course.label }}</th>
                         </tr>
                         {% for line in course.lines %}
                         <tr>
@@ -443,7 +417,7 @@
                                        class="form-control form-control-sm text-end"
                                        aria-label="{% trans 'Quantity of' %} {{ line.name }}">
                             </td>
-                            <td class="text-end text-muted">{{ line.unit_price|floatformat:0|intcomma }}</td>
+                            <td class="text-end text-muted">{{ line.unit_price|cop }}</td>
                             <td style="width:7rem">
                                 <input type="number" step="100" name="cost-{{ line.pk }}"
                                        value="{{ line.unit_cost|default_if_none:''|floatformat:0 }}"
@@ -451,7 +425,7 @@
                                        placeholder="{% trans 'cost' %}"
                                        aria-label="{% trans 'Cost of' %} {{ line.name }}">
                             </td>
-                            <td class="text-end">{{ line.line_total|floatformat:0|intcomma }}</td>
+                            <td class="text-end">{{ line.line_total|cop }}</td>
                             <td class="text-end" style="width:2.5rem">
                                 <button class="btn btn-sm btn-link text-danger p-0" type="submit"
                                         formaction="{% url 'quotes:quote_remove_line' quote.pk line.pk %}"
@@ -471,30 +445,30 @@
                         {% for line in quote.charged_add_ons %}
                         <tr>
                             <td colspan="4" class="text-end text-muted">{{ line.name }}{% if line.quantity != 1 %} x{{ line.quantity|floatformat:0 }}{% endif %}</td>
-                            <td class="text-end">{{ line.line_total|floatformat:0|intcomma }}</td>
+                            <td class="text-end">{{ line.line_total|cop }}</td>
                             <td></td>
                         </tr>
                         {% endfor %}
                         <tr>
                             <td colspan="4" class="text-end text-muted">{% trans "Subtotal (tax included)" %}</td>
-                            <td class="text-end">{{ quote.subtotal|floatformat:0|intcomma }}</td>
+                            <td class="text-end">{{ quote.subtotal|cop }}</td>
                             <td></td>
                         </tr>
                         <tr>
                             <td colspan="4" class="text-end text-muted small">{% trans "of which tax, already inside" %}</td>
-                            <td class="text-end text-muted small">{{ quote.tax_included|floatformat:0|intcomma }}</td>
+                            <td class="text-end text-muted small">{{ quote.tax_included|cop }}</td>
                             <td></td>
                         </tr>
                         {% if quote.charges_tip %}
                         <tr>
                             <td colspan="4" class="text-end text-muted">{% trans "Tip" %} 10%</td>
-                            <td class="text-end">{{ quote.tip|floatformat:0|intcomma }}</td>
+                            <td class="text-end">{{ quote.tip|cop }}</td>
                             <td></td>
                         </tr>
                         {% endif %}
                         <tr class="fw-bold">
                             <td colspan="4" class="text-end">{% trans "Total" %}</td>
-                            <td class="text-end">{{ quote.total|floatformat:0|intcomma }}</td>
+                            <td class="text-end">{{ quote.total|cop }}</td>
                             <td></td>
                         </tr>
                     </tfoot>

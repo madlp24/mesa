@@ -826,3 +826,22 @@ p { max-width: 72ch; }
 .bar-cell .bar { display: block; height: 6px; border-radius: 3px; background: #e7eae6; overflow: hidden; }
 .bar-cell .bar span { display: block; height: 100%; border-radius: 3px; background: var(--ink-2); }
 .bar-cell .bar span.is-best { background: var(--ember); }
+
+.table th.course-row {
+    padding-top: 1.1rem;
+    font-stretch: var(--narrow);
+    font-size: var(--step-0);
+    font-weight: 750;
+    color: var(--ink);
+    border-bottom-color: var(--line-strong);
+}
+
+.stats.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+    gap: 1rem 1.5rem;
+}
+.stats.stats-grid div { min-width: 0; }
+
+/* A form or a short read: one column, left-aligned with the rest of the app. */
+.narrow { max-width: 40rem; }

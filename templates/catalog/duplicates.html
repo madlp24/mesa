@@ -4,14 +4,13 @@
 {% block title %}{% trans "Possible duplicates" %} - Mesa{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-4">
+<div class="page-head">
   <div>
-    <h1 class="h3 mb-1">{% trans "Possible duplicates" %}</h1>
-    <p class="text-muted mb-0">
+    <h1>{% trans "Possible duplicates" %}</h1>
+    <p>
       {% trans "Pairs where one product stopped selling right as a similarly named one started — the mark of a dish renamed in the POS." %}
     </p>
   </div>
-  <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary btn-sm">{% trans "All products" %}</a>
 </div>
 
 {% if candidates %}
@@ -22,7 +21,7 @@
 <div class="card mb-3"><div class="card-body">
   <div class="row align-items-center g-3">
     <div class="col-md-5">
-      <div class="text-muted small text-uppercase">{% trans "Keeps the history" %}</div>
+      <div class="text-muted small">{% trans "Keeps the history" %}</div>
       <a href="{% url 'catalog:product_detail' c.keep.pk %}" class="fw-bold">{{ c.keep.name }}</a>
       <div class="text-muted small">
         {{ c.keep.category.name }} · {% blocktrans with units=c.keep_units %}{{ units }} units{% endblocktrans %}
@@ -30,7 +29,7 @@
       </div>
     </div>
     <div class="col-md-5">
-      <div class="text-muted small text-uppercase">{% trans "Would be folded in" %}</div>
+      <div class="text-muted small">{% trans "Would be folded in" %}</div>
       <a href="{% url 'catalog:product_detail' c.merge.pk %}" class="fw-bold">{{ c.merge.name }}</a>
       <div class="text-muted small">
         {{ c.merge.category.name }} · {% blocktrans with units=c.merge_units %}{{ units }} units{% endblocktrans %}
