@@ -778,3 +778,10 @@ p { max-width: 72ch; }
     box-shadow: 0 12px 32px rgba(28, 36, 34, .25);
 }
 .action-bar[hidden] { display: none; }
+
+/* Bootstrap colours every table cell; trends inside a table must win. */
+.table > :not(caption) > * > .up { color: var(--herb); }
+.table > :not(caption) > * > .down { color: var(--loss); }
+.table > :not(caption) > * > .flat { color: var(--muted); }
+
+.text-center p { margin-inline: auto; }

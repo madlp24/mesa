@@ -84,7 +84,7 @@
     const count = document.getElementById("merge-count");
     const boxes = Array.from(document.querySelectorAll('input[name="product_ids"]'));
     const one = "{{ _('1 selected: pick at least one more')|escapejs }}";
-    const many = "{{ _('%(n)s selected')|escapejs }}";
+    const many = "{{ _('{n} selected')|escapejs }}";
 
     function strip(text) {
         return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -104,7 +104,7 @@
         const n = boxes.filter(function (b) { return b.checked; }).length;
         bar.hidden = n === 0;
         bar.querySelector("button[type=submit]").disabled = n < 2;
-        count.textContent = n === 1 ? one : many.replace("%(n)s", n);
+        count.textContent = n === 1 ? one : many.replace("{n}", n);
     }
     boxes.forEach(function (b) { b.addEventListener("change", update); });
     document.getElementById("merge-clear").addEventListener("click", function () {

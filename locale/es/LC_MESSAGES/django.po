@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 10:07-0500\n"
+"POT-Creation-Date: 2026-11-26 10:15-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -683,7 +683,8 @@ msgstr "Margen"
 #: templates/analytics/comparisons.html:10
 msgid ""
 "People, bills and takings, each period next to the same one a year earlier."
-msgstr "Personas, cuentas y ventas, cada período junto al mismo de hace un año."
+msgstr ""
+"Personas, cuentas y ventas, cada período junto al mismo de hace un año."
 
 #: templates/analytics/comparisons.html:12
 msgid "Group by"
@@ -731,7 +732,9 @@ msgstr "Por cuenta"
 msgid ""
 "A dash means the figure is not known for that period: turnout and takings "
 "come from different reports, and one can reach back further than the other."
-msgstr "Un guion significa que ese dato no se conoce para ese período: las personas y las ventas vienen de reportes distintos, y uno llega más atrás que el otro."
+msgstr ""
+"Un guion significa que ese dato no se conoce para ese período: las personas "
+"y las ventas vienen de reportes distintos, y uno llega más atrás que el otro."
 
 #: templates/analytics/comparisons.html:57
 msgid "No turnout recorded yet"
@@ -741,11 +744,15 @@ msgstr "Todavía no hay personas registradas"
 msgid ""
 "Import the daily covers report and each period appears here next to the year "
 "before."
-msgstr "Importa el reporte diario de personas y cada período aparece aquí junto al del año anterior."
+msgstr ""
+"Importa el reporte diario de personas y cada período aparece aquí junto al "
+"del año anterior."
 
 #: templates/analytics/dashboard.html:11
 msgid "Your sales, margins and what to fix will show here once a report is in."
-msgstr "Tus ventas, márgenes y lo que hay que arreglar aparecen aquí apenas subas un reporte."
+msgstr ""
+"Tus ventas, márgenes y lo que hay que arreglar aparecen aquí apenas subas un "
+"reporte."
 
 #: templates/analytics/dashboard.html:15
 msgid "Start with one day's report"
@@ -755,7 +762,9 @@ msgstr "Empieza con el reporte de un día"
 msgid ""
 "Export the Products Sold report from Soft Restaurant and upload it. A month "
 "of daily reports gives you the full picture."
-msgstr "Exporta el reporte de Productos Vendidos de Soft Restaurant y súbelo. Con un mes de reportes diarios ves el panorama completo."
+msgstr ""
+"Exporta el reporte de Productos Vendidos de Soft Restaurant y súbelo. Con un "
+"mes de reportes diarios ves el panorama completo."
 
 #: templates/analytics/dashboard.html:19 templates/base.html:44
 #: templates/catalog/product_list.html:71 templates/sales/upload.html:4
@@ -766,7 +775,8 @@ msgstr "Subir reportes"
 #: templates/analytics/dashboard.html:40
 msgid ""
 "sold in this period. There are no sales in the period before to compare with."
-msgstr "vendidos en este período. No hay ventas en el período anterior para comparar."
+msgstr ""
+"vendidos en este período. No hay ventas en el período anterior para comparar."
 
 #: templates/analytics/dashboard.html:42
 #, python-format
@@ -832,7 +842,9 @@ msgstr "Súbelos para que las cifras lleguen hasta hoy."
 msgid ""
 "Nothing to fix in this period: no product sold at a loss and every product "
 "has a cost."
-msgstr "Nada por arreglar en este período: ningún producto se vendió a pérdida y todos tienen costo."
+msgstr ""
+"Nada por arreglar en este período: ningún producto se vendió a pérdida y "
+"todos tienen costo."
 
 #: templates/analytics/dashboard.html:133
 msgid "What sold most"
@@ -913,7 +925,9 @@ msgstr "Sin costo cargado"
 msgid ""
 "Mesa cannot tell what these earn until they have a cost: from the POS "
 "report, or from a recipe on the product's page."
-msgstr "Mesa no sabe cuánto dejan hasta que tengan costo: del reporte del POS, o de una receta en la página del producto."
+msgstr ""
+"Mesa no sabe cuánto dejan hasta que tengan costo: del reporte del POS, o de "
+"una receta en la página del producto."
 
 #: templates/analytics/margin_analysis.html:4
 msgid "Margins by product"
@@ -923,7 +937,9 @@ msgstr "Márgenes por producto"
 msgid ""
 "What each product costs and sells for today, and what it left in the period. "
 "Click a column to sort."
-msgstr "Lo que cada producto cuesta y vale hoy, y lo que dejó en el período. Haz clic en una columna para ordenar."
+msgstr ""
+"Lo que cada producto cuesta y vale hoy, y lo que dejó en el período. Haz "
+"clic en una columna para ordenar."
 
 #: templates/analytics/margin_analysis.html:33
 #: templates/catalog/product_detail.html:39
@@ -943,7 +959,9 @@ msgstr "Ventas por mes"
 #: templates/analytics/pnl.html:10
 msgid ""
 "What each month sold, what it cost and what it left, from your POS reports."
-msgstr "Lo que vendió cada mes, lo que costó y lo que dejó, según tus reportes del POS."
+msgstr ""
+"Lo que vendió cada mes, lo que costó y lo que dejó, según tus reportes del "
+"POS."
 
 #: templates/analytics/pnl.html:13
 msgid "Last 12 months"
@@ -1178,7 +1196,8 @@ msgstr "Unidades vendidas por día"
 
 #: templates/catalog/product_detail.html:44
 msgid "Units sold per day. Cuts sold by weight count grams."
-msgstr "Unidades vendidas por día. Los cortes que se venden por peso cuentan gramos."
+msgstr ""
+"Unidades vendidas por día. Los cortes que se venden por peso cuentan gramos."
 
 #: templates/catalog/product_detail.html:48
 msgid "Recipe"
@@ -1300,7 +1319,9 @@ msgstr "Aún no hay alias del POS para este producto."
 msgid ""
 "Everything your reports have sold. Open one to see its sales, its POS names "
 "and its recipe."
-msgstr "Todo lo que han vendido tus reportes. Abre uno para ver sus ventas, sus nombres en el POS y su receta."
+msgstr ""
+"Todo lo que han vendido tus reportes. Abre uno para ver sus ventas, sus "
+"nombres en el POS y su receta."
 
 #: templates/catalog/product_list.html:14
 msgid "Search products"
@@ -1339,7 +1360,9 @@ msgstr "Quitar selección"
 msgid ""
 "When the POS split one product into several, tick them and merge: their "
 "sales and POS names move to one product."
-msgstr "Cuando el POS partió un producto en varios, márcalos y fusiónalos: sus ventas y nombres del POS pasan a un solo producto."
+msgstr ""
+"Cuando el POS partió un producto en varios, márcalos y fusiónalos: sus "
+"ventas y nombres del POS pasan a un solo producto."
 
 #: templates/catalog/product_list.html:64
 msgid "See the pairs Mesa thinks are duplicates"
@@ -1358,9 +1381,9 @@ msgid "1 selected: pick at least one more"
 msgstr "1 seleccionado: elige al menos uno más"
 
 #: templates/catalog/product_list.html:87
-#, python-format
-msgid "%(n)s selected"
-msgstr "%(n)s seleccionados"
+#, python-brace-format
+msgid "{n} selected"
+msgstr "{n} seleccionados"
 
 #: templates/catalog/supply_list.html:11
 msgid ""
@@ -1431,8 +1454,10 @@ msgstr ""
 msgid "Your reports reach %(latest)s. One day is missing since then."
 msgid_plural ""
 "Your reports reach %(latest)s. %(days)s days are missing since then."
-msgstr[0] "Tus reportes llegan hasta el %(latest)s. Falta un día desde entonces."
-msgstr[1] "Tus reportes llegan hasta el %(latest)s. Faltan %(days)s días desde entonces."
+msgstr[0] ""
+"Tus reportes llegan hasta el %(latest)s. Falta un día desde entonces."
+msgstr[1] ""
+"Tus reportes llegan hasta el %(latest)s. Faltan %(days)s días desde entonces."
 
 #: templates/includes/freshness.html:12
 msgid "Upload the missing reports"
@@ -2194,7 +2219,9 @@ msgstr "Nueva cotización"
 msgid ""
 "Your event menu is empty. Mesa can build it from your products: each dish at "
 "its current price, with the tax inside and cuts sold by the kilo."
-msgstr "Tu menú de eventos está vacío. Mesa puede armarlo desde tus productos: cada plato a su precio actual, con el impuesto incluido y los cortes por kilo."
+msgstr ""
+"Tu menú de eventos está vacío. Mesa puede armarlo desde tus productos: cada "
+"plato a su precio actual, con el impuesto incluido y los cortes por kilo."
 
 #: templates/quotes/quote_list.html:32
 msgid "Build the menu from my products"
@@ -2248,7 +2275,10 @@ msgid ""
 "The Products Sold report from Soft Restaurant, as PDF or Excel. Drop a whole "
 "month at once: each day goes to its date, and a day uploaded twice is not "
 "counted twice."
-msgstr "El reporte de Productos Vendidos de Soft Restaurant, en PDF o Excel. Suelta un mes entero de una vez: cada día queda en su fecha, y un día subido dos veces no se cuenta doble."
+msgstr ""
+"El reporte de Productos Vendidos de Soft Restaurant, en PDF o Excel. Suelta "
+"un mes entero de una vez: cada día queda en su fecha, y un día subido dos "
+"veces no se cuenta doble."
 
 #: templates/sales/upload.html:19
 msgid "Drop the reports here, or click to choose them"
