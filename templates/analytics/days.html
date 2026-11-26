@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load i18n mesa %}
+
+{% block title %}{% trans "Days and holidays" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{% trans "Sales" %}</h1>
+        <p>{% trans "How each day of the week sells, and how the holidays you opened compare." %}</p>
+    </div>
+    {% include "includes/period.html" with allow_all=True %}
+</div>
+
+{% if not days %}
+<div class="panel text-center py-5">
+    <h2 class="h4">{% trans "No open days in this period" %}</h2>
+    <p class="text-muted mb-0">{% trans "Pick another period, or upload the reports for these dates." %}</p>
+</div>
+{% else %}
+
+{% if monday_avg %}
+<section class="panel mb-4 verdict" aria-labelledby="verdict-title">
+    <h2 id="verdict-title" class="visually-hidden">{% trans "Holiday Mondays" %}</h2>
+    <p class="figure-lg">{{ monday_avg|cop_short }}</p>
+    <p>
+        {% blocktrans trimmed count n=monday_count %}
+        is what the one holiday Monday you opened sold.
+        {% plural %}
+        is what a holiday Monday sold on average, over the {{ n }} you opened.
+        {% endblocktrans %}
+        {% if monday_below and monday_above %}
+        {% blocktrans trimmed with below=monday_below.label above=monday_above.label %}More than an ordinary {{ below }}, less than an ordinary {{ above }}.{% endblocktrans %}
+        {% elif monday_above %}
+        {% blocktrans trimmed with above=monday_above.label %}Less than any ordinary day; the closest is a {{ above }}.{% endblocktrans %}
+        {% elif monday_below %}
+        {% blocktrans trimmed with below=monday_below.label %}More than any ordinary day, even a {{ below }}.{% endblocktrans %}
+        {% endif %}
+    </p>
+</section>
+{% endif %}
+
+<section class="panel mb-4" aria-labelledby="weekday-title">
+    <div class="panel-title">
+        <h2 id="weekday-title">{% trans "By day of the week" %}</h2>
+        <span class="text-muted small">{% trans "Ordinary days only, holidays apart" %}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle weekday-table">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans "Day" %}</th>
+                    <th scope="col" class="num">{% trans "Days open" %}</th>
+                    <th scope="col">{% trans "Average sales" %}</th>
+                    {% if has_people %}
+                    <th scope="col" class="num">{% trans "People" %}</th>
+                    <th scope="col" class="num">{% trans "Per person" %}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for w in profile %}
+                <tr{% if not w.days %} class="text-muted"{% endif %}>
+                    <th scope="row" class="fw-semibold">{{ w.label|capfirst }}</th>
+                    <td class="num">{{ w.days|num }}</td>
+                    <td class="bar-cell">
+                        {% if w.avg_sales %}
+                        <span class="bar-value">{{ w.avg_sales|cop }}</span>
+                        <span class="bar" aria-hidden="true"><span class="{% if w == best %}is-best{% endif %}" style="width: {% widthratio w.avg_sales best.avg_sales 100 %}%"></span></span>
+                        {% else %}&ndash;{% endif %}
+                    </td>
+                    {% if has_people %}
+                    <td class="num">{{ w.avg_guests|num }}</td>
+                    <td class="num">{{ w.per_guest|cop }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="overview-grid">
+    <section class="panel" aria-labelledby="upcoming-title">
+        <div class="panel-title"><h2 id="upcoming-title">{% trans "Coming holidays" %}</h2></div>
+        <p class="text-muted small">{% trans "What the holidays on the same weekday sold in the last year, if you opened them." %}</p>
+        <ul class="review">
+            {% for u in upcoming %}
+            <li><div class="review-item">
+                <span class="mark {% if u.expected %}herb{% else %}ink{% endif %}" aria-hidden="true"></span>
+                <strong>{{ u.date|date:"l j M"|capfirst }}</strong>
+                <span class="count">{% if u.expected %}{{ u.expected|cop_short }}{% else %}&ndash;{% endif %}</span>
+                <span class="detail">{{ u.name }}.
+                    {% if u.samples %}{% blocktrans trimmed count n=u.samples %}From one holiday like it.{% plural %}From {{ n }} holidays like it.{% endblocktrans %}
+                    {% else %}{% trans "No holiday like it opened in the last year." %}{% endif %}</span>
+            </div></li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="panel" aria-labelledby="holidays-title">
+        <div class="panel-title">
+            <h2 id="holidays-title">{% trans "Holidays in the period" %}</h2>
+            <span class="text-muted small">{% blocktrans trimmed with opened=opened_count total=reported_count %}Opened {{ opened }} of {{ total }}{% endblocktrans %}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans "Holiday" %}</th>
+                        <th scope="col" class="num">{% trans "Sales" %}</th>
+                        <th scope="col" class="num">{% trans "vs an ordinary day" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in holidays %}
+                    <tr{% if not h.opened %} class="text-muted"{% endif %}>
+                        <td>
+                            <span class="fw-semibold">{{ h.date|date:"D j M Y"|capfirst }}</span>
+                            <span class="d-block small text-muted">{{ h.name }}</span>
+                        </td>
+                        <td class="num">{% if h.opened %}{{ h.sales|cop }}{% elif h.reported %}{% trans "Closed" %}{% else %}{% trans "No report yet" %}{% endif %}</td>
+                        <td class="num {{ h.change|trend }}">{{ h.change|change }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endif %}
+{% endblock %}

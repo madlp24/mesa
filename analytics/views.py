@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -17,6 +18,7 @@ from .exports import build_analysis_workbook, build_productos_vendidos_workbook
 from .alerts import DEFAULT_THRESHOLD, margin_alerts
 from .comparisons import GRAINS, compare
 from .forms import WorkbookUpdateForm
+from .days import between_weekdays, holiday_report, open_days, upcoming_holidays, weekday_profile
 from .menu_engineering import menu_engineering
 from .overview import overview
 from .periods import PRESETS, window_for
@@ -356,5 +358,51 @@ def menu_engineering_view(request: HttpRequest) -> HttpResponse:
                 ) if group and group.dishes else 0,
                 "contribution": float(group.contribution_threshold) if group else 0,
             },
+        },
+    )
+
+
+@login_required
+def days_view(request: HttpRequest) -> HttpResponse:
+    """Sales by weekday and how the holidays compare (US51).
+
+    The whole history by default: holidays are a handful a year, and every
+    one of them is a sample.
+    """
+    language = "es" if (request.LANGUAGE_CODE or "").startswith("es") else "en_US"
+    window = None
+    if any(request.GET.get(key) for key in ("period", "start", "end")):
+        window = window_for(request.restaurant, request.GET)
+    start, end = (window.start, window.end) if window else (None, None)
+    days = open_days(request.restaurant, start, end, language)
+    profile = weekday_profile(days)
+    holidays_seen = (
+        holiday_report(days, start or days[0].date, end or timezone.localdate(), language)
+        if days
+        else []
+    )
+    opened = [h for h in holidays_seen if h.opened and h.sales]
+    monday_sales = [h.sales for h in opened if h.date.weekday() == 0]
+    monday_avg = sum(monday_sales) / len(monday_sales) if monday_sales else None
+    below, above = between_weekdays(monday_avg, profile)
+    best = max((w for w in profile if w.avg_sales), key=lambda w: w.avg_sales, default=None)
+    return render(
+        request,
+        "analytics/days.html",
+        {
+            "window": window,
+            "presets": PRESETS,
+            "days": days,
+            "profile": profile,
+            "best": best,
+            "holidays": holidays_seen,
+            "opened_count": len(opened),
+            "reported_count": sum(1 for h in holidays_seen if h.reported),
+            "monday_avg": monday_avg,
+            "monday_count": len(monday_sales),
+            "monday_below": below,
+            "monday_above": above,
+            "upcoming": upcoming_holidays(request.restaurant, language=language),
+            "has_people": any(d.guests for d in days),
         },
     )

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 12:17-0500\n"
+"POT-Creation-Date: 2026-11-26 12:22-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -61,46 +61,46 @@ msgstr "Mes pasado"
 msgid "This year"
 msgstr "Este año"
 
-#: analytics/views.py:36 templates/quotes/menu_list.html:83
+#: analytics/views.py:38 templates/quotes/menu_list.html:83
 msgid "Name"
 msgstr "Nombre"
 
-#: analytics/views.py:37
+#: analytics/views.py:39
 msgid "Category"
 msgstr "Categoría"
 
-#: analytics/views.py:38 templates/quotes/menu_list.html:128
+#: analytics/views.py:40 templates/quotes/menu_list.html:128
 #: templates/quotes/quote_detail.html:145
 #: templates/quotes/quote_detail.html:389 templates/quotes/quote_list.html:59
 msgid "Cost"
 msgstr "Costo"
 
-#: analytics/views.py:39
+#: analytics/views.py:41
 msgid "Sale price"
 msgstr "Precio de venta"
 
-#: analytics/views.py:40
+#: analytics/views.py:42
 msgid "Margin $"
 msgstr "Margen $"
 
-#: analytics/views.py:41
+#: analytics/views.py:43
 msgid "Margin %"
 msgstr "Margen %"
 
-#: analytics/views.py:42 templates/catalog/product_detail.html:30
+#: analytics/views.py:44 templates/catalog/product_detail.html:30
 msgid "Units sold"
 msgstr "Unidades vendidas"
 
-#: analytics/views.py:43
+#: analytics/views.py:45
 msgid "Total margin"
 msgstr "Margen total"
 
-#: analytics/views.py:255
+#: analytics/views.py:257
 #, python-format
 msgid "%(column)s updated: %(matched)d products matched."
 msgstr "%(column)s actualizada: %(matched)d productos emparejados."
 
-#: analytics/views.py:259
+#: analytics/views.py:261
 #, python-format
 msgid ""
 "%(count)d product was added as a new row -- check it is not a renamed one: "
@@ -189,6 +189,7 @@ msgstr "Resumen"
 
 #: pages/navigation.py:18 templates/analytics/_margin_rows.html:8
 #: templates/analytics/comparisons.html:9 templates/analytics/dashboard.html:36
+#: templates/analytics/days.html:9 templates/analytics/days.html:111
 #: templates/analytics/pnl.html:9 templates/analytics/pnl.html:26
 #: templates/catalog/product_detail.html:22
 #: templates/catalog/product_list.html:33 templates/sales/upload.html:40
@@ -204,53 +205,57 @@ msgstr "Contra el año pasado"
 msgid "By month"
 msgstr "Por mes"
 
-#: pages/navigation.py:27 templates/analytics/margin_alerts.html:9
+#: pages/navigation.py:22 templates/analytics/days.html:4
+msgid "Days and holidays"
+msgstr "Días y festivos"
+
+#: pages/navigation.py:28 templates/analytics/margin_alerts.html:9
 #: templates/analytics/margin_analysis.html:9
 #: templates/analytics/menu_engineering.html:10
 msgid "Margins"
 msgstr "Márgenes"
 
-#: pages/navigation.py:29 templates/analytics/dashboard.html:91
+#: pages/navigation.py:30 templates/analytics/dashboard.html:91
 msgid "To review"
 msgstr "Para revisar"
 
-#: pages/navigation.py:30 templates/catalog/duplicates.html:14
+#: pages/navigation.py:31 templates/catalog/duplicates.html:14
 msgid "All products"
 msgstr "Todos los productos"
 
-#: pages/navigation.py:31 templates/analytics/menu_engineering.html:4
+#: pages/navigation.py:32 templates/analytics/menu_engineering.html:4
 msgid "Menu engineering"
 msgstr "Ingeniería de menú"
 
-#: pages/navigation.py:37 pages/navigation.py:39
+#: pages/navigation.py:38 pages/navigation.py:40
 #: templates/catalog/product_list.html:4 templates/catalog/product_list.html:9
 msgid "Products"
 msgstr "Productos"
 
-#: pages/navigation.py:40 templates/catalog/supply_list.html:4
+#: pages/navigation.py:41 templates/catalog/supply_list.html:4
 #: templates/catalog/supply_list.html:9
 msgid "Supply costs"
 msgstr "Costos de insumos"
 
-#: pages/navigation.py:41 templates/catalog/duplicates.html:4
+#: pages/navigation.py:42 templates/catalog/duplicates.html:4
 #: templates/catalog/duplicates.html:9
 msgid "Possible duplicates"
 msgstr "Posibles duplicados"
 
-#: pages/navigation.py:47
+#: pages/navigation.py:48
 msgid "Events"
 msgstr "Eventos"
 
-#: pages/navigation.py:49 templates/quotes/menu_list.html:14
+#: pages/navigation.py:50 templates/quotes/menu_list.html:14
 #: templates/quotes/quote_list.html:4
 msgid "Quotes"
 msgstr "Cotizaciones"
 
-#: pages/navigation.py:50
+#: pages/navigation.py:51
 msgid "Event menu"
 msgstr "Menú de eventos"
 
-#: pages/navigation.py:56 pages/navigation.py:57
+#: pages/navigation.py:57 pages/navigation.py:58
 msgid "My workbook"
 msgstr "Mi Excel"
 
@@ -732,7 +737,7 @@ msgstr "Por semana"
 msgid "Period"
 msgstr "Período"
 
-#: templates/analytics/comparisons.html:26
+#: templates/analytics/comparisons.html:26 templates/analytics/days.html:56
 msgid "People"
 msgstr "Personas"
 
@@ -749,7 +754,7 @@ msgstr "Cuentas"
 msgid "Takings"
 msgstr "Ventas"
 
-#: templates/analytics/comparisons.html:31
+#: templates/analytics/comparisons.html:31 templates/analytics/days.html:57
 msgid "Per person"
 msgstr "Por persona"
 
@@ -900,6 +905,112 @@ msgstr "Descargar unidades vendidas por mes"
 msgid "No sales"
 msgstr "Sin ventas"
 
+#: templates/analytics/days.html:10
+msgid ""
+"How each day of the week sells, and how the holidays you opened compare."
+msgstr "Cómo vende cada día de la semana, y cómo se comparan los festivos que abriste."
+
+#: templates/analytics/days.html:17
+msgid "No open days in this period"
+msgstr "No hay días abiertos en este período"
+
+#: templates/analytics/days.html:18
+msgid "Pick another period, or upload the reports for these dates."
+msgstr "Elige otro período, o sube los reportes de esas fechas."
+
+#: templates/analytics/days.html:24
+msgid "Holiday Mondays"
+msgstr "Lunes festivos"
+
+#: templates/analytics/days.html:27
+#, python-format
+msgid "is what the one holiday Monday you opened sold."
+msgid_plural ""
+"is what a holiday Monday sold on average, over the %(n)s you opened."
+msgstr[0] "es lo que vendió el único lunes festivo que abriste."
+msgstr[1] "es lo que vendió en promedio un lunes festivo, en los %(n)s que abriste."
+
+#: templates/analytics/days.html:33
+#, python-format
+msgid "More than an ordinary %(below)s, less than an ordinary %(above)s."
+msgstr "Más que un %(below)s normal, menos que un %(above)s normal."
+
+#: templates/analytics/days.html:35
+#, python-format
+msgid "Less than any ordinary day; the closest is a %(above)s."
+msgstr "Menos que cualquier día normal; el más cercano es un %(above)s."
+
+#: templates/analytics/days.html:37
+#, python-format
+msgid "More than any ordinary day, even a %(below)s."
+msgstr "Más que cualquier día normal, incluso un %(below)s."
+
+#: templates/analytics/days.html:45
+msgid "By day of the week"
+msgstr "Por día de la semana"
+
+#: templates/analytics/days.html:46
+msgid "Ordinary days only, holidays apart"
+msgstr "Solo días normales, los festivos aparte"
+
+#: templates/analytics/days.html:52
+msgid "Day"
+msgstr "Día"
+
+#: templates/analytics/days.html:53
+msgid "Days open"
+msgstr "Días abiertos"
+
+#: templates/analytics/days.html:54
+msgid "Average sales"
+msgstr "Venta promedio"
+
+#: templates/analytics/days.html:85
+msgid "Coming holidays"
+msgstr "Próximos festivos"
+
+#: templates/analytics/days.html:86
+msgid ""
+"What the holidays on the same weekday sold in the last year, if you opened "
+"them."
+msgstr "Lo que vendieron en el último año los festivos del mismo día de la semana, cuando abriste."
+
+#: templates/analytics/days.html:94
+#, python-format
+msgid "From one holiday like it."
+msgid_plural "From %(n)s holidays like it."
+msgstr[0] "Según un festivo así."
+msgstr[1] "Según %(n)s festivos así."
+
+#: templates/analytics/days.html:95
+msgid "No holiday like it opened in the last year."
+msgstr "No abriste ningún festivo así en el último año."
+
+#: templates/analytics/days.html:103
+msgid "Holidays in the period"
+msgstr "Festivos del período"
+
+#: templates/analytics/days.html:104
+#, python-format
+msgid "Opened %(opened)s of %(total)s"
+msgstr "Abriste %(opened)s de %(total)s"
+
+#: templates/analytics/days.html:110
+msgid "Holiday"
+msgstr "Festivo"
+
+#: templates/analytics/days.html:112
+msgid "vs an ordinary day"
+msgstr "vs. un día normal"
+
+#: templates/analytics/days.html:122
+msgid "Closed"
+msgstr "Cerrado"
+
+#: templates/analytics/days.html:122
+msgid "No report yet"
+msgstr "Sin reporte"
+
 #: templates/analytics/margin_alerts.html:4
 msgid "Margins to review"
 msgstr "Márgenes para revisar"
@@ -986,7 +1097,9 @@ msgstr "No hay productos activos."
 msgid ""
 "Each dish of a group by how much it sells and how much each portion leaves, "
 "so you know what to keep, reprice, promote or drop."
-msgstr "Cada plato de un grupo según cuánto se vende y cuánto deja cada porción, para saber qué cuidar, a qué subirle el precio, qué impulsar y qué sacar."
+msgstr ""
+"Cada plato de un grupo según cuánto se vende y cuánto deja cada porción, "
+"para saber qué cuidar, a qué subirle el precio, qué impulsar y qué sacar."
 
 #: templates/analytics/menu_engineering.html:19
 msgid "No sales in this period"
@@ -1021,7 +1134,10 @@ msgid ""
 "Above the line a portion leaves more than the group's average (%(avg)s). To "
 "the right a dish sells at least %(share)s of the group's portions, 70%% of "
 "an even share."
-msgstr "Por encima de la línea, una porción deja más que el promedio del grupo (%(avg)s). A la derecha, el plato vende al menos el %(share)s de las porciones del grupo, el 70 %% de una parte igual."
+msgstr ""
+"Por encima de la línea, una porción deja más que el promedio del grupo "
+"(%(avg)s). A la derecha, el plato vende al menos el %(share)s de las "
+"porciones del grupo, el 70 %% de una parte igual."
 
 #: templates/analytics/menu_engineering.html:45
 msgid "Stars"
@@ -1031,7 +1147,9 @@ msgstr "Estrellas"
 msgid ""
 "They sell a lot and leave a lot. Look after them: same portion, a good place "
 "on the menu, never out of stock."
-msgstr "Se venden mucho y dejan mucho. Cuídalas: la misma porción, buen lugar en la carta y que nunca falten."
+msgstr ""
+"Se venden mucho y dejan mucho. Cuídalas: la misma porción, buen lugar en la "
+"carta y que nunca falten."
 
 #: templates/analytics/menu_engineering.html:46
 msgid "Plowhorses"
@@ -1041,7 +1159,9 @@ msgstr "Caballos de batalla"
 msgid ""
 "People order them, but each one leaves little. Raise the price a little or "
 "trim the cost of the portion: the demand is already there."
-msgstr "La gente los pide, pero cada uno deja poco. Súbeles un poco el precio o baja el costo de la porción: la demanda ya está."
+msgstr ""
+"La gente los pide, pero cada uno deja poco. Súbeles un poco el precio o baja "
+"el costo de la porción: la demanda ya está."
 
 #: templates/analytics/menu_engineering.html:47
 msgid "Puzzles"
@@ -1051,7 +1171,9 @@ msgstr "Rompecabezas"
 msgid ""
 "A good margin that few people order. Give them a better spot on the menu, "
 "have the waiters suggest them, or rename them."
-msgstr "Buen margen, pero los piden pocos. Dales mejor lugar en la carta, que los meseros los recomienden, o cámbiales el nombre."
+msgstr ""
+"Buen margen, pero los piden pocos. Dales mejor lugar en la carta, que los "
+"meseros los recomienden, o cámbiales el nombre."
 
 #: templates/analytics/menu_engineering.html:48
 msgid "Dogs"
@@ -1061,7 +1183,9 @@ msgstr "Perros"
 msgid ""
 "They sell little and leave little. Candidates to leave the menu, unless they "
 "complete another dish."
-msgstr "Se venden poco y dejan poco. Candidatos a salir de la carta, salvo que acompañen a otro plato."
+msgstr ""
+"Se venden poco y dejan poco. Candidatos a salir de la carta, salvo que "
+"acompañen a otro plato."
 
 #: templates/analytics/menu_engineering.html:54
 #: templates/catalog/supply_list.html:42
@@ -1072,13 +1196,17 @@ msgstr "Sin costo"
 msgid ""
 "These cannot be placed until they have a cost: from the POS report, or a "
 "recipe on the product's page."
-msgstr "No se pueden ubicar hasta que tengan costo: del reporte del POS, o de una receta en la página del producto."
+msgstr ""
+"No se pueden ubicar hasta que tengan costo: del reporte del POS, o de una "
+"receta en la página del producto."
 
 #: templates/analytics/menu_engineering.html:64
 msgid ""
 "Cuts sold by the gram are counted in 280 g portions, the portion per guest "
 "the event quotes use."
-msgstr "Los cortes que se venden por gramo se cuentan en porciones de 280 g, la porción por persona que usan las cotizaciones de eventos."
+msgstr ""
+"Los cortes que se venden por gramo se cuentan en porciones de 280 g, la "
+"porción por persona que usan las cotizaciones de eventos."
 
 #: templates/analytics/menu_engineering.html:89
 msgid "Portions sold"

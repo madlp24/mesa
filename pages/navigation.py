@@ -19,6 +19,7 @@ SECTIONS = (
         [
             ("analytics:comparisons", _("Against last year")),
             ("analytics:pnl_summary", _("By month")),
+            ("analytics:days", _("Days and holidays")),
         ],
         (),
     ),
