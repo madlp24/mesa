@@ -4,23 +4,23 @@
 {% block title %}{% trans "Help" %} — Mesa{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-8 col-xl-7">
-    <div class="mb-4">
-      <h1 class="h3 mb-1">{% trans "Help & getting started" %}</h1>
-      <p class="text-muted mb-0">
-        {% trans "Mesa reads your Soft Restaurant “Productos Vendidos” reports and turns them into insight — what to promote, where to adjust prices, and where your revenue comes from." %}
-      </p>
-    </div>
+<div class="narrow">
+    <div class="page-head">
+  <div>
+    <h1>{% trans "Help & getting started" %}</h1>
+    <p>{% trans "Mesa reads your Soft Restaurant “Productos Vendidos” reports and turns them into insight — what to promote, where to adjust prices, and where your revenue comes from." %}</p>
+  </div>
+</div>
 
     <div class="card mb-4">
       <div class="card-body">
         <h2 class="h5 mb-3">{% trans "Getting started" %}</h2>
         <ol class="mb-0 ps-3">
           <li class="mb-2">{% trans "Create your account — you'll be asked for your restaurant's name." %}</li>
-          <li class="mb-2">{% trans "Go to Upload and add your Soft Restaurant report (.pdf or .xlsx). You can upload several at once." %}</li>
-          <li class="mb-2">{% trans "Open the Dashboard: your revenue, margins and P&L update automatically." %}</li>
-          <li>{% trans "Use the Products page to merge duplicates or fix how the POS grouped items." %}</li>
+          <li class="mb-2">{% trans "Press Upload reports and drop your Soft Restaurant Products Sold reports (.pdf or .xlsx). A whole month can go at once." %}</li>
+          <li class="mb-2">{% trans "Open Overview: what you sold against the period before, and what needs fixing." %}</li>
+          <li class="mb-2">{% trans "In Margins, see what sells at a loss and, in Menu engineering, what to keep, reprice, promote or drop." %}</li>
+          <li>{% trans "In Products, merge the duplicates the POS created and give each dish its recipe." %}</li>
         </ol>
       </div>
     </div>
@@ -45,5 +45,4 @@
       </div>
     </div>
   </div>
-</div>
 {% endblock %}

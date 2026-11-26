@@ -1,17 +1,14 @@
 {% extends "base.html" %}
-{% load i18n humanize %}
+{% load i18n humanize mesa %}
 
 {% block title %}{% trans "Quoting menu" %} - Mesa{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-4">
+<div class="page-head">
     <div>
-        <h1 class="h3 mb-1">{% trans "Quoting menu" %}</h1>
-        <p class="text-muted mb-0">
-            {% trans "How each dish reads on a proposal, and which product it is served from. The product is where the cost comes from." %}
-        </p>
+        <h1>{% trans "Event menu" %}</h1>
+        <p>{% trans "How each dish reads on a proposal, and which product it is served from. The product is where the cost comes from." %}</p>
     </div>
-    <a class="btn btn-outline-secondary" href="{% url 'quotes:quote_list' %}">{% trans "Quotes" %}</a>
 </div>
 
 {% if unmapped_count %}
@@ -54,7 +51,7 @@
                         <span class="badge text-bg-light text-dark border">{% trans "restaurant only" %}</span>
                         {% else %}<span class="text-muted">—</span>{% endif %}
                     </td>
-                    <td class="text-end">{{ item.price|floatformat:0|intcomma }}</td>
+                    <td class="text-end">{{ item.price|cop }}</td>
                     <td class="text-end text-muted">{{ item.servings|floatformat:2 }}</td>
                     <td>
                         {% if item.product %}
@@ -64,7 +61,7 @@
                         {% endif %}
                     </td>
                     <td class="text-end">
-                        {% if item.unit_cost %}{{ item.unit_cost|floatformat:0|intcomma }}
+                        {% if item.unit_cost %}{{ item.unit_cost|cop }}
                         {% else %}<span class="badge text-bg-danger">{% trans "no cost" %}</span>{% endif %}
                     </td>
                     <td class="text-end">

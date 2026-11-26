@@ -4,14 +4,13 @@
 {% block title %}{% trans "Update my workbook" %} - Mesa{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-8 col-xl-7">
-    <div class="mb-4">
-      <h1 class="h3 mb-1">{% trans "Update my workbook" %}</h1>
-      <p class="text-muted mb-0">
-        {% trans "Attach your master analysis file and pick a month. Mesa fills that month's column in the “Productos vendidos” sheet with the units it has for your restaurant, and hands the workbook back to you." %}
-      </p>
-    </div>
+<div class="narrow">
+    <div class="page-head">
+  <div>
+    <h1>{% trans "Update my workbook" %}</h1>
+    <p>{% trans "Attach your master analysis file and pick a month. Mesa fills that month's column in the “Productos vendidos” sheet with the units it has for your restaurant, and hands the workbook back to you." %}</p>
+  </div>
+</div>
 
     <div class="card mb-4">
       <div class="card-body">
@@ -59,5 +58,4 @@
       </div>
     </div>
   </div>
-</div>
 {% endblock %}

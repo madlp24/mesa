@@ -147,3 +147,12 @@ def test_a_preset_is_one_click(logged_client, product):
 
     assert response.context["window"].days == 7
     assert 'href="?period=7d" aria-current="true"' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_the_workbook_form_offers_the_month_of_the_newest_report(logged_client, product):
+    _sale(product, datetime.date(2026, 9, 26))
+
+    form = logged_client.get(reverse("analytics:workbook_update")).context["form"]
+
+    assert (form.initial["year"], form.initial["month"]) == (2026, 9)
