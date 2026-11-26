@@ -62,7 +62,7 @@ US29 manage product identity in the UI (#61/PR62),
 US30 update master 'Productos vendidos' sheet (#64/PR65),
 US32 fill 'Datos totales' N/O/S/T from PDF footer (#66/PR68),
 US31 multi-file upload (#63/PR69), US47 current product costs (#169/PR170),
-US48 correct re-imported days (#171/PR172).
+US48 correct re-imported days (#171/PR172), US49 redesign (#174/PR175).
 IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
@@ -118,6 +118,32 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   `sales/importers/pdf_daily.py::parse_daily_totals` (BEBIDAS/ALIMENTOS block). Matches by
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
+
+US49 redesign: navigation, dashboard and design system (#174/PR175). The UI
+was a generic cream/terracotta card kit with every page behind ONE dropdown.
+Now: a fixed side rail (`templates/base.html`, Bootstrap `offcanvas-lg` so it
+becomes an off-canvas menu on phones) listing six sections from
+`pages/navigation.py::SECTIONS`; a context processor marks the active section
+and renders its sibling pages as tabs (margins+alerts, comparisons+P&L,
+products+supplies+duplicates, quotes+event menu). Signed-in `/` redirects to
+the dashboard (the card hub `pages/home.html` is gone). Periods:
+`analytics/periods.py::window_for` -- presets `?period=7d|30d|month|
+last_month|year` or `?start=&end=`; with neither, the 30 days ending on the
+NEWEST DAY WITH SALES (ending on today showed $0 whenever reports were behind),
+and `Window.days_behind` drives a "reports missing" notice
+(`templates/includes/{period,freshness}.html`). `analytics/overview.py` feeds
+the dashboard: sales vs the previous window of equal length, margin in points,
+people and per-bill from `DailySummary` (the old "average ticket" divided by
+synthetic per-product sales and "items sold" added grams to bottles -- both
+dropped), a per-day series that keeps closed days as gaps, to-review list,
+rankings. Money goes through `pages/templatetags/mesa.py` (`cop`, `cop_short`,
+`num`, `pct`, `change`, `signed`, `trend`); Spanish numbers follow Colombia via
+`FORMAT_MODULE_PATH = ["config.formats"]` ("$276.436.986"). Design tokens in
+`static/css/site.css` (Archivo at two widths, charcoal/bone, one ember accent;
+herb/amber/loss reserved for margin health). Trap: a `{{ _('...') }}` template
+literal doubles its `%` before lookup, so JS placeholders use `{n}`, not
+`%(n)s`. The quotes page builds the event menu from a button
+(`quotes:menu_build`, wraps `seed_menu`).
 
 US48 correct a re-imported day instead of skipping it (#171/PR172): `persist()`
 used to skip any existing `external_id`, so a daily report printed before close
