@@ -7,12 +7,13 @@ None when `allow_all` offers the whole history) and `presets`.
     <nav class="period-presets" aria-label="{% trans 'Period' %}">
         {% if allow_all %}<a href="?"{% if not window %} aria-current="true"{% endif %}>{% trans "All history" %}</a>{% endif %}
         {% for key, label in presets %}
-        <a href="?period={{ key }}"{% if window.preset == key %} aria-current="true"{% endif %}>{{ label }}</a>
+        <a href="?period={{ key }}{% if extra_query %}&amp;{{ extra_query }}{% endif %}"{% if window.preset == key %} aria-current="true"{% endif %}>{{ label }}</a>
         {% endfor %}
     </nav>
     <details>
         <summary{% if window.preset == "custom" %} aria-current="true"{% endif %}>{% if window.preset == "custom" %}{{ window.start|date:"j M" }} &ndash; {{ window.end|date:"j M Y" }}{% else %}{% trans "Dates" %}{% endif %}</summary>
         <form method="get" class="period-custom">
+            {% if extra_name %}<input type="hidden" name="{{ extra_name }}" value="{{ extra_value }}">{% endif %}
             <div>
                 <label for="period-start" class="form-label">{% trans "From" %}</label>
                 <input type="date" id="period-start" name="start" value="{{ window.start|date:'Y-m-d' }}" class="form-control">

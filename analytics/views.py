@@ -17,6 +17,7 @@ from .exports import build_analysis_workbook, build_productos_vendidos_workbook
 from .alerts import DEFAULT_THRESHOLD, margin_alerts
 from .comparisons import GRAINS, compare
 from .forms import WorkbookUpdateForm
+from .menu_engineering import menu_engineering
 from .overview import overview
 from .periods import PRESETS, window_for
 from .unified_excel import UnifiedUpdateError, update_productos_vendidos
@@ -317,4 +318,43 @@ def comparisons(request: HttpRequest) -> HttpResponse:
         request,
         "analytics/comparisons.html",
         {"periods": compare(request.restaurant, grain, limit), "grain": grain},
+    )
+
+
+@login_required
+def menu_engineering_view(request: HttpRequest) -> HttpResponse:
+    """Each dish of a menu group as a star, plowhorse, puzzle or dog (US50).
+
+    Defaults to 90 days: a month is a thin sample for a dish ordered twice a
+    week.
+    """
+    window = window_for(request.restaurant, request.GET, default="90d")
+    groups = menu_engineering(request.restaurant, window.start, window.end)
+    wanted = request.GET.get("group", "")
+    group = next((g for g in groups if g.name == wanted), groups[0] if groups else None)
+    points = [
+        {
+            "name": dish.name,
+            "x": float(dish.portions),
+            "y": float(dish.contribution),
+            "kind": dish.kind,
+        }
+        for dish in (group.dishes if group else [])
+    ]
+    return render(
+        request,
+        "analytics/menu_engineering.html",
+        {
+            "window": window,
+            "presets": PRESETS,
+            "groups": groups,
+            "group": group,
+            "points": points,
+            "thresholds": {
+                "portions": float(
+                    sum(d.portions for d in group.dishes) * group.popularity_threshold / 100
+                ) if group and group.dishes else 0,
+                "contribution": float(group.contribution_threshold) if group else 0,
+            },
+        },
     )

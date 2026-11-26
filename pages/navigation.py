@@ -28,6 +28,7 @@ SECTIONS = (
         [
             ("analytics:margin_alerts", _("To review")),
             ("analytics:margin_analysis", _("All products")),
+            ("analytics:menu_engineering", _("Menu engineering")),
         ],
         (),
     ),
