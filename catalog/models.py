@@ -50,6 +50,9 @@ class Product(models.Model):
     sale_price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # Grams in one unit the POS sells: 1 for a cut sold by the gram, 420 for a
+    # 420 g portion. Blank lets catalog.portions work it out (US57).
+    unit_grams = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ["name"]

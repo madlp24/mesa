@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from catalog.families import family_of, is_hidden, suggest_target
-from catalog.models import Category
+from catalog.models import Category, Product
 from sales.models import Sale
 
 from .exports import build_analysis_workbook, build_productos_vendidos_workbook
@@ -21,6 +21,8 @@ from .alerts import DEFAULT_THRESHOLD, margin_alerts
 from .comparisons import GRAINS, compare
 from .forms import WorkbookUpdateForm
 from .days import between_weekdays, holiday_report, open_days, upcoming_holidays, weekday_profile
+from .meat import GRAINS as MEAT_GRAINS
+from .meat import meat_report
 from .menu_engineering import (
     menu_engineering,
     price_moves,
@@ -490,5 +492,44 @@ def days_view(request: HttpRequest) -> HttpResponse:
             "monday_above": above,
             "upcoming": upcoming_holidays(request.restaurant, language=language),
             "has_people": any(d.guests for d in days),
+        },
+    )
+
+
+@login_required
+def meat_view(request: HttpRequest) -> HttpResponse:
+    """The cuts in kilos, per month or week (US57)."""
+    restaurant = request.restaurant
+    if request.method == "POST":
+        products = Product.objects.filter(restaurant=restaurant)
+        saved = 0
+        for key, raw in request.POST.items():
+            if not key.startswith("grams-"):
+                continue
+            try:
+                grams = int(raw) if raw.strip() else None
+            except ValueError:
+                continue
+            if grams is not None and not 1 <= grams <= 5000:
+                continue
+            saved += products.filter(pk=key.removeprefix("grams-")).update(unit_grams=grams)
+        messages.success(request, gettext("Portion weights saved."))
+        return redirect(request.get_full_path())
+
+    window = window_for(restaurant, request.GET, default="year")
+    grain = request.GET.get("grain", "month")
+    report = meat_report(
+        restaurant, window.start, window.end, previous=window.previous, grain=grain
+    )
+    return render(
+        request,
+        "analytics/meat.html",
+        {
+            "window": window,
+            "presets": PRESETS,
+            "grain": report.grain,
+            "grains": MEAT_GRAINS,
+            "report": report,
+            "chart": report.series(),
         },
     )
