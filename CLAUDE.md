@@ -67,7 +67,7 @@ US50 menu engineering (#176/PR177), US51 days and holidays (#178/PR179),
 US52 remaining pages redesigned (#180/PR181),
 US53 menu engineering decisions (#183/PR184), US54 profitability alerts (#185/PR186),
 US55 menu engineering by target food cost % (#187/PR188),
-US56 suggested target per family (#189).
+US56 suggested target per family (#189/PR190), US57 meat in kilos (#191).
 IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
@@ -123,6 +123,18 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   `sales/importers/pdf_daily.py::parse_daily_totals` (BEBIDAS/ALIMENTOS block). Matches by
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
+
+US57 meat in kilos (#191): `analytics/meat.py`, tab in Sales (`/meat/`, this
+year by default, month/week grain). Cuts = categories matching the first two
+family rules (`catalog.families.is_meat`). `catalog.portions.grams_per_unit`:
+`Product.unit_grams` set by the owner > gram marker in name (1) > `*420GR` in
+name > unit price under $2.000 (only a per-gram price is that low: catches
+"TOMAHAWK MADURADO 45 DIAS") > missing. Cuts with no weight are listed and
+LEFT OUT of the kilos, never guessed; the page takes the grams. Kilos SERVED
+(POS), not bought -- the base for the protein shortfall story. Real data:
+1.209 kg weighed Jan-Sep 2026; consumption jumped from ~100 to 150-200 kg a
+month from May; 5 portion cuts lack a weight (Ribeye americano, Entraña prime,
+New York sin hueso, Bife angosto, Tomahawk de cerdo).
 
 US56 suggested target per family (#189): `catalog/families.py` rules now carry
 a suggested food cost (cuts 35, premium 40, starters 30, salads 28, sides 25,

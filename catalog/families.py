@@ -47,6 +47,19 @@ def _rule(group_name: str):
     return None
 
 
+#: The rules whose groups are cuts of meat, for the kilos page (US57).
+_MEAT_RULES = 2
+
+
+def is_meat(category) -> bool:
+    """Whether a POS group holds cuts of meat (the first two rules)."""
+    upper = (category.name or "").upper()
+    for first, second, _family, _target in _RULES[:_MEAT_RULES]:
+        if any(k in upper for k in first) and (not second or any(k in upper for k in second)):
+            return True
+    return False
+
+
 def suggest_hidden(group_name: str) -> bool:
     upper = (group_name or "").upper()
     return any(hint in upper for hint in _HIDDEN_HINTS)

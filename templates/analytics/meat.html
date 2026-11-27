@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load i18n mesa %}
+
+{% block title %}{% trans "Meat in kilos" %} - Mesa{% endblock %}
+
+{% block content %}
+{% with r=report %}
+<div class="page-head">
+    <div>
+        <h1>{% trans "Sales" %}</h1>
+        <p>{% trans "The cuts in kilos: how much left the kitchen, and how it moves. Kilos as the POS sold them, served on the plate." %}</p>
+    </div>
+    {% include "includes/period.html" with extra_query="grain="|add:grain extra_name="grain" extra_value=grain %}
+</div>
+
+{% if not r.cuts and not r.unweighed %}
+<div class="panel text-center py-5">
+    <h2 class="h4">{% trans "No cuts sold in this period" %}</h2>
+    <p class="text-muted mb-0">{% trans "Cuts are the dishes in the cuts and premium cuts families. Pick another period, or upload the reports for these dates." %}</p>
+</div>
+{% else %}
+<section class="panel mb-4" aria-labelledby="meat-figures">
+    <h2 id="meat-figures" class="visually-hidden">{% trans "Figures" %}</h2>
+    <dl class="stats stats-grid mb-4">
+        <div>
+            <dt>{% trans "Kilos sold" %}</dt>
+            <dd class="figure">{{ r.kilos|num:1 }} kg</dd>
+            {% if r.change is not None %}<span class="delta {{ r.change|trend }}">{% blocktrans trimmed with change=r.change|change %}{{ change }} against the period before{% endblocktrans %}</span>{% endif %}
+        </div>
+        <div>
+            <dt>{% trans "Sales" %}</dt>
+            <dd class="figure">{{ r.revenue|cop_short }}</dd>
+            <span class="delta flat">{% trans "without consumption tax" %}</span>
+        </div>
+        <div>
+            <dt>{% trans "Sold per kilo" %}</dt>
+            <dd class="figure">{{ r.price_per_kilo|cop }}</dd>
+        </div>
+        <div>
+            <dt>{% trans "POS cost per kilo" %}</dt>
+            <dd class="figure">{{ r.cost_per_kilo|cop }}</dd>
+            <span class="delta flat">{% trans "as Soft costs it" %}</span>
+        </div>
+    </dl>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <h3 class="mb-0">{% if grain == "week" %}{% trans "Kilos per week" %}{% else %}{% trans "Kilos per month" %}{% endif %}</h3>
+        <nav class="period-presets" aria-label="{% trans 'Group by' %}">
+            <a href="?grain=month&amp;{{ window.query }}"{% if grain == "month" %} aria-current="true"{% endif %}>{% trans "By month" %}</a>
+            <a href="?grain=week&amp;{{ window.query }}"{% if grain == "week" %} aria-current="true"{% endif %}>{% trans "By week" %}</a>
+        </nav>
+    </div>
+    <div class="quadrant-chart"><canvas id="meat-chart" role="img" aria-label="{% trans 'Kilos sold per period, by cut' %}"></canvas></div>
+</section>
+
+<section class="panel mb-4" aria-labelledby="cuts-title">
+    <div class="panel-title"><h2 id="cuts-title">{% trans "By cut" %}</h2></div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans "Cut" %}</th>
+                        <th scope="col" class="num">{% trans "Kilos" %}</th>
+                        <th scope="col" class="num">{% trans "Before" %}</th>
+                        <th scope="col" class="num">{% trans "Change" %}</th>
+                        <th scope="col" class="num">{% trans "Grams per unit" %}</th>
+                        <th scope="col" class="num">{% trans "Sold per kilo" %}</th>
+                        <th scope="col" class="num">{% trans "POS cost per kilo" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in r.cuts %}
+                    <tr>
+                        <td><a href="{% url 'catalog:product_detail' c.product_id %}">{{ c.name }}</a></td>
+                        <td class="num"><strong>{{ c.kilos|num:1 }}</strong></td>
+                        <td class="num text-muted">{{ c.before_kilos|num:1 }}</td>
+                        <td class="num {{ c.change|trend }}">{{ c.change|change }}</td>
+                        <td class="num">
+                            {% if c.by_gram %}<span class="text-muted small">{% trans "sold by the gram" %}</span>
+                            {% else %}<input type="number" min="1" max="5000" class="form-control form-control-sm grams-input" name="grams-{{ c.product_id }}" value="{{ c.grams_per_unit|floatformat:0 }}" aria-label="{% blocktrans with name=c.name %}Grams per unit of {{ name }}{% endblocktrans %}">{% endif %}
+                        </td>
+                        <td class="num">{{ c.price_per_kilo|cop }}</td>
+                        <td class="num">{{ c.cost_per_kilo|cop }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if r.unweighed %}
+        <div class="notice mt-3" role="status">
+            <p>{% trans "These cuts are sold by the portion and Mesa does not know how much a portion weighs, so they are not in the kilos. Type the grams of one portion as it is served:" %}</p>
+        </div>
+        <ul class="weigh-list">
+            {% for c in r.unweighed %}
+            <li>
+                <label for="grams-{{ c.product_id }}">{{ c.name }} <span class="text-muted small">{% blocktrans trimmed with n=c.units|num %}{{ n }} sold{% endblocktrans %}</span></label>
+                <input type="number" min="1" max="5000" class="form-control form-control-sm grams-input" id="grams-{{ c.product_id }}" name="grams-{{ c.product_id }}" placeholder="g">
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <button type="submit" class="btn btn-primary btn-sm mt-3">{% trans "Save weights" %}</button>
+    </form>
+</section>
+<p class="text-muted small">{% trans "Kilos served, not kilos bought: trimming and waste come with the supplier invoices and the monthly count." %}</p>
+{{ chart|json_script:"meat-data" }}
+{% endif %}
+{% endwith %}
+{% endblock %}
+
+{% block scripts %}
+{% if report.cuts %}
+{% get_current_language as LANGUAGE_CODE %}
+<script>
+(function () {
+    const data = JSON.parse(document.getElementById("meat-data").textContent);
+    const css = getComputedStyle(document.documentElement);
+    const palette = ["--ember", "--ink-2", "--herb", "--amber", "--muted", "--loss"].map(function (v) { return css.getPropertyValue(v).trim(); });
+    const locale = "{{ LANGUAGE_CODE }}" === "es" ? "es-CO" : "en-US";
+    const one = new Intl.NumberFormat(locale, {maximumFractionDigits: 1});
+    const label = new Intl.DateTimeFormat(locale, {{% if grain == "week" %}day: "numeric", {% endif %}month: "short", year: "2-digit", timeZone: "UTC"});
+    const others = "{% filter escapejs %}{% trans 'Other cuts' %}{% endfilter %}";
+    new Chart(document.getElementById("meat-chart"), {
+        type: "bar",
+        data: {
+            labels: data.labels.map(function (d) { return label.format(new Date(d + "T00:00:00Z")); }),
+            datasets: data.series.map(function (s, i) {
+                return {label: s.name || others, data: s.data, backgroundColor: s.name ? palette[i % palette.length] : "#c3c9c4", borderRadius: 2};
+            }),
+        },
+        options: {
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: {position: "bottom", labels: {boxWidth: 10, color: css.getPropertyValue("--ink-2").trim()}},
+                tooltip: {callbacks: {label: function (item) { return item.dataset.label + ": " + one.format(item.raw) + " kg"; }}},
+            },
+            scales: {
+                x: {stacked: true, grid: {display: false}, ticks: {color: css.getPropertyValue("--muted").trim()}},
+                y: {stacked: true, beginAtZero: true, grid: {color: css.getPropertyValue("--line").trim()},
+                    ticks: {color: css.getPropertyValue("--muted").trim(), callback: function (v) { return one.format(v) + " kg"; }}},
+            },
+        },
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}
