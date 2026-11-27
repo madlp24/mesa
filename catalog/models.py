@@ -236,6 +236,29 @@ class Supply(models.Model):
         return cost * quantity
 
 
+class SupplyPrice(models.Model):
+    """One purchase price of a supply, kept as AutoFacturas reports it (US54).
+
+    ``Supply.unit_cost`` is only the latest. Watching supplier prices needs the
+    one before it too, so every sync that sees a new purchase (a new date or
+    invoice, or a new price) adds a row here instead of overwriting.
+    """
+
+    supply = models.ForeignKey(Supply, on_delete=models.CASCADE, related_name="prices")
+    date = models.DateField(null=True, blank=True)
+    unit_cost = models.DecimalField(max_digits=14, decimal_places=4)
+    supplier = models.CharField(max_length=200, blank=True)
+    invoice = models.CharField(max_length=60, blank=True)
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["supply", "date", "recorded_at"]
+        indexes = [models.Index(fields=["supply", "date"])]
+
+    def __str__(self):
+        return f"{self.supply} {self.date}: {self.unit_cost}"
+
+
 class RecipeLine(models.Model):
     """How much of one supply a single unit of a product consumes.
 

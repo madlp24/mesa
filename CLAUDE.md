@@ -65,7 +65,7 @@ US31 multi-file upload (#63/PR69), US47 current product costs (#169/PR170),
 US48 correct re-imported days (#171/PR172), US49 redesign (#174/PR175),
 US50 menu engineering (#176/PR177), US51 days and holidays (#178/PR179),
 US52 remaining pages redesigned (#180/PR181),
-US53 menu engineering decisions (#183).
+US53 menu engineering decisions (#183/PR184), US54 profitability alerts (#185).
 IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
@@ -121,6 +121,23 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   `sales/importers/pdf_daily.py::parse_daily_totals` (BEBIDAS/ALIMENTOS block). Matches by
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
+
+US54 profitability alerts (#185): new `alerts` app. `AlertSettings` (one per
+restaurant, created on first read): cadence week (7 days) / month (30 days) up
+to the NEWEST report, baseline previous (4 weeks / 30 days) or last year (364
+days back, weekdays aligned), thresholds cost_rise 5%, margin_drop 3 pts,
+abrupt_change 15%, min_weekly_sales 300.000. `alerts/engine.py::build_report`
+(`as_of=` reads a past period, never "behind"): products that lost
+profitability (cost per portion up / price down / margin points down) with
+`monthly_loss`; abrupt changes = a day whose POS cost or price breaks from the
+median of its previous 10 sale days, and a supplier purchase vs the previous
+purchase (`catalog.SupplyPrice`, the price HISTORY: `sync_supplies` appends a
+row per new purchase instead of only overwriting `Supply.unit_cost`); causes =
+recipe supplies whose price moved. `sync_all_supplies` command for a daily
+scheduler. Pages `/alerts/` (+ `?as_of=`), `/alerts/settings/`, Excel and PDF
+downloads. Backtest on real data: the week to 2026-07-05 flags the picanha cost
+jump (+14%, POS cost 23.309 -> 27.587 on Jul 3). NEXT: delivery (recipients,
+email, WhatsApp via the bot, scheduled send).
 
 US53 menu engineering: families, board, movement, decisions (#183). Dishes are
 compared within a MENU FAMILY, not a raw POS group: `catalog/families.py`
@@ -288,8 +305,9 @@ US31 multi-file upload (#63): `/upload/` accepts several files at once
 (`sales/forms.py MultipleFileField`); `upload_report` imports each (one ImportBatch per
 file), a per-file error is reported without aborting the batch.
 
-DEPLOYED 2026-11-26 (Heroku release v54): everything through US49 is LIVE
-(US50-US52 merged after). See [[mesa-heroku-deploy]].
+DEPLOYED 2026-11-26 (Heroku release v55): everything through US53 is LIVE.
+See [[mesa-heroku-deploy]]. Writing to production DATA needs the owner's
+explicit ask (the auto-mode classifier blocks it otherwise).
 
 NEXT: US19 polished README (#20), DEFERRED TO LAST by user decision; needs user inputs
 (business story, screenshots, board link — live demo URL is now known). The old

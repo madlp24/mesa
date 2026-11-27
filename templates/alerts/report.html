@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load i18n mesa %}
+
+{% block title %}{% trans "Alerts" %} - Mesa{% endblock %}
+
+{% block content %}
+{% if not report %}
+<div class="page-head"><div><h1>{% trans "Alerts" %}</h1></div></div>
+<div class="panel text-center py-5">
+    <h2 class="h4">{% trans "Nothing to watch yet" %}</h2>
+    <p class="text-muted mb-4">{% trans "Alerts compare your reports week against week. Upload a few weeks of reports to start." %}</p>
+    <a class="btn btn-ember" href="{% url 'sales:upload' %}">{% trans "Upload reports" %}</a>
+</div>
+{% else %}
+{% with r=report %}
+<div class="page-head">
+    <div>
+        <h1>{% trans "Alerts" %}</h1>
+        <p>
+            {% blocktrans trimmed with start=r.current.start|date:"j M" end=r.current.end|date:"j M Y" bstart=r.baseline.start|date:"j M" bend=r.baseline.end|date:"j M Y" %}
+            From {{ start }} to {{ end }}, against {{ bstart }} to {{ bend }}.
+            {% endblocktrans %}
+            <a href="{% url 'alerts:settings' %}">{% trans "Change what is compared" %}</a>
+        </p>
+        <form method="get" class="d-flex align-items-end gap-2 mt-2">
+            <div>
+                <label for="as-of" class="form-label">{% trans "See the period ending on" %}</label>
+                <input type="date" id="as-of" name="as_of" value="{{ r.current.end|date:'Y-m-d' }}" class="form-control form-control-sm">
+            </div>
+            <button type="submit" class="btn btn-outline-secondary btn-sm">{% trans "Show" %}</button>
+        </form>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'alerts:export_xlsx' %}{% if as_of %}?as_of={{ as_of|urlencode }}{% endif %}">{% trans "Download Excel" %}</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'alerts:export_pdf' %}{% if as_of %}?as_of={{ as_of|urlencode }}{% endif %}">{% trans "Download PDF" %}</a>
+    </div>
+</div>
+
+{% if r.days_behind %}
+<div class="notice" role="status">
+    <p>
+        {% blocktrans trimmed with latest=r.newest|date:"j M Y" count days=r.days_behind %}
+        This report stops at {{ latest }}, the newest report you uploaded. One day is missing since then.
+        {% plural %}
+        This report stops at {{ latest }}, the newest report you uploaded. {{ days }} days are missing since then.
+        {% endblocktrans %}
+    </p>
+    <a href="{% url 'sales:upload' %}">{% trans "Upload the missing reports" %}</a>
+</div>
+{% endif %}
+
+<section class="panel mb-4 verdict" aria-labelledby="alerts-summary">
+    <h2 id="alerts-summary" class="visually-hidden">{% trans "Summary" %}</h2>
+    {% if r.products %}
+    <p class="figure-lg">{{ r.monthly_loss|cop_short }}</p>
+    <p>{% blocktrans trimmed count n=r.products|length %}a month is what the one product that lost profitability costs you, if it keeps selling like this.{% plural %}a month is what the {{ n }} products that lost profitability cost you, if they keep selling like this.{% endblocktrans %}</p>
+    {% else %}
+    <p class="figure-lg">{% trans "Nothing slipped" %}</p>
+    <p>{% trans "No product lost profitability against the period it is compared with." %}</p>
+    {% endif %}
+</section>
+
+{% if r.jumps %}
+<section class="panel mb-4" aria-labelledby="jumps-title">
+    <div class="panel-title">
+        <h2 id="jumps-title"><span class="mark loss" aria-hidden="true"></span>{% trans "Abrupt changes" %}</h2>
+        <span class="text-muted small">{% blocktrans trimmed with pct=r.settings.abrupt_change|pct:0 %}A jump of {{ pct }} or more in one day or one purchase{% endblocktrans %}</span>
+    </div>
+    <ul class="review">
+        {% for j in r.jumps %}
+        <li><div class="review-item">
+            <span class="mark {% if j.is_bad %}loss{% else %}herb{% endif %}" aria-hidden="true"></span>
+            <strong>{% if j.product_id %}<a href="{% url 'catalog:product_detail' j.product_id %}">{{ j.name }}</a>{% else %}{{ j.name }}{% endif %}</strong>
+            <span class="count {% if j.is_bad %}down{% else %}up{% endif %}">{{ j.change|change }}</span>
+            <span class="detail">
+                {% if j.kind == "cost" %}{% blocktrans trimmed with a=j.before|cop b=j.after|cop day=j.date|date:"j M" %}POS cost went from {{ a }} to {{ b }} on {{ day }}.{% endblocktrans %}
+                {% elif j.kind == "price" %}{% blocktrans trimmed with a=j.before|cop b=j.after|cop day=j.date|date:"j M" %}Sold at {{ b }} on {{ day }}, when it usually sells at {{ a }}: a discount, or a price change.{% endblocktrans %}
+                {% else %}{% blocktrans trimmed with a=j.before|cop b=j.after|cop day=j.date|date:"j M" supplier=j.supplier invoice=j.invoice %}Bought at {{ b }} on {{ day }}, after {{ a }} the time before. {{ supplier }} {{ invoice }}{% endblocktrans %}{% endif %}
+            </span>
+        </div></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+<section class="panel mb-4" aria-labelledby="slipped-title">
+    <div class="panel-title">
+        <h2 id="slipped-title"><span class="mark amber" aria-hidden="true"></span>{% trans "Products that lost profitability" %}</h2>
+        <span class="text-muted small">{% blocktrans trimmed with cost=r.settings.cost_rise|pct:0 points=r.settings.margin_drop|num:0 %}Cost up or price down {{ cost }}, or {{ points }} margin points lost{% endblocktrans %}</span>
+    </div>
+    {% if r.products %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans "Product" %}</th>
+                    <th scope="col" class="num">{% trans "Cost per portion" %}</th>
+                    <th scope="col" class="num">{% trans "Price per portion" %}</th>
+                    <th scope="col" class="num">{% trans "Margin" %}</th>
+                    <th scope="col" class="num">{% trans "Lost a month" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in r.products %}
+                <tr>
+                    <td>
+                        <a href="{% url 'catalog:product_detail' a.product_id %}">{{ a.name }}</a>
+                        <span class="d-block small text-muted">
+                            {% for m in a.causes %}{% blocktrans trimmed with name=m.name a=m.before|cop b=m.after|cop supplier=m.supplier %}{{ name }}: {{ a }} to {{ b }} ({{ supplier }}){% endblocktrans %}{% if not forloop.last %}; {% endif %}{% empty %}{% trans "Cost as the POS reports it" %}{% endfor %}
+                        </span>
+                    </td>
+                    <td class="num">{{ a.now.unit_cost|cop }}<span class="d-block small {% if a.cost_change > 0 %}down{% else %}flat{% endif %}">{{ a.cost_change|change }}</span></td>
+                    <td class="num">{{ a.now.unit_price|cop }}<span class="d-block small {{ a.price_change|trend }}">{{ a.price_change|change }}</span></td>
+                    <td class="num">{{ a.now.margin_pct|pct }}<span class="d-block small {{ a.margin_change|trend }}">{% blocktrans trimmed with points=a.margin_change|signed %}{{ points }} pts{% endblocktrans %}</span></td>
+                    <td class="num"><strong>{{ a.monthly_loss|cop }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="review-empty">{% trans "None in this period." %}</p>
+    {% endif %}
+</section>
+
+{% if r.uncosted %}
+<section class="panel mb-4" aria-labelledby="uncosted-title">
+    <div class="panel-title"><h2 id="uncosted-title"><span class="mark amber" aria-hidden="true"></span>{% trans "Sold without a cost" %}</h2></div>
+    <p class="text-muted small">{% trans "Their margin cannot be watched until they have a cost: from the POS report, or a recipe on the product's page." %}</p>
+    <ul class="plain-list">
+        {% for pid, stats in r.uncosted %}
+        <li><a href="{% url 'catalog:product_detail' pid %}">{{ stats.name }}</a> <span class="text-muted small">{{ stats.revenue|cop }}</span></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+{% endwith %}
+{% endif %}
+{% endblock %}

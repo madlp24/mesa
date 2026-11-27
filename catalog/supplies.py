@@ -34,7 +34,7 @@ from decimal import Decimal, InvalidOperation
 from django.db import transaction
 from django.utils import timezone
 
-from catalog.models import Product, Supply, SupplyUnit
+from catalog.models import Product, Supply, SupplyPrice, SupplyUnit
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +190,7 @@ def sync_supplies(restaurant, payload: dict) -> SyncSummary:
         }
         supply = existing.get(clave)
         if supply is None:
-            Supply.objects.create(
+            supply = Supply.objects.create(
                 restaurant=restaurant, clave=clave, synced_at=now, **fields
             )
             summary.created += 1
@@ -206,8 +206,29 @@ def sync_supplies(restaurant, payload: dict) -> SyncSummary:
                 summary.unchanged += 1
         if fields["unit_cost"] is None:
             summary.uncosted += 1
+        else:
+            _record_price(supply)
 
     return summary
+
+
+def _record_price(supply: Supply) -> None:
+    """Keep this purchase price unless it is the one already on record (US54)."""
+    last = supply.prices.order_by("-date", "-recorded_at").first()
+    same = last is not None and (
+        last.date == supply.last_purchase_date
+        and last.invoice == supply.last_purchase_invoice
+        and last.unit_cost == supply.unit_cost
+    )
+    if same:
+        return
+    SupplyPrice.objects.create(
+        supply=supply,
+        date=supply.last_purchase_date,
+        unit_cost=supply.unit_cost,
+        supplier=supply.last_purchase_supplier,
+        invoice=supply.last_purchase_invoice,
+    )
 
 
 def recipe_costs(restaurant) -> dict[int, Decimal | None]:
