@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 19:36-0500\n"
+"POT-Creation-Date: 2026-11-26 19:50-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -15,6 +15,198 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: alerts/exports.py:22
+msgid "cost up"
+msgstr "subió el costo"
+
+#: alerts/exports.py:22
+msgid "price down"
+msgstr "bajó el precio"
+
+#: alerts/exports.py:22
+msgid "margin down"
+msgstr "bajó el margen"
+
+#: alerts/exports.py:27 alerts/exports.py:53
+#: templates/catalog/product_detail.html:58
+msgid "POS cost"
+msgstr "Costo POS"
+
+#: alerts/exports.py:27
+msgid "Selling price"
+msgstr "Precio de venta"
+
+#: alerts/exports.py:27
+msgid "Supplier price"
+msgstr "Precio de proveedor"
+
+#: alerts/exports.py:35
+#, python-format
+msgid "Alerts from %(start)s to %(end)s"
+msgstr "Alertas del %(start)s al %(end)s"
+
+#: alerts/exports.py:64 templates/alerts/report.html:88
+msgid "Products that lost profitability"
+msgstr "Productos que perdieron rentabilidad"
+
+#: alerts/exports.py:65 alerts/exports.py:70 templates/alerts/report.html:96
+#: templates/analytics/_margin_rows.html:6
+#: templates/catalog/product_list.html:29 templates/quotes/menu_list.html:34
+msgid "Product"
+msgstr "Producto"
+
+#: alerts/exports.py:65
+msgid "Why"
+msgstr "Por qué"
+
+#: alerts/exports.py:65 templates/alerts/report.html:97
+msgid "Cost per portion"
+msgstr "Costo por porción"
+
+#: alerts/exports.py:65 templates/alerts/report.html:98
+msgid "Price per portion"
+msgstr "Precio por porción"
+
+#: alerts/exports.py:65 templates/alerts/report.html:99
+#: templates/analytics/_margin_rows.html:9
+#: templates/quotes/quote_detail.html:245 templates/quotes/quote_list.html:60
+msgid "Margin"
+msgstr "Margen"
+
+#: alerts/exports.py:66 templates/alerts/report.html:100
+msgid "Lost a month"
+msgstr "Pierdes al mes"
+
+#: alerts/exports.py:66
+msgid "Cause"
+msgstr "Causa"
+
+#: alerts/exports.py:67 templates/alerts/report.html:66
+msgid "Abrupt changes"
+msgstr "Cambios bruscos"
+
+#: alerts/exports.py:68 templates/quotes/menu_list.html:29
+msgid "Item"
+msgstr "Ítem"
+
+#: alerts/exports.py:68
+msgid "What"
+msgstr "Qué"
+
+#: alerts/exports.py:68 templates/analytics/days.html:52
+msgid "Day"
+msgstr "Día"
+
+#: alerts/exports.py:68
+msgid "Before"
+msgstr "Antes"
+
+#: alerts/exports.py:68
+msgid "After"
+msgstr "Después"
+
+#: alerts/exports.py:68
+msgid "Change"
+msgstr "Cambio"
+
+#: alerts/exports.py:68
+msgid "Supplier and invoice"
+msgstr "Proveedor y factura"
+
+#: alerts/exports.py:70 templates/alerts/report.html:128
+msgid "Sold without a cost"
+msgstr "Vendidos sin costo"
+
+#: alerts/exports.py:70 pages/navigation.py:27
+#: templates/analytics/_margin_rows.html:8
+#: templates/analytics/comparisons.html:9 templates/analytics/dashboard.html:36
+#: templates/analytics/days.html:9 templates/analytics/days.html:111
+#: templates/analytics/pnl.html:9 templates/analytics/pnl.html:26
+#: templates/catalog/product_detail.html:22
+#: templates/catalog/product_list.html:33 templates/sales/upload.html:40
+#: templates/sales/upload.html:87
+msgid "Sales"
+msgstr "Ventas"
+
+#: alerts/exports.py:77 pages/navigation.py:18 pages/navigation.py:20
+#: templates/alerts/report.html:4 templates/alerts/report.html:8
+#: templates/alerts/report.html:18 templates/alerts/settings.html:9
+msgid "Alerts"
+msgstr "Alertas"
+
+#: alerts/exports.py:87 alerts/exports.py:112
+msgid "Nothing to report."
+msgstr "Nada que reportar."
+
+#: alerts/exports.py:106
+#, python-format
+msgid "Lost a month, all products: %(amount)s"
+msgstr "Pierdes al mes, todos los productos: %(amount)s"
+
+#: alerts/forms.py:16
+msgid "Period watched"
+msgstr "Período que se vigila"
+
+#: alerts/forms.py:17
+msgid "Compared with"
+msgstr "Comparado con"
+
+#: alerts/forms.py:18
+msgid "Cost rise or price drop (%)"
+msgstr "Subida de costo o bajada de precio (%)"
+
+#: alerts/forms.py:19
+msgid "Margin points lost"
+msgstr "Puntos de margen perdidos"
+
+#: alerts/forms.py:20
+msgid "Abrupt change (%)"
+msgstr "Cambio brusco (%)"
+
+#: alerts/forms.py:21
+msgid "Leave out products selling less than, a week"
+msgstr "Dejar por fuera productos que venden menos de, a la semana"
+
+#: alerts/forms.py:24
+msgid ""
+"A product whose cost per portion rose, or whose price fell, at least this "
+"much."
+msgstr "Un producto cuyo costo por porción subió, o cuyo precio bajó, al menos esto."
+
+#: alerts/forms.py:25
+msgid "A product whose margin shrank at least this many points."
+msgstr "Un producto cuyo margen bajó al menos estos puntos."
+
+#: alerts/forms.py:26
+msgid ""
+"One day, or one supplier purchase, that jumps at least this much against the "
+"usual level."
+msgstr "Un día, o una compra a proveedor, que salta al menos esto frente a lo normal."
+
+#: alerts/forms.py:27
+msgid "Keeps small sellers out of the list. In pesos."
+msgstr "Deja por fuera los productos que venden poco. En pesos."
+
+#: alerts/models.py:9
+msgid "Weekly: the last 7 days"
+msgstr "Semanal: los últimos 7 días"
+
+#: alerts/models.py:10
+msgid "Monthly: the last 30 days"
+msgstr "Mensual: los últimos 30 días"
+
+#: alerts/models.py:14
+msgid "Against the period before"
+msgstr "Contra el período anterior"
+
+#: alerts/models.py:15
+msgid "Against the same period a year earlier"
+msgstr "Contra el mismo período del año anterior"
+
+#: alerts/views.py:35
+msgid "Alert settings saved."
+msgstr "Ajustes de alertas guardados."
 
 #: analytics/forms.py:25
 msgid "Your master workbook (.xlsx)"
@@ -37,22 +229,22 @@ msgstr "Eso no es un archivo .xlsx. Sube tu Excel de análisis."
 msgid "The file is too large (%(size)s). The limit is %(limit)s."
 msgstr "El archivo es demasiado grande (%(size)s). El límite es %(limit)s."
 
-#: analytics/menu_engineering.py:51
+#: analytics/menu_engineering.py:53
 #: templates/analytics/menu_engineering.html:164
 msgid "Star"
 msgstr "Estrella"
 
-#: analytics/menu_engineering.py:52
+#: analytics/menu_engineering.py:54
 #: templates/analytics/menu_engineering.html:165
 msgid "Plowhorse"
 msgstr "Caballo de batalla"
 
-#: analytics/menu_engineering.py:53
+#: analytics/menu_engineering.py:55
 #: templates/analytics/menu_engineering.html:166
 msgid "Puzzle"
 msgstr "Rompecabezas"
 
-#: analytics/menu_engineering.py:54
+#: analytics/menu_engineering.py:56
 #: templates/analytics/menu_engineering.html:167
 msgid "Dog"
 msgstr "Perro"
@@ -261,11 +453,11 @@ msgstr "Elige un insumo y una cantidad mayor que cero."
 msgid "Recipe updated."
 msgstr "Receta actualizada."
 
-#: config/settings/base.py:85
+#: config/settings/base.py:86
 msgid "English"
 msgstr "Inglés"
 
-#: config/settings/base.py:86
+#: config/settings/base.py:87
 msgid "Spanish"
 msgstr "Español"
 
@@ -274,74 +466,68 @@ msgstr "Español"
 msgid "Overview"
 msgstr "Resumen"
 
-#: pages/navigation.py:18 templates/analytics/_margin_rows.html:8
-#: templates/analytics/comparisons.html:9 templates/analytics/dashboard.html:36
-#: templates/analytics/days.html:9 templates/analytics/days.html:111
-#: templates/analytics/pnl.html:9 templates/analytics/pnl.html:26
-#: templates/catalog/product_detail.html:22
-#: templates/catalog/product_list.html:33 templates/sales/upload.html:40
-#: templates/sales/upload.html:87
-msgid "Sales"
-msgstr "Ventas"
+#: pages/navigation.py:21 templates/alerts/settings.html:4
+msgid "Alert settings"
+msgstr "Ajustes de alertas"
 
-#: pages/navigation.py:20 templates/analytics/comparisons.html:4
+#: pages/navigation.py:29 templates/analytics/comparisons.html:4
 msgid "Against last year"
 msgstr "Contra el año pasado"
 
-#: pages/navigation.py:21 templates/analytics/comparisons.html:15
+#: pages/navigation.py:30 templates/analytics/comparisons.html:15
 msgid "By month"
 msgstr "Por mes"
 
-#: pages/navigation.py:22 templates/analytics/days.html:4
+#: pages/navigation.py:31 templates/analytics/days.html:4
 msgid "Days and holidays"
 msgstr "Días y festivos"
 
-#: pages/navigation.py:28 templates/analytics/margin_alerts.html:9
+#: pages/navigation.py:37 templates/analytics/margin_alerts.html:9
 #: templates/analytics/margin_analysis.html:9
 #: templates/analytics/menu_engineering.html:10
 msgid "Margins"
 msgstr "Márgenes"
 
-#: pages/navigation.py:30 templates/analytics/dashboard.html:91
+#: pages/navigation.py:39 templates/analytics/dashboard.html:91
 msgid "To review"
 msgstr "Para revisar"
 
-#: pages/navigation.py:31
+#: pages/navigation.py:40
 msgid "All products"
 msgstr "Todos los productos"
 
-#: pages/navigation.py:32 templates/analytics/menu_engineering.html:4
+#: pages/navigation.py:41 templates/analytics/menu_engineering.html:4
 msgid "Menu engineering"
 msgstr "Ingeniería de menú"
 
-#: pages/navigation.py:38 pages/navigation.py:40
+#: pages/navigation.py:47 pages/navigation.py:49
 #: templates/catalog/product_list.html:4 templates/catalog/product_list.html:9
 msgid "Products"
 msgstr "Productos"
 
-#: pages/navigation.py:41 templates/catalog/supply_list.html:4
+#: pages/navigation.py:50 templates/catalog/supply_list.html:4
 #: templates/catalog/supply_list.html:9
 msgid "Supply costs"
 msgstr "Costos de insumos"
 
-#: pages/navigation.py:42 templates/catalog/duplicates.html:4
+#: pages/navigation.py:51 templates/catalog/duplicates.html:4
 #: templates/catalog/duplicates.html:9
 msgid "Possible duplicates"
 msgstr "Posibles duplicados"
 
-#: pages/navigation.py:48
+#: pages/navigation.py:57
 msgid "Events"
 msgstr "Eventos"
 
-#: pages/navigation.py:50 templates/quotes/quote_list.html:4
+#: pages/navigation.py:59 templates/quotes/quote_list.html:4
 msgid "Quotes"
 msgstr "Cotizaciones"
 
-#: pages/navigation.py:51 templates/quotes/menu_list.html:9
+#: pages/navigation.py:60 templates/quotes/menu_list.html:9
 msgid "Event menu"
 msgstr "Menú de eventos"
 
-#: pages/navigation.py:57 pages/navigation.py:58
+#: pages/navigation.py:66 pages/navigation.py:67
 msgid "My workbook"
 msgstr "Mi Excel"
 
@@ -753,20 +939,151 @@ msgstr "Empieza a controlar los números de tu restaurante"
 msgid "Already have an account?"
 msgstr "¿Ya tienes una cuenta?"
 
-#: templates/analytics/_margin_rows.html:6
-#: templates/catalog/product_list.html:29 templates/quotes/menu_list.html:34
-msgid "Product"
-msgstr "Producto"
+#: templates/alerts/report.html:10
+msgid "Nothing to watch yet"
+msgstr "Todavía no hay nada que vigilar"
+
+#: templates/alerts/report.html:11
+msgid ""
+"Alerts compare your reports week against week. Upload a few weeks of reports "
+"to start."
+msgstr "Las alertas comparan tus reportes semana contra semana. Sube algunas semanas de reportes para empezar."
+
+#: templates/alerts/report.html:12 templates/analytics/dashboard.html:19
+#: templates/base.html:44 templates/catalog/product_list.html:71
+#: templates/sales/upload.html:4 templates/sales/upload.html:9
+msgid "Upload reports"
+msgstr "Subir reportes"
+
+#: templates/alerts/report.html:20
+#, python-format
+msgid "From %(start)s to %(end)s, against %(bstart)s to %(bend)s."
+msgstr "Del %(start)s al %(end)s, contra el %(bstart)s al %(bend)s."
+
+#: templates/alerts/report.html:23
+msgid "Change what is compared"
+msgstr "Cambiar qué se compara"
+
+#: templates/alerts/report.html:27
+msgid "See the period ending on"
+msgstr "Ver el período que termina el"
+
+#: templates/alerts/report.html:30
+msgid "Show"
+msgstr "Ver"
+
+#: templates/alerts/report.html:34
+msgid "Download Excel"
+msgstr "Descargar Excel"
+
+#: templates/alerts/report.html:35 templates/quotes/quote_detail.html:12
+msgid "Download PDF"
+msgstr "Descargar PDF"
+
+#: templates/alerts/report.html:42
+#, python-format
+msgid ""
+"This report stops at %(latest)s, the newest report you uploaded. One day is "
+"missing since then."
+msgid_plural ""
+"This report stops at %(latest)s, the newest report you uploaded. %(days)s "
+"days are missing since then."
+msgstr[0] "Este informe llega hasta el %(latest)s, tu último reporte subido. Falta un día desde entonces."
+msgstr[1] "Este informe llega hasta el %(latest)s, tu último reporte subido. Faltan %(days)s días desde entonces."
+
+#: templates/alerts/report.html:48 templates/includes/freshness.html:12
+msgid "Upload the missing reports"
+msgstr "Subir los reportes que faltan"
+
+#: templates/alerts/report.html:53
+msgid "Summary"
+msgstr "Resumen"
+
+#: templates/alerts/report.html:56
+#, python-format
+msgid ""
+"a month is what the one product that lost profitability costs you, if it "
+"keeps selling like this."
+msgid_plural ""
+"a month is what the %(n)s products that lost profitability cost you, if they "
+"keep selling like this."
+msgstr[0] "al mes te cuesta el producto que perdió rentabilidad, si se sigue vendiendo así."
+msgstr[1] "al mes te cuestan los %(n)s productos que perdieron rentabilidad, si se siguen vendiendo así."
+
+#: templates/alerts/report.html:58
+msgid "Nothing slipped"
+msgstr "Nada se colgó"
+
+#: templates/alerts/report.html:59
+msgid "No product lost profitability against the period it is compared with."
+msgstr "Ningún producto perdió rentabilidad frente al período con que se compara."
+
+#: templates/alerts/report.html:67
+#, python-format
+msgid "A jump of %(pct)s or more in one day or one purchase"
+msgstr "Un salto de %(pct)s o más en un día o en una compra"
+
+#: templates/alerts/report.html:76
+#, python-format
+msgid "POS cost went from %(a)s to %(b)s on %(day)s."
+msgstr "El costo en el POS pasó de %(a)s a %(b)s el %(day)s."
+
+#: templates/alerts/report.html:77
+#, python-format
+msgid ""
+"Sold at %(b)s on %(day)s, when it usually sells at %(a)s: a discount, or a "
+"price change."
+msgstr "Se vendió a %(b)s el %(day)s, cuando normalmente se vende a %(a)s: un descuento, o un cambio de precio."
+
+#: templates/alerts/report.html:78
+#, python-format
+msgid ""
+"Bought at %(b)s on %(day)s, after %(a)s the time before. %(supplier)s "
+"%(invoice)s"
+msgstr "Se compró a %(b)s el %(day)s, después de %(a)s la vez anterior. %(supplier)s %(invoice)s"
+
+#: templates/alerts/report.html:89
+#, python-format
+msgid "Cost up or price down %(cost)s, or %(points)s margin points lost"
+msgstr "Costo arriba o precio abajo %(cost)s, o %(points)s puntos de margen perdidos"
+
+#: templates/alerts/report.html:109
+#, python-format
+msgid "%(name)s: %(a)s to %(b)s (%(supplier)s)"
+msgstr "%(name)s: de %(a)s a %(b)s (%(supplier)s)"
+
+#: templates/alerts/report.html:109
+msgid "Cost as the POS reports it"
+msgstr "Costo según el POS"
+
+#: templates/alerts/report.html:114
+#, python-format
+msgid "%(points)s pts"
+msgstr "%(points)s pts"
+
+#: templates/alerts/report.html:122
+msgid "None in this period."
+msgstr "Ninguno en este período."
+
+#: templates/alerts/report.html:129
+msgid ""
+"Their margin cannot be watched until they have a cost: from the POS report, "
+"or a recipe on the product's page."
+msgstr "Su margen no se puede vigilar hasta que tengan costo: del reporte del POS, o de una receta en la página del producto."
+
+#: templates/alerts/settings.html:10
+msgid "What Mesa compares, and from what size a change is worth a warning."
+msgstr "Qué compara Mesa, y desde qué tamaño un cambio merece un aviso."
+
+#: templates/alerts/settings.html:39 templates/quotes/quote_detail.html:100
+#: templates/tenants/settings.html:80
+msgid "Save"
+msgstr "Guardar"
 
 #: templates/analytics/_margin_rows.html:7
 #: templates/catalog/product_list.html:30 templates/catalog/supply_list.html:66
 msgid "Group"
 msgstr "Grupo"
-
-#: templates/analytics/_margin_rows.html:9
-#: templates/quotes/quote_detail.html:245 templates/quotes/quote_list.html:60
-msgid "Margin"
-msgstr "Margen"
 
 #: templates/analytics/_menu_quad.html:14
 #, python-format
@@ -881,12 +1198,6 @@ msgid ""
 msgstr ""
 "Exporta el reporte de Productos Vendidos de Soft Restaurant y súbelo. Con un "
 "mes de reportes diarios ves el panorama completo."
-
-#: templates/analytics/dashboard.html:19 templates/base.html:44
-#: templates/catalog/product_list.html:71 templates/sales/upload.html:4
-#: templates/sales/upload.html:9
-msgid "Upload reports"
-msgstr "Subir reportes"
 
 #: templates/analytics/dashboard.html:40
 msgid ""
@@ -1037,10 +1348,6 @@ msgstr "Por día de la semana"
 msgid "Ordinary days only, holidays apart"
 msgstr "Solo días normales, los festivos aparte"
 
-#: templates/analytics/days.html:52
-msgid "Day"
-msgstr "Día"
-
 #: templates/analytics/days.html:53
 msgid "Days open"
 msgstr "Días abiertos"
@@ -1183,7 +1490,9 @@ msgstr "No hay productos activos."
 msgid ""
 "Each dish of a family by how much it sells and how much each portion leaves, "
 "so you know what to keep, reprice, promote or drop."
-msgstr "Cada plato de una familia según cuánto se vende y cuánto deja cada porción, para saber qué cuidar, a qué subirle el precio, qué impulsar y qué sacar."
+msgstr ""
+"Cada plato de una familia según cuánto se vende y cuánto deja cada porción, "
+"para saber qué cuidar, a qué subirle el precio, qué impulsar y qué sacar."
 
 #: templates/analytics/menu_engineering.html:19
 msgid "No sales in this period"
@@ -1210,7 +1519,9 @@ msgstr "Cambiar las familias"
 msgid ""
 "Costs in this family rose against the %(days)s days before. At what you sell "
 "today, that is %(amount)s less a month."
-msgstr "Los costos de esta familia subieron frente a los %(days)s días anteriores. Con lo que vendes hoy, son %(amount)s menos al mes."
+msgstr ""
+"Los costos de esta familia subieron frente a los %(days)s días anteriores. "
+"Con lo que vendes hoy, son %(amount)s menos al mes."
 
 #: templates/analytics/menu_engineering.html:46
 #, python-format
@@ -1227,7 +1538,9 @@ msgstr "Rompecabezas"
 msgid ""
 "They leave a lot, few people order them. Give them a better spot on the menu "
 "and have the waiters suggest them."
-msgstr "Dejan mucho, pero los piden pocos. Dales mejor lugar en la carta y que los meseros los recomienden."
+msgstr ""
+"Dejan mucho, pero los piden pocos. Dales mejor lugar en la carta y que los "
+"meseros los recomienden."
 
 #: templates/analytics/menu_engineering.html:50
 msgid "Stars"
@@ -1259,22 +1572,28 @@ msgstr "Caballos de batalla"
 msgid ""
 "People order them, but each one leaves less. Raise the price a little or "
 "trim the cost of the portion."
-msgstr "La gente los pide, pero cada uno deja menos. Súbeles un poco el precio o baja el costo de la porción."
+msgstr ""
+"La gente los pide, pero cada uno deja menos. Súbeles un poco el precio o "
+"baja el costo de la porción."
 
 #: templates/analytics/menu_engineering.html:55
 #, python-format
 msgid "Top row: a portion leaves more than the family average (%(avg)s)."
-msgstr "Fila de arriba: una porción deja más que el promedio de la familia (%(avg)s)."
+msgstr ""
+"Fila de arriba: una porción deja más que el promedio de la familia (%(avg)s)."
 
 #: templates/analytics/menu_engineering.html:56
 #, python-format
 msgid ""
 "Right column: the dish sells at least %(share)s of the family's portions."
-msgstr "Columna derecha: el plato vende al menos el %(share)s de las porciones de la familia."
+msgstr ""
+"Columna derecha: el plato vende al menos el %(share)s de las porciones de la "
+"familia."
 
 #: templates/analytics/menu_engineering.html:57
 msgid "A wider tile sold more. The notes compare with the period before."
-msgstr "Una ficha más ancha vendió más. Las notas comparan con el período anterior."
+msgstr ""
+"Una ficha más ancha vendió más. Las notas comparan con el período anterior."
 
 #: templates/analytics/menu_engineering.html:60
 msgid "See it as a scatter chart"
@@ -1298,7 +1617,10 @@ msgstr "%(total)s más al mes si se venden igual"
 msgid ""
 "Prices are the ones on the menu, consumption tax (8%%) included. The POS "
 "stores them without the tax, so they read lower on the other pages."
-msgstr "Los precios son los de la carta, con el impuesto al consumo (8 %%) incluido. El POS los guarda sin el impuesto, por eso en las otras páginas se ven más bajos."
+msgstr ""
+"Los precios son los de la carta, con el impuesto al consumo (8 %%) incluido. "
+"El POS los guarda sin el impuesto, por eso en las otras páginas se ven más "
+"bajos."
 
 #: templates/analytics/menu_engineering.html:83
 #, python-format
@@ -1314,14 +1636,18 @@ msgstr "por 100 g"
 msgid ""
 "At that price a portion leaves the family average and the dish becomes a "
 "star."
-msgstr "Con ese precio una porción deja el promedio de la familia y el plato pasa a ser estrella."
+msgstr ""
+"Con ese precio una porción deja el promedio de la familia y el plato pasa a "
+"ser estrella."
 
 #: templates/analytics/menu_engineering.html:89
 #, python-format
 msgid ""
 "To leave the family average it would need %(needed)s; the %(cap)s cap per "
 "change does not let it get there at once."
-msgstr "Para dejar el promedio de la familia necesitaría %(needed)s; el tope de %(cap)s por cambio no deja llegar de una sola vez."
+msgstr ""
+"Para dejar el promedio de la familia necesitaría %(needed)s; el tope de "
+"%(cap)s por cambio no deja llegar de una sola vez."
 
 #: templates/analytics/menu_engineering.html:99
 #, python-format
@@ -1365,7 +1691,9 @@ msgstr "De más al mes"
 msgid ""
 "It assumes the dish keeps selling the same. A big rise can cost orders, "
 "which is what the cap is for."
-msgstr "Supone que el plato se sigue vendiendo igual. Una subida grande puede costar pedidos; para eso está el tope."
+msgstr ""
+"Supone que el plato se sigue vendiendo igual. Una subida grande puede costar "
+"pedidos; para eso está el tope."
 
 #: templates/analytics/menu_engineering.html:134
 #: templates/catalog/supply_list.html:42
@@ -1430,7 +1758,9 @@ msgstr "Familias de la carta"
 msgid ""
 "Dishes are compared within a family: put together the POS groups a guest "
 "chooses between, and leave out the ones that are not dishes."
-msgstr "Los platos se comparan dentro de una familia: junta los grupos del POS entre los que elige un cliente, y deja por fuera los que no son platos."
+msgstr ""
+"Los platos se comparan dentro de una familia: junta los grupos del POS entre "
+"los que elige un cliente, y deja por fuera los que no son platos."
 
 #: templates/analytics/menu_families.html:21
 msgid "POS group"
@@ -1720,10 +2050,6 @@ msgstr ""
 msgid "Cost from the recipe"
 msgstr "Costo segun la receta"
 
-#: templates/catalog/product_detail.html:58
-msgid "POS cost"
-msgstr "Costo POS"
-
 #: templates/catalog/product_detail.html:63
 msgid "This recipe has no cost yet: AutoFacturas has not costed"
 msgstr "Esta receta aun no tiene costo: AutoFacturas no ha costeado"
@@ -1957,10 +2283,6 @@ msgstr[0] ""
 "Tus reportes llegan hasta el %(latest)s. Falta un día desde entonces."
 msgstr[1] ""
 "Tus reportes llegan hasta el %(latest)s. Faltan %(days)s días desde entonces."
-
-#: templates/includes/freshness.html:12
-msgid "Upload the missing reports"
-msgstr "Subir los reportes que faltan"
 
 #: templates/includes/period.html:8
 msgid "All history"
@@ -2295,10 +2617,6 @@ msgstr[1] ""
 "no  pueden mostrar margen.\n"
 "    "
 
-#: templates/quotes/menu_list.html:29
-msgid "Item"
-msgstr "Ítem"
-
 #: templates/quotes/menu_list.html:30 templates/quotes/menu_list.html:88
 #: templates/quotes/quote_detail.html:346
 msgid "Course"
@@ -2378,10 +2696,6 @@ msgstr "Guardar ítem"
 msgid "No client yet"
 msgstr "Sin cliente todavía"
 
-#: templates/quotes/quote_detail.html:12
-msgid "Download PDF"
-msgstr "Descargar PDF"
-
 #: templates/quotes/quote_detail.html:21 templates/quotes/quote_list.html:56
 msgid "Event"
 msgstr "Evento"
@@ -2417,10 +2731,6 @@ msgstr "El precio acordado no incluye el impuesto al consumo"
 #: templates/quotes/quote_detail.html:97
 msgid "The tax is added on top instead of taken out of it"
 msgstr "El impuesto se suma encima en vez de descontarse de él"
-
-#: templates/quotes/quote_detail.html:100 templates/tenants/settings.html:80
-msgid "Save"
-msgstr "Guardar"
 
 #: templates/quotes/quote_detail.html:106
 msgid "Charges on top"
@@ -3026,7 +3336,8 @@ msgstr "Subida máxima de precio por cambio (%)"
 #: tenants/forms.py:64
 msgid ""
 "Menu engineering never suggests raising a price by more than this at once."
-msgstr "La ingeniería de menú nunca sugiere subir un precio más que esto de una vez."
+msgstr ""
+"La ingeniería de menú nunca sugiere subir un precio más que esto de una vez."
 
 #: tenants/forms.py:68
 msgid "Round menu prices to"

@@ -14,6 +14,15 @@ from django.utils.translation import gettext_lazy as _
 SECTIONS = (
     ("overview", _("Overview"), [("analytics:dashboard", _("Overview"))], ()),
     (
+        "alerts",
+        _("Alerts"),
+        [
+            ("alerts:report", _("Alerts")),
+            ("alerts:settings", _("Alert settings")),
+        ],
+        (),
+    ),
+    (
         "sales",
         _("Sales"),
         [

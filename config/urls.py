@@ -13,6 +13,7 @@ urlpatterns = [
     path("settings/", include("tenants.urls")),
     path("join/<str:token>/", tenant_views.accept_invitation, name="accept_invitation"),
     path("quotes/", include("quotes.urls")),
+    path("alerts/", include("alerts.urls")),
     path("", include("pages.urls")),
     path("", include("analytics.urls")),
 ]

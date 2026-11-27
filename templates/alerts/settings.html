@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Alert settings" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{% trans "Alerts" %}</h1>
+        <p>{% trans "What Mesa compares, and from what size a change is worth a warning." %}</p>
+    </div>
+</div>
+
+<form method="post" class="narrow">
+    {% csrf_token %}
+    <div class="panel mb-3">
+        {% for field in form %}
+        <div class="mb-4">
+            {% if field.name == "cadence" or field.name == "baseline" %}
+            <fieldset>
+                <legend class="form-label">{{ field.label }}</legend>
+                {% for radio in field %}
+                <div class="form-check">
+                    {{ radio.tag }}
+                    <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                </div>
+                {% endfor %}
+            </fieldset>
+            {% else %}
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            <input type="number" class="form-control" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                   value="{{ field.value|stringformat:'s' }}" min="0"{% if field.name != "min_weekly_sales" %} step="0.5" max="100"{% endif %}>
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% endif %}
+            {% for error in field.errors %}<p class="text-danger small mb-0">{{ error }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+</form>
+{% endblock %}
