@@ -37,7 +37,7 @@ from decimal import Decimal
 from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 from django.utils.translation import gettext_lazy as _
 
-from catalog.families import family_of, is_hidden
+from catalog.families import family_of, is_hidden, target_of
 from catalog.models import Category
 from catalog.portions import GRAMS_PER_PORTION, portions, sold_by_gram
 from sales.models import SaleItem
@@ -174,6 +174,7 @@ class Group:
     popularity_threshold: Decimal = Decimal("0")  # % of the family's portions
     contribution_threshold: Decimal = Decimal("0")  # per portion, for reference
     target_cost_pct: Decimal = Decimal("30")
+    target_source: str = "default"  # "set", "suggested" or "default"
 
     @property
     def revenue(self) -> Decimal:
@@ -255,7 +256,7 @@ def menu_engineering(
     # An unsaved default can still be the int the field was declared with.
     default_target = Decimal(str(restaurant.target_cost_pct))
     families = {
-        c.pk: (family_of(c), is_hidden(c), c.target_cost_pct)
+        c.pk: (family_of(c), is_hidden(c), *target_of(c))
         for c in Category.objects.filter(restaurant=restaurant)
     }
     items = SaleItem.objects.filter(sale__restaurant=restaurant)
@@ -276,14 +277,18 @@ def menu_engineering(
         revenue = row["revenue"] or Decimal("0")
         if revenue <= 0 or not row["units"]:
             continue  # a giveaway has nothing to engineer
-        family, hidden, target = families.get(row["product__category_id"], ("", False, None))
+        family, hidden, target, source = families.get(
+            row["product__category_id"], ("", False, None, "default")
+        )
         if hidden:
             continue
         name = row["product__name"]
         group = groups.setdefault(family, Group(name=family, target_cost_pct=default_target))
-        if target is not None:
-            # A family takes the target set on any of its POS groups.
-            group.target_cost_pct = Decimal(str(target))
+        # A target the owner set on any of the family's POS groups wins over
+        # Mesa's suggestion, which wins over the restaurant's default (US56).
+        rank = {"default": 0, "suggested": 1, "set": 2}
+        if target is not None and rank[source] > rank[group.target_source]:
+            group.target_cost_pct, group.target_source = target, source
         dish = Dish(
             product_id=row["product_id"],
             name=name,

@@ -9,29 +9,42 @@ them, and what the owner sets always wins.
 """
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django.utils.translation import gettext_lazy as _
 
 #: Groups that are not dishes: voids, corkage, courtesies, staff accounts.
 _HIDDEN_HINTS = ("ANULA", "DESCORCHE", "CORTESIA", "PROPINA", "EMPLEAD", "PERSONAL")
 
-#: (any of these, and any of these, family). Checked in order; first hit wins.
+#: (any of these, and any of these, family, suggested target food cost %).
+#: Checked in order; first hit wins. The targets are what Colombian grills
+#: commonly price to (US56): beef runs dear -- 30% is hard on a cut -- while
+#: wine by the bottle at 45% is normal and a cocktail sits near 22%.
 _RULES = (
-    (("PRIME", "WAGYU", "PREMIUM"), (), _("Premium cuts")),
-    (("CORTE", "STEAK", "PARRILLA"), (), _("Cuts")),
-    (("ENSALADA", "SALAD"), (), _("Salads")),
-    (("ENTRADA", "PICOTEO", "STARTER", "APPETIZER"), (), _("Starters and snacks")),
-    (("ACOMPA", "GUARNICI", "SIDE"), (), _("Sides")),
-    (("ADICION", "EXTRA"), (), _("Add-ons")),
-    (("POSTRE", "DESSERT"), (), _("Desserts")),
-    (("VINO", "ESPUMOSO", "WINE"), ("BOTELLA", "BOTTLE"), _("Wine by the bottle")),
-    (("VINO", "ESPUMOSO", "WINE", "SANGRIA"), (), _("Wine by the glass and sangria")),
-    (("COCTEL", "COCKTAIL"), (), _("Cocktails")),
-    (("DESTILADO", "LICOR", "SPIRIT"), ("BOTELLA", "BOTTLE"), _("Spirits by the bottle")),
-    (("DESTILADO", "LICOR", "SPIRIT"), (), _("Spirits by the glass")),
-    (("CERVEZA", "BEER"), (), _("Beers")),
-    (("LIMONADA", "SODA", "AGUA", "BEBIDA", "CAFE", "JUGO", "SOFT"), (), _("Soft drinks")),
-    (("FUERTE", "ESPECIAL", "NIÑO", "NINO", "MAIN"), (), _("Other mains")),
+    (("PRIME", "WAGYU", "PREMIUM"), (), _("Premium cuts"), 40),
+    (("CORTE", "STEAK", "PARRILLA"), (), _("Cuts"), 35),
+    (("ENSALADA", "SALAD"), (), _("Salads"), 28),
+    (("ENTRADA", "PICOTEO", "STARTER", "APPETIZER"), (), _("Starters and snacks"), 30),
+    (("ACOMPA", "GUARNICI", "SIDE"), (), _("Sides"), 25),
+    (("ADICION", "EXTRA"), (), _("Add-ons"), 25),
+    (("POSTRE", "DESSERT"), (), _("Desserts"), 28),
+    (("VINO", "ESPUMOSO", "WINE"), ("BOTELLA", "BOTTLE"), _("Wine by the bottle"), 45),
+    (("VINO", "ESPUMOSO", "WINE", "SANGRIA"), (), _("Wine by the glass and sangria"), 35),
+    (("COCTEL", "COCKTAIL"), (), _("Cocktails"), 22),
+    (("DESTILADO", "LICOR", "SPIRIT"), ("BOTELLA", "BOTTLE"), _("Spirits by the bottle"), 40),
+    (("DESTILADO", "LICOR", "SPIRIT"), (), _("Spirits by the glass"), 28),
+    (("CERVEZA", "BEER"), (), _("Beers"), 35),
+    (("LIMONADA", "SODA", "AGUA", "BEBIDA", "CAFE", "JUGO", "SOFT"), (), _("Soft drinks"), 25),
+    (("FUERTE", "ESPECIAL", "NIÑO", "NINO", "MAIN"), (), _("Other mains"), 32),
 )
+
+
+def _rule(group_name: str):
+    upper = (group_name or "").upper()
+    for first, second, family, target in _RULES:
+        if any(k in upper for k in first) and (not second or any(k in upper for k in second)):
+            return family, target
+    return None
 
 
 def suggest_hidden(group_name: str) -> bool:
@@ -41,11 +54,16 @@ def suggest_hidden(group_name: str) -> bool:
 
 def suggest_family(group_name: str) -> str:
     """The family a POS group most likely belongs to; its own name if unknown."""
-    upper = (group_name or "").upper()
-    for first, second, family in _RULES:
-        if any(k in upper for k in first) and (not second or any(k in upper for k in second)):
-            return str(family)
+    rule = _rule(group_name)
+    if rule:
+        return str(rule[0])
     return (group_name or "").strip().capitalize()
+
+
+def suggest_target(group_name: str) -> Decimal | None:
+    """The food cost % such a group is usually priced to, or ``None``."""
+    rule = _rule(group_name)
+    return Decimal(rule[1]) if rule else None
 
 
 def family_of(category) -> str:
@@ -56,3 +74,14 @@ def is_hidden(category) -> bool:
     if category.menu_hidden is not None:
         return category.menu_hidden
     return suggest_hidden(category.name)
+
+
+def target_of(category) -> tuple[Decimal | None, str]:
+    """The category's target and where it came from: ``"set"`` by the owner,
+    ``"suggested"`` by Mesa, or ``(None, "default")`` for the restaurant's."""
+    if category.target_cost_pct is not None:
+        return Decimal(str(category.target_cost_pct)), "set"
+    suggestion = suggest_target(category.name)
+    if suggestion is not None:
+        return suggestion, "suggested"
+    return None, "default"

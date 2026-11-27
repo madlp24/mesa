@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mesa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 20:14-0500\n"
+"POT-Creation-Date: 2026-11-26 20:40-0500\n"
 "PO-Revision-Date: 2026-06-19 15:30-0500\n"
 "Last-Translator: madlp24\n"
 "Language-Team: Spanish\n"
@@ -232,22 +232,22 @@ msgid "The file is too large (%(size)s). The limit is %(limit)s."
 msgstr "El archivo es demasiado grande (%(size)s). El límite es %(limit)s."
 
 #: analytics/menu_engineering.py:59
-#: templates/analytics/menu_engineering.html:163
+#: templates/analytics/menu_engineering.html:165
 msgid "Star"
 msgstr "Estrella"
 
 #: analytics/menu_engineering.py:60
-#: templates/analytics/menu_engineering.html:164
+#: templates/analytics/menu_engineering.html:166
 msgid "Plowhorse"
 msgstr "Caballo de batalla"
 
 #: analytics/menu_engineering.py:61
-#: templates/analytics/menu_engineering.html:165
+#: templates/analytics/menu_engineering.html:167
 msgid "Puzzle"
 msgstr "Rompecabezas"
 
 #: analytics/menu_engineering.py:62
-#: templates/analytics/menu_engineering.html:166
+#: templates/analytics/menu_engineering.html:168
 msgid "Dog"
 msgstr "Perro"
 
@@ -333,66 +333,66 @@ msgstr[1] ""
 msgid "Menu families saved."
 msgstr "Familias de la carta guardadas."
 
-#: catalog/families.py:19
+#: catalog/families.py:24
 msgid "Premium cuts"
 msgstr "Cortes premium"
 
-#: catalog/families.py:20
+#: catalog/families.py:25
 msgid "Cuts"
 msgstr "Cortes"
 
-#: catalog/families.py:21
+#: catalog/families.py:26
 msgid "Salads"
 msgstr "Ensaladas"
 
-#: catalog/families.py:22
+#: catalog/families.py:27
 msgid "Starters and snacks"
 msgstr "Entradas y picoteo"
 
-#: catalog/families.py:23 quotes/models.py:48
+#: catalog/families.py:28 quotes/models.py:48
 #: templates/quotes/menu_list.html:92
 msgid "Sides"
 msgstr "Acompañamientos"
 
-#: catalog/families.py:24
+#: catalog/families.py:29
 msgid "Add-ons"
 msgstr "Adiciones"
 
-#: catalog/families.py:25 quotes/models.py:49
+#: catalog/families.py:30 quotes/models.py:49
 #: templates/quotes/menu_list.html:93
 msgid "Desserts"
 msgstr "Postres"
 
-#: catalog/families.py:26
+#: catalog/families.py:31
 msgid "Wine by the bottle"
 msgstr "Vinos por botella"
 
-#: catalog/families.py:27
+#: catalog/families.py:32
 msgid "Wine by the glass and sangria"
 msgstr "Vinos por copa y sangría"
 
-#: catalog/families.py:28
+#: catalog/families.py:33
 msgid "Cocktails"
 msgstr "Cocteles"
 
-#: catalog/families.py:29
+#: catalog/families.py:34
 msgid "Spirits by the bottle"
 msgstr "Destilados por botella"
 
-#: catalog/families.py:30
+#: catalog/families.py:35
 msgid "Spirits by the glass"
 msgstr "Destilados por trago"
 
-#: catalog/families.py:31
+#: catalog/families.py:36
 msgid "Beers"
 msgstr "Cervezas"
 
-#: catalog/families.py:32 quotes/models.py:51
+#: catalog/families.py:37 quotes/models.py:51
 #: templates/quotes/menu_list.html:95
 msgid "Soft drinks"
 msgstr "Bebidas sin alcohol"
 
-#: catalog/families.py:33
+#: catalog/families.py:38
 msgid "Other mains"
 msgstr "Otros fuertes"
 
@@ -1558,7 +1558,9 @@ msgstr "Rompecabezas"
 msgid ""
 "Their cost is within your target, but few people order them. Give them a "
 "better spot on the menu and have the waiters suggest them."
-msgstr "Su costo está dentro de tu meta, pero los piden pocos. Dales mejor lugar en la carta y que los meseros los recomienden."
+msgstr ""
+"Su costo está dentro de tu meta, pero los piden pocos. Dales mejor lugar en "
+"la carta y que los meseros los recomienden."
 
 #: templates/analytics/menu_engineering.html:50
 msgid "Stars"
@@ -1568,7 +1570,9 @@ msgstr "Estrellas"
 msgid ""
 "They sell a lot and their cost is within your target. Look after them: same "
 "portion, a good place on the menu, never out of stock."
-msgstr "Se venden mucho y su costo está dentro de tu meta. Cuídalas: la misma porción, buen lugar en la carta y que nunca falten."
+msgstr ""
+"Se venden mucho y su costo está dentro de tu meta. Cuídalas: la misma "
+"porción, buen lugar en la carta y que nunca falten."
 
 #: templates/analytics/menu_engineering.html:51
 msgid "Dogs"
@@ -1578,7 +1582,8 @@ msgstr "Perros"
 msgid ""
 "They sell little and their cost is over your target. Check whether they "
 "still belong on the menu."
-msgstr "Se venden poco y su costo pasa tu meta. Revisa si deben seguir en la carta."
+msgstr ""
+"Se venden poco y su costo pasa tu meta. Revisa si deben seguir en la carta."
 
 #: templates/analytics/menu_engineering.html:52
 msgid "Plowhorses"
@@ -1588,20 +1593,36 @@ msgstr "Caballos de batalla"
 msgid ""
 "People order them, but their cost is over your target. Raise the price or "
 "trim the cost of the portion."
-msgstr "La gente los pide, pero su costo pasa tu meta. Súbeles el precio o baja el costo de la porción."
+msgstr ""
+"La gente los pide, pero su costo pasa tu meta. Súbeles el precio o baja el "
+"costo de la porción."
 
 #: templates/analytics/menu_engineering.html:55
 #, python-format
 msgid ""
 "Top row: the cost is within the target of %(target)s of the price without "
 "tax."
-msgstr "Fila de arriba: el costo está dentro de la meta de %(target)s del precio sin impuesto."
+msgstr ""
+"Fila de arriba: el costo está dentro de la meta de %(target)s del precio sin "
+"impuesto."
 
-#: templates/analytics/menu_engineering.html:55
+#: templates/analytics/menu_engineering.html:56
+msgid "Mesa suggests this target for this family."
+msgstr "Meta sugerida por Mesa para esta familia."
+
+#: templates/analytics/menu_engineering.html:56
+msgid "You set this target."
+msgstr "Meta puesta por ti."
+
+#: templates/analytics/menu_engineering.html:56
+msgid "The restaurant's target."
+msgstr "Meta del restaurante."
+
+#: templates/analytics/menu_engineering.html:57
 msgid "Change the target"
 msgstr "Cambiar la meta"
 
-#: templates/analytics/menu_engineering.html:56
+#: templates/analytics/menu_engineering.html:58
 #, python-format
 msgid ""
 "Right column: the dish sells at least %(share)s of the family's portions."
@@ -1609,97 +1630,102 @@ msgstr ""
 "Columna derecha: el plato vende al menos el %(share)s de las porciones de la "
 "familia."
 
-#: templates/analytics/menu_engineering.html:57
+#: templates/analytics/menu_engineering.html:59
 msgid "A wider tile sold more. The notes compare with the period before."
 msgstr ""
 "Una ficha más ancha vendió más. Las notas comparan con el período anterior."
 
-#: templates/analytics/menu_engineering.html:60
+#: templates/analytics/menu_engineering.html:62
 msgid "See it as a scatter chart"
 msgstr "Verlo como gráfico de puntos"
 
-#: templates/analytics/menu_engineering.html:63
+#: templates/analytics/menu_engineering.html:65
 msgid "Each dish by portions sold and what one portion leaves"
 msgstr "Cada plato según las porciones vendidas y lo que deja una porción"
 
-#: templates/analytics/menu_engineering.html:71
+#: templates/analytics/menu_engineering.html:73
 msgid "Decisions"
 msgstr "Decisiones"
 
-#: templates/analytics/menu_engineering.html:72
+#: templates/analytics/menu_engineering.html:74
 #, python-format
 msgid "%(total)s more a month if they sell the same"
 msgstr "%(total)s más al mes si se venden igual"
 
-#: templates/analytics/menu_engineering.html:75
+#: templates/analytics/menu_engineering.html:77
 #, python-format
 msgid ""
 "Each price is cost divided by the target of %(target)s, then the consumption "
 "tax (8%%) added, as it goes on the menu. The POS stores prices without the "
 "tax, so they read lower on the other pages."
-msgstr "Cada precio es el costo dividido por la meta de %(target)s, más el impuesto al consumo (8 %%), como va en la carta. El POS guarda los precios sin el impuesto, por eso en las otras páginas se ven más bajos."
+msgstr ""
+"Cada precio es el costo dividido por la meta de %(target)s, más el impuesto "
+"al consumo (8 %%), como va en la carta. El POS guarda los precios sin el "
+"impuesto, por eso en las otras páginas se ven más bajos."
 
-#: templates/analytics/menu_engineering.html:83
+#: templates/analytics/menu_engineering.html:85
 #, python-format
 msgid "from %(a)s to %(b)s on the menu (%(rise)s)"
 msgstr "de %(a)s a %(b)s en carta (%(rise)s)"
 
-#: templates/analytics/menu_engineering.html:83
-#: templates/analytics/menu_engineering.html:169
+#: templates/analytics/menu_engineering.html:85
+#: templates/analytics/menu_engineering.html:171
 msgid "per 100 g"
 msgstr "por 100 g"
 
-#: templates/analytics/menu_engineering.html:86
+#: templates/analytics/menu_engineering.html:88
 #, python-format
 msgid "Its cost goes from %(now)s to %(after)s of the price."
 msgstr "Su costo pasa de %(now)s a %(after)s del precio."
 
-#: templates/analytics/menu_engineering.html:88
+#: templates/analytics/menu_engineering.html:90
 #, python-format
 msgid ""
 "The target needs %(needed)s; the %(cap)s cap per change does not let it get "
 "there at once."
-msgstr "La meta pide %(needed)s; el tope de %(cap)s por cambio no deja llegar de una sola vez."
+msgstr ""
+"La meta pide %(needed)s; el tope de %(cap)s por cambio no deja llegar de una "
+"sola vez."
 
-#: templates/analytics/menu_engineering.html:98
+#: templates/analytics/menu_engineering.html:100
 #, python-format
 msgid "that is all it leaves a month, from %(n)s portions in the period."
 msgstr "es todo lo que deja al mes, con %(n)s porciones en el período."
 
-#: templates/analytics/menu_engineering.html:100
+#: templates/analytics/menu_engineering.html:102
 msgid "A candidate to leave the menu, or to become a seasonal special."
 msgstr "Candidato a salir de la carta, o a volverse especial de temporada."
 
-#: templates/analytics/menu_engineering.html:109
+#: templates/analytics/menu_engineering.html:111
 msgid "Price simulator"
 msgstr "Simulador de precio"
 
-#: templates/analytics/menu_engineering.html:112
+#: templates/analytics/menu_engineering.html:114
 #: templates/quotes/quote_detail.html:341
 msgid "Dish"
 msgstr "Plato"
 
-#: templates/analytics/menu_engineering.html:116
+#: templates/analytics/menu_engineering.html:118
 msgid "Menu price"
 msgstr "Precio en carta"
 
-#: templates/analytics/menu_engineering.html:121
+#: templates/analytics/menu_engineering.html:123
 msgid "Rise"
 msgstr "Subida"
 
-#: templates/analytics/menu_engineering.html:122
+#: templates/analytics/menu_engineering.html:124
 msgid "Food cost"
 msgstr "Costo de la materia prima"
 
-#: templates/analytics/menu_engineering.html:123
+#: templates/analytics/menu_engineering.html:125
 msgid "It becomes"
 msgstr "Queda como"
 
-#: templates/analytics/menu_engineering.html:124
+#: templates/analytics/menu_engineering.html:126
 msgid "Extra a month"
 msgstr "De más al mes"
 
-#: templates/analytics/menu_engineering.html:126
+#: templates/analytics/menu_engineering.html:128
 msgid ""
 "It assumes the dish keeps selling the same. A big rise can cost orders, "
 "which is what the cap is for."
@@ -1707,12 +1733,12 @@ msgstr ""
 "Supone que el plato se sigue vendiendo igual. Una subida grande puede costar "
 "pedidos; para eso está el tope."
 
-#: templates/analytics/menu_engineering.html:133
+#: templates/analytics/menu_engineering.html:135
 #: templates/catalog/supply_list.html:42
 msgid "Without a cost"
 msgstr "Sin costo"
 
-#: templates/analytics/menu_engineering.html:134
+#: templates/analytics/menu_engineering.html:136
 msgid ""
 "These cannot be placed until they have a cost: from the POS report, or a "
 "recipe on the product's page."
@@ -1720,7 +1746,7 @@ msgstr ""
 "No se pueden ubicar hasta que tengan costo: del reporte del POS, o de una "
 "receta en la página del producto."
 
-#: templates/analytics/menu_engineering.html:143
+#: templates/analytics/menu_engineering.html:145
 msgid ""
 "Cuts sold by the gram are counted in 280 g portions, the portion per guest "
 "the event quotes use."
@@ -1728,41 +1754,41 @@ msgstr ""
 "Los cortes que se venden por gramo se cuentan en porciones de 280 g, la "
 "porción por persona que usan las cotizaciones de eventos."
 
-#: templates/analytics/menu_engineering.html:168
+#: templates/analytics/menu_engineering.html:170
 #, python-brace-format
 msgid "today {price}"
 msgstr "hoy {price}"
 
-#: templates/analytics/menu_engineering.html:170
+#: templates/analytics/menu_engineering.html:172
 #, python-brace-format
 msgid "Cap of {cap}: {price}"
 msgstr "Tope de {cap}: {price}"
 
-#: templates/analytics/menu_engineering.html:171
+#: templates/analytics/menu_engineering.html:173
 #, python-brace-format
 msgid "Over the cap of {cap} ({price})"
 msgstr "Pasa el tope de {cap} ({price})"
 
-#: templates/analytics/menu_engineering.html:172
+#: templates/analytics/menu_engineering.html:174
 #, python-brace-format
 msgid "Target: {pct}"
 msgstr "Meta: {pct}"
 
-#: templates/analytics/menu_engineering.html:173
+#: templates/analytics/menu_engineering.html:175
 #, python-format
 msgid "Food cost (%%)"
 msgstr "Costo (%%)"
 
-#: templates/analytics/menu_engineering.html:174
+#: templates/analytics/menu_engineering.html:176
 #, python-brace-format
 msgid "{n} portions a month"
 msgstr "{n} porciones al mes"
 
-#: templates/analytics/menu_engineering.html:175
+#: templates/analytics/menu_engineering.html:177
 msgid "Portions sold"
 msgstr "Porciones vendidas"
 
-#: templates/analytics/menu_engineering.html:176
+#: templates/analytics/menu_engineering.html:178
 msgid "Each portion leaves"
 msgstr "Deja cada porción"
 
@@ -1782,9 +1808,10 @@ msgstr ""
 #: templates/analytics/menu_families.html:11
 #, python-format
 msgid ""
-"A blank target cost uses the restaurant's, %(target)s%%, set in restaurant "
-"settings."
-msgstr "Si dejas la meta en blanco se usa la del restaurante, %(target)s %%, que está en los ajustes del restaurante."
+"The grey figure in each target is what Mesa suggests for that kind of group: "
+"beef runs dear, wine by the bottle at 45%% is normal. Type your own to "
+"replace it."
+msgstr "El número gris en cada meta es lo que Mesa sugiere para ese tipo de grupo: la carne es costosa, y en vinos por botella un 45 %% es normal. Escribe el tuyo para reemplazarlo."
 
 #: templates/analytics/menu_families.html:22
 msgid "POS group"
@@ -3369,9 +3396,9 @@ msgstr "Meta de costo de la carta (%)"
 
 #: tenants/forms.py:64
 msgid ""
-"Cost over the price without consumption tax. Prices are suggested to reach "
-"it."
-msgstr "Costo sobre el precio sin impuesto al consumo. Los precios se sugieren para llegar a ella."
+"Cost over the price without consumption tax, for menu families Mesa has no "
+"suggestion for. Each family's target is on the menu families page."
+msgstr "Costo sobre el precio sin impuesto al consumo, para las familias que Mesa no reconoce. La meta de cada familia está en la página de familias de la carta."
 
 #: tenants/forms.py:68
 msgid "Largest price rise per change (%)"
@@ -3421,6 +3448,14 @@ msgstr "%(name)s ya no tiene acceso."
 #, python-format
 msgid "You are now working in %(name)s."
 msgstr "Ahora estás trabajando en %(name)s."
+
+#, python-format
+#~ msgid ""
+#~ "A blank target cost uses the restaurant's, %(target)s%%, set in "
+#~ "restaurant settings."
+#~ msgstr ""
+#~ "Si dejas la meta en blanco se usa la del restaurante, %(target)s %%, que "
+#~ "está en los ajustes del restaurante."
 
 #, python-format
 #~ msgid "leaves %(amount)s a portion"

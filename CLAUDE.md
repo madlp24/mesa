@@ -66,7 +66,8 @@ US48 correct re-imported days (#171/PR172), US49 redesign (#174/PR175),
 US50 menu engineering (#176/PR177), US51 days and holidays (#178/PR179),
 US52 remaining pages redesigned (#180/PR181),
 US53 menu engineering decisions (#183/PR184), US54 profitability alerts (#185/PR186),
-US55 menu engineering by target food cost % (#187).
+US55 menu engineering by target food cost % (#187/PR188),
+US56 suggested target per family (#189).
 IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
@@ -122,6 +123,16 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   `sales/importers/pdf_daily.py::parse_daily_totals` (BEBIDAS/ALIMENTOS block). Matches by
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
+
+US56 suggested target per family (#189): `catalog/families.py` rules now carry
+a suggested food cost (cuts 35, premium 40, starters 30, salads 28, sides 25,
+add-ons 25, desserts 28, wine bottle 45, wine glass/sangria 35, cocktails 22,
+spirits bottle 40, spirits glass 28, beers 35, soft drinks 25, other mains 32).
+`target_of(category)` -> (target, "set"|"suggested"|"default"); a family takes
+an owner-set target first, then a suggestion, then `Restaurant.target_cost_pct`.
+Real 345 data (90d, weighted): kitchen ~30%, but drinks run above norms --
+cocktails 30%, spirits by glass 39%, wine by glass 40%, add-ons 107% (lime
+juice / chelada sold at a loss); the owner is to set his own drink targets.
 
 US55 menu engineering by TARGET FOOD COST % (#187) -- supersedes the US53
 pricing rule. The owner prices by food cost % (cost over price WITHOUT tax:

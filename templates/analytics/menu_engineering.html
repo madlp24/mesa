@@ -52,7 +52,9 @@
         {% include "analytics/_menu_quad.html" with kind="plowhorse" title=_("Plowhorses") advice=_("People order them, but their cost is over your target. Raise the price or trim the cost of the portion.") dishes=group.plowhorses %}
     </div>
     <p class="days-legend">
-        <span>{% blocktrans trimmed with target=group.target_cost_pct|pct:0 %}Top row: the cost is within the target of {{ target }} of the price without tax.{% endblocktrans %} <a href="{% url 'analytics:menu_families' %}">{% trans "Change the target" %}</a></span>
+        <span>{% blocktrans trimmed with target=group.target_cost_pct|pct:0 %}Top row: the cost is within the target of {{ target }} of the price without tax.{% endblocktrans %}
+            {% if group.target_source == "suggested" %}{% trans "Mesa suggests this target for this family." %}{% elif group.target_source == "set" %}{% trans "You set this target." %}{% else %}{% trans "The restaurant's target." %}{% endif %}
+            <a href="{% url 'analytics:menu_families' %}">{% trans "Change the target" %}</a></span>
         <span>{% blocktrans trimmed with share=group.popularity_threshold|pct %}Right column: the dish sells at least {{ share }} of the family's portions.{% endblocktrans %}</span>
         <span>{% trans "A wider tile sold more. The notes compare with the period before." %}</span>
     </p>
