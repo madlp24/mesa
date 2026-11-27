@@ -12,6 +12,7 @@ from analytics.menu_engineering import (
     PUZZLE,
     STAR,
     menu_engineering,
+    needed_menu_price,
     price_moves,
     weakest_dogs,
     with_movement,
@@ -49,10 +50,11 @@ def _kinds(group):
 @pytest.mark.django_db
 def test_each_dish_lands_in_its_quadrant(restaurant):
     # Four dishes: an even share is 25%, so popular means at least 17.5%.
-    _dish(restaurant, "CORTES", "RIBEYE", qty=40, price="100000", cost="40000")   # 60k, popular
-    _dish(restaurant, "CORTES", "PICANHA", qty=40, price="50000", cost="30000")   # 20k, popular
-    _dish(restaurant, "CORTES", "WAGYU", qty=5, price="300000", cost="150000")    # 150k, rare
-    _dish(restaurant, "CORTES", "BIFE", qty=5, price="40000", cost="30000")       # 10k, rare
+    # Profitable means a food cost at or under the 30% target (US55).
+    _dish(restaurant, "CORTES", "RIBEYE", qty=40, price="100000", cost="28000")   # 28%, popular
+    _dish(restaurant, "CORTES", "PICANHA", qty=40, price="50000", cost="20000")   # 40%, popular
+    _dish(restaurant, "CORTES", "WAGYU", qty=5, price="300000", cost="75000")     # 25%, rare
+    _dish(restaurant, "CORTES", "BIFE", qty=5, price="40000", cost="16000")       # 40%, rare
 
     [group] = menu_engineering(restaurant)
 
@@ -214,36 +216,85 @@ def test_the_families_page_saves_names_and_exclusions(logged_client, restaurant)
 
 
 def _four_cuts(restaurant):
-    _dish(restaurant, "CORTES", "RIBEYE", qty=40, price="100000", cost="40000")
-    _dish(restaurant, "CORTES", "PICANHA", qty=40, price="50000", cost="30000")
-    _dish(restaurant, "CORTES", "WAGYU", qty=5, price="300000", cost="150000")
-    _dish(restaurant, "CORTES", "BIFE", qty=5, price="40000", cost="30000")
+    _dish(restaurant, "CORTES", "RIBEYE", qty=40, price="100000", cost="28000")
+    _dish(restaurant, "CORTES", "PICANHA", qty=40, price="50000", cost="20000")
+    _dish(restaurant, "CORTES", "WAGYU", qty=5, price="300000", cost="75000")
+    _dish(restaurant, "CORTES", "BIFE", qty=2, price="40000", cost="16000")
     [group] = menu_engineering(restaurant)
     return group
 
 
 @pytest.mark.django_db
-def test_a_plowhorse_gets_a_capped_rounded_menu_price(restaurant):
+def test_a_dish_over_its_target_gets_a_capped_rounded_menu_price(restaurant):
     group = _four_cuts(restaurant)
 
-    [move] = price_moves(group, days=30, cap_pct=8, step=1000)
+    moves = price_moves(group, days=30, cap_pct=8, step=1000)
+    move = moves[0]
 
-    assert move.dish.name == "PICANHA"
+    assert [m.dish.name for m in moves] == ["PICANHA", "BIFE"]  # the two over 30%
     assert move.current == Decimal("54000")  # 50.000 in the POS, tax on the menu
-    # It would take 81.000 to leave the family average; 8% allows 58.000.
-    assert (move.needed, move.proposed) == (Decimal("81000"), Decimal("58000"))
-    assert not move.reaches_average
+    # 20.000 / 30% = 66.667 without tax, 72.000 on the menu; 8% allows 58.000.
+    assert (move.needed, move.proposed) == (Decimal("72000"), Decimal("58000"))
+    assert not move.reaches_target
+    assert round(move.cost_pct_now, 1) == Decimal("40.0")
+    assert round(move.cost_pct_after, 1) == Decimal("37.2")
     # 4.000 on the menu is 3.703,70 before tax, over 40 portions a month.
     assert round(move.extra_per_month) == 148148
 
 
 @pytest.mark.django_db
-def test_a_generous_cap_lets_the_price_reach_the_average(restaurant):
+def test_a_generous_cap_lets_the_price_reach_the_target(restaurant):
     group = _four_cuts(restaurant)
 
-    [move] = price_moves(group, days=30, cap_pct=60, step=1000)
+    move = price_moves(group, days=30, cap_pct=60, step=1000)[0]
 
-    assert move.proposed == Decimal("81000") and move.reaches_average
+    assert move.proposed == Decimal("72000") and move.reaches_target
+    assert round(move.cost_pct_after, 1) == Decimal("30.0")
+
+
+@pytest.mark.django_db
+def test_the_owners_arithmetic(restaurant):
+    # 27.300 of raw material at 30% is 91.000 without tax: 98.280 on the menu,
+    # 99.000 rounded to the thousand.
+    _dish(restaurant, "CORTES", "PICANHA", qty=10, price="90000", cost="27300")
+    [group] = menu_engineering(restaurant)
+    [dish] = group.dishes
+
+    assert needed_menu_price(dish, 1000) == Decimal("99000")
+
+
+@pytest.mark.django_db
+def test_a_dish_within_target_gets_no_suggestion(restaurant):
+    _dish(restaurant, "CORTES", "PICANHA", qty=10, price="125926", cost="36800")  # 29,2%
+    [group] = menu_engineering(restaurant)
+
+    assert group.dishes[0].kind == STAR
+    assert price_moves(group, days=30, cap_pct=8, step=1000) == []
+
+
+@pytest.mark.django_db
+def test_a_family_can_have_its_own_target(restaurant):
+    _dish(restaurant, "VINOS X BOTELLA", "MALBEC", qty=10, price="200000", cost="88000")  # 44%
+    Category.objects.filter(name="VINOS X BOTELLA").update(target_cost_pct=Decimal("45"))
+
+    [group] = menu_engineering(restaurant)
+
+    assert group.target_cost_pct == Decimal("45")
+    assert not group.dishes[0].over_target
+
+
+@pytest.mark.django_db
+def test_the_families_page_saves_a_target(logged_client, restaurant):
+    _dish(restaurant, "CORTES", "RIBEYE", qty=10, price="100", cost="40")
+    category = Category.objects.get(name="CORTES")
+
+    logged_client.post(
+        reverse("analytics:menu_families"),
+        {f"family-{category.pk}": "Cortes", f"target-{category.pk}": "32,5"},
+    )
+
+    category.refresh_from_db()
+    assert category.target_cost_pct == Decimal("32.5")
 
 
 @pytest.mark.django_db
@@ -264,7 +315,7 @@ def test_the_weakest_dogs_say_what_they_leave_a_month(restaurant):
     [(dish, monthly)] = weakest_dogs(group, days=90)
 
     assert dish.name == "BIFE"
-    assert round(monthly) == 16667  # 50.000 over three months
+    assert round(monthly) == 16000  # 48.000 over three months
 
 
 @pytest.mark.django_db
@@ -304,24 +355,27 @@ def test_movement_shows_a_cost_rise_and_what_it_takes_a_month(restaurant):
 @pytest.mark.django_db
 def test_the_page_ends_in_decisions(logged_client, restaurant):
     today = timezone.localdate()
-    _dish(restaurant, "CORTES", "RIBEYE", qty=40, price="100000", cost="40000", day=today)
-    _dish(restaurant, "CORTES", "PICANHA", qty=40, price="50000", cost="30000", day=today)
-    _dish(restaurant, "CORTES", "WAGYU", qty=5, price="300000", cost="150000", day=today)
+    _dish(restaurant, "CORTES", "RIBEYE", qty=40, price="100000", cost="28000", day=today)
+    _dish(restaurant, "CORTES", "PICANHA", qty=40, price="50000", cost="20000", day=today)
+    _dish(restaurant, "CORTES", "WAGYU", qty=5, price="300000", cost="75000", day=today)
 
     response = logged_client.get(reverse("analytics:menu_engineering"))
     body = response.content.decode()
 
     assert [m.dish.name for m in response.context["moves"]] == ["PICANHA"]
     assert "from $54,000 to $58,000 on the menu" in body
-    assert "consumption tax (8%) included" in body
+    assert "Each price is cost divided by the target of 30%" in body
+    assert "Its cost goes from 40.0% to 37.2% of the price" in body
 
 
 @pytest.mark.django_db
 def test_the_cap_and_the_step_come_from_the_restaurant(logged_client, restaurant):
     logged_client.post(
         reverse("tenants:settings"),
-        {"name": restaurant.name, "price_rise_cap": "5", "menu_price_step": "500"},
+        {"name": restaurant.name, "price_rise_cap": "5", "menu_price_step": "500",
+         "target_cost_pct": "32"},
     )
 
     restaurant.refresh_from_db()
     assert (restaurant.price_rise_cap, restaurant.menu_price_step) == (Decimal("5.0"), 500)
+    assert restaurant.target_cost_pct == Decimal("32.0")

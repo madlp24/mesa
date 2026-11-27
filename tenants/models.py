@@ -44,6 +44,9 @@ class Restaurant(models.Model):
     # Menu engineering price suggestions (US53): never propose more than this
     # rise in one change, and round menu prices to this step.
     price_rise_cap = models.DecimalField(max_digits=4, decimal_places=1, default=8)
+    # The food cost the owner prices to (US55): cost over the price without tax.
+    # A family can override it on the menu families page.
+    target_cost_pct = models.DecimalField(max_digits=4, decimal_places=1, default=Decimal("30"))
     menu_price_step = models.PositiveIntegerField(default=1000)
 
     class Meta:

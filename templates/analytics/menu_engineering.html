@@ -46,13 +46,13 @@
         <span class="text-muted small">{% blocktrans trimmed count n=group.dishes|length %}{{ n }} dish with a cost{% plural %}{{ n }} dishes with a cost{% endblocktrans %}</span>
     </div>
     <div class="board">
-        {% include "analytics/_menu_quad.html" with kind="puzzle" title=_("Puzzles") advice=_("They leave a lot, few people order them. Give them a better spot on the menu and have the waiters suggest them.") dishes=group.puzzles %}
-        {% include "analytics/_menu_quad.html" with kind="star" title=_("Stars") advice=_("They sell a lot and leave a lot. Look after them: same portion, a good place on the menu, never out of stock.") dishes=group.stars %}
-        {% include "analytics/_menu_quad.html" with kind="dog" title=_("Dogs") advice=_("They sell little and leave little. Check whether they still belong on the menu.") dishes=group.dogs %}
-        {% include "analytics/_menu_quad.html" with kind="plowhorse" title=_("Plowhorses") advice=_("People order them, but each one leaves less. Raise the price a little or trim the cost of the portion.") dishes=group.plowhorses %}
+        {% include "analytics/_menu_quad.html" with kind="puzzle" title=_("Puzzles") advice=_("Their cost is within your target, but few people order them. Give them a better spot on the menu and have the waiters suggest them.") dishes=group.puzzles %}
+        {% include "analytics/_menu_quad.html" with kind="star" title=_("Stars") advice=_("They sell a lot and their cost is within your target. Look after them: same portion, a good place on the menu, never out of stock.") dishes=group.stars %}
+        {% include "analytics/_menu_quad.html" with kind="dog" title=_("Dogs") advice=_("They sell little and their cost is over your target. Check whether they still belong on the menu.") dishes=group.dogs %}
+        {% include "analytics/_menu_quad.html" with kind="plowhorse" title=_("Plowhorses") advice=_("People order them, but their cost is over your target. Raise the price or trim the cost of the portion.") dishes=group.plowhorses %}
     </div>
     <p class="days-legend">
-        <span>{% blocktrans trimmed with avg=group.contribution_threshold|cop %}Top row: a portion leaves more than the family average ({{ avg }}).{% endblocktrans %}</span>
+        <span>{% blocktrans trimmed with target=group.target_cost_pct|pct:0 %}Top row: the cost is within the target of {{ target }} of the price without tax.{% endblocktrans %} <a href="{% url 'analytics:menu_families' %}">{% trans "Change the target" %}</a></span>
         <span>{% blocktrans trimmed with share=group.popularity_threshold|pct %}Right column: the dish sells at least {{ share }} of the family's portions.{% endblocktrans %}</span>
         <span>{% trans "A wider tile sold more. The notes compare with the period before." %}</span>
     </p>
@@ -72,7 +72,7 @@
         {% if moves %}<span class="text-muted small">{% blocktrans trimmed with total=moves_total|cop_short %}{{ total }} more a month if they sell the same{% endblocktrans %}</span>{% endif %}
     </div>
     <p class="text-muted small">
-        {% trans "Prices are the ones on the menu, consumption tax (8%) included. The POS stores them without the tax, so they read lower on the other pages." %}
+        {% blocktrans trimmed with target=group.target_cost_pct|pct:0 %}Each price is cost divided by the target of {{ target }}, then the consumption tax (8%) added, as it goes on the menu. The POS stores prices without the tax, so they read lower on the other pages.{% endblocktrans %}
     </p>
     <ul class="decisions">
         {% for move in moves %}
@@ -83,10 +83,9 @@
                 {% blocktrans trimmed with a=move.current|cop b=move.proposed|cop rise=move.rise_pct|change %}from {{ a }} to {{ b }} on the menu ({{ rise }}){% endblocktrans %}{% if move.dish.by_gram %} {% trans "per 100 g" %}{% endif %}.
             </span>
             <span class="decision-why">
-                {% if move.reaches_average %}
-                {% trans "At that price a portion leaves the family average and the dish becomes a star." %}
-                {% else %}
-                {% blocktrans trimmed with needed=move.needed|cop cap=cap|pct:0 %}To leave the family average it would need {{ needed }}; the {{ cap }} cap per change does not let it get there at once.{% endblocktrans %}
+                {% blocktrans trimmed with now=move.cost_pct_now|pct after=move.cost_pct_after|pct %}Its cost goes from {{ now }} to {{ after }} of the price.{% endblocktrans %}
+                {% if not move.reaches_target %}
+                {% blocktrans trimmed with needed=move.needed|cop cap=cap|pct:0 %}The target needs {{ needed }}; the {{ cap }} cap per change does not let it get there at once.{% endblocktrans %}
                 {% endif %}
             </span>
         </li>
@@ -120,7 +119,7 @@
     </div>
     <dl class="stats stats-grid sim-out">
         <div><dt>{% trans "Rise" %}</dt><dd class="figure" id="sim-rise"></dd><span class="delta flat" id="sim-cap"></span></div>
-        <div><dt>{% trans "A portion leaves" %}</dt><dd class="figure" id="sim-contribution"></dd><span class="delta flat" id="sim-average"></span></div>
+        <div><dt>{% trans "Food cost" %}</dt><dd class="figure" id="sim-contribution"></dd><span class="delta flat" id="sim-average"></span></div>
         <div><dt>{% trans "It becomes" %}</dt><dd class="figure"><span class="kind-pill" id="sim-kind"></span></dd></div>
         <div><dt>{% trans "Extra a month" %}</dt><dd class="figure" id="sim-extra"></dd><span class="delta flat" id="sim-portions"></span></div>
     </dl>
@@ -170,7 +169,8 @@
         per100: "{% filter escapejs %}{% trans 'per 100 g' %}{% endfilter %}",
         cap: "{% filter escapejs %}{% trans 'Cap of {cap}: {price}' %}{% endfilter %}",
         overCap: "{% filter escapejs %}{% trans 'Over the cap of {cap} ({price})' %}{% endfilter %}",
-        average: "{% filter escapejs %}{% trans 'Family average: {price}' %}{% endfilter %}",
+        target: "{% filter escapejs %}{% trans 'Target: {pct}' %}{% endfilter %}",
+        costAxis: "{% filter escapejs %}{% trans 'Food cost (%)' %}{% endfilter %}",
         portions: "{% filter escapejs %}{% trans '{n} portions a month' %}{% endfilter %}",
         portionsAxis: "{% filter escapejs %}{% trans 'Portions sold' %}{% endfilter %}",
         leavesAxis: "{% filter escapejs %}{% trans 'Each portion leaves' %}{% endfilter %}",
@@ -199,17 +199,18 @@
     function update() {
         const d = sim.dishes[select.value], price = Number(range.value);
         const delta = (price - d.price) * d.factor;
-        const contribution = d.contribution + delta;
-        const average = sim.average + delta * d.portions / sim.totalPortions;
-        const popular = d.mix >= sim.popularity, profitable = contribution >= average;
+        const costPct = d.unitCost / (price * d.factor) * 100;
+        const popular = d.mix >= sim.popularity, profitable = costPct <= sim.target;
         const kind = popular && profitable ? "star" : popular ? "plowhorse" : profitable ? "puzzle" : "dog";
         const cap = capOf(d), pill = document.getElementById("sim-kind"), capNote = document.getElementById("sim-cap");
         document.getElementById("sim-price-label").textContent = cop(price) + unit(d) + " (" + t.today.replace("{price}", cop(d.price)) + ")";
         document.getElementById("sim-rise").textContent = pct((price / d.price - 1) * 100);
         capNote.textContent = (price > cap ? t.overCap : t.cap).replace("{cap}", capText).replace("{price}", cop(cap));
         capNote.className = "delta " + (price > cap ? "down" : "flat");
-        document.getElementById("sim-contribution").textContent = cop(contribution);
-        document.getElementById("sim-average").textContent = t.average.replace("{price}", cop(average));
+        const costCell = document.getElementById("sim-contribution");
+        costCell.textContent = one.format(costPct) + (locale === "es-CO" ? " %" : "%");
+        costCell.className = "figure " + (profitable ? "up" : "down");
+        document.getElementById("sim-average").textContent = t.target.replace("{pct}", one.format(sim.target).replace(/[.,]0$/, "") + (locale === "es-CO" ? " %" : "%"));
         pill.textContent = t.kinds[kind]; pill.dataset.kind = kind;
         document.getElementById("sim-extra").textContent = mill(delta * d.portions / months);
         document.getElementById("sim-portions").textContent = t.portions.replace("{n}", one.format(d.portions / months));
@@ -230,7 +231,7 @@
         };
         const muted = css.getPropertyValue("--muted").trim(), line = css.getPropertyValue("--line").trim();
         const limitX = sim.totalPortions * sim.popularity / 100;
-        const points = sim.dishes.map(function (d) { return {x: d.portions, y: d.contribution, name: d.name, kind: d.kind}; });
+        const points = sim.dishes.map(function (d) { return {x: d.portions, y: d.costPct, name: d.name, kind: d.kind}; });
         new Chart(document.getElementById("menu-chart"), {
             type: "scatter",
             data: {datasets: [{data: points, pointRadius: 6, pointHoverRadius: 8,
@@ -242,21 +243,21 @@
                     tooltip: {displayColors: false, callbacks: {
                         title: function (items) { return items[0].raw.name; },
                         label: function (item) {
-                            return [t.portionsAxis + ": " + whole.format(item.raw.x), t.leavesAxis + ": " + cop(item.raw.y)];
+                            return [t.portionsAxis + ": " + whole.format(item.raw.x), t.costAxis + ": " + one.format(item.raw.y)];
                         },
                     }},
                 },
                 scales: {
                     x: {beginAtZero: true, title: {display: true, text: t.portionsAxis, color: muted}, grid: {color: line}, ticks: {color: muted, maxTicksLimit: 6}},
-                    y: {beginAtZero: true, title: {display: true, text: t.leavesAxis, color: muted}, grid: {color: line},
-                        ticks: {color: muted, maxTicksLimit: 5, callback: function (v) { return cop(v); }}},
+                    y: {beginAtZero: true, reverse: true, title: {display: true, text: t.costAxis, color: muted}, grid: {color: line},
+                        ticks: {color: muted, maxTicksLimit: 5}},
                 },
             },
             plugins: [{
                 id: "quadrants",
                 afterDraw: function (chart) {
                     const ctx = chart.ctx, x = chart.scales.x, y = chart.scales.y;
-                    const px = x.getPixelForValue(limitX), py = y.getPixelForValue(sim.average);
+                    const px = x.getPixelForValue(limitX), py = y.getPixelForValue(sim.target);
                     ctx.save(); ctx.strokeStyle = muted; ctx.setLineDash([4, 4]); ctx.beginPath();
                     ctx.moveTo(px, y.top); ctx.lineTo(px, y.bottom); ctx.moveTo(x.left, py); ctx.lineTo(x.right, py);
                     ctx.stroke(); ctx.restore();

@@ -13,6 +13,8 @@ class Category(models.Model):
     # (US53). Blank / null mean "not decided": catalog.families suggests one.
     menu_family = models.CharField(max_length=60, blank=True)
     menu_hidden = models.BooleanField(null=True, blank=True)
+    # Target food cost for this group's dishes; null uses the restaurant's (US55).
+    target_cost_pct = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
 
     class Meta:
         ordering = ["display_order", "name"]

@@ -8,6 +8,7 @@
     <div>
         <h1>{% trans "Menu families" %}</h1>
         <p>{% trans "Dishes are compared within a family: put together the POS groups a guest chooses between, and leave out the ones that are not dishes." %}</p>
+        <p>{% blocktrans trimmed with target=default_target %}A blank target cost uses the restaurant's, {{ target }}%, set in restaurant settings.{% endblocktrans %}</p>
     </div>
 </div>
 
@@ -20,6 +21,7 @@
                     <tr>
                         <th scope="col">{% trans "POS group" %}</th>
                         <th scope="col">{% trans "Family" %}</th>
+                        <th scope="col">{% trans "Target cost %" %}</th>
                         <th scope="col">{% trans "Leave out" %}</th>
                     </tr>
                 </thead>
@@ -29,6 +31,10 @@
                         <td><label for="family-{{ row.category.pk }}" class="mb-0">{{ row.category.name }}</label></td>
                         <td><input type="text" class="form-control form-control-sm" list="family-names" maxlength="60"
                                    id="family-{{ row.category.pk }}" name="family-{{ row.category.pk }}" value="{{ row.family }}"></td>
+                        <td><input type="number" class="form-control form-control-sm" step="0.5" min="1" max="100" style="width: 6rem"
+                                   name="target-{{ row.category.pk }}" value="{{ row.category.target_cost_pct|default_if_none:''|stringformat:'s' }}"
+                                   placeholder="{{ default_target|stringformat:'s' }}"
+                                   aria-label="{% blocktrans with name=row.category.name %}Target cost for {{ name }}{% endblocktrans %}"></td>
                         <td><input type="checkbox" class="form-check-input" name="hidden-{{ row.category.pk }}"
                                    aria-label="{% blocktrans with name=row.category.name %}Leave out {{ name }}{% endblocktrans %}"{% if row.hidden %} checked{% endif %}></td>
                     </tr>
