@@ -11,7 +11,7 @@
         <div class="tile" style="flex-grow: {{ dish.weight }}">
             <a href="{% url 'catalog:product_detail' dish.product_id %}">{{ dish.name }}</a>
             <span class="tile-figure">{{ dish.revenue|cop_short }}</span>
-            <span class="tile-sub">{% blocktrans trimmed with amount=dish.contribution|cop %}leaves {{ amount }} a portion{% endblocktrans %}</span>
+            <span class="tile-sub{% if dish.over_target %} is-over{% endif %}">{% blocktrans trimmed with pct=dish.cost_pct|pct %}cost {{ pct }} of the price{% endblocktrans %}</span>
             {% if dish.previous %}
             <span class="chips-row">
                 {% if dish.moved_from %}<span class="chip-note">{% blocktrans trimmed with kind=dish.moved_from %}was: {{ kind }}{% endblocktrans %}</span>{% endif %}

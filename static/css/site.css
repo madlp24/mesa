@@ -921,3 +921,5 @@ p { max-width: 72ch; }
 .kind-pill[data-kind="star"] { background: var(--herb-wash); color: var(--herb); }
 .kind-pill[data-kind="plowhorse"] { background: var(--amber-wash); color: var(--amber); }
 .kind-pill[data-kind="dog"] { background: var(--loss-wash); color: var(--loss); }
+
+.tile-sub.is-over { color: var(--loss); font-weight: 600; }

@@ -1,25 +1,31 @@
-"""Menu engineering: what to keep, reprice, promote or drop (US50, US53).
+"""Menu engineering: what to keep, reprice, promote or drop (US50, US53, US55).
 
-The Kasavana and Smith method, done within each menu family
-(:mod:`catalog.families`), because a bottle of wine and a lemonade do not
-compete for the same order:
+Done within each menu family (:mod:`catalog.families`), because a bottle of
+wine and a lemonade do not compete for the same order:
 
 * a dish is **popular** when its share of the family's portions reaches 70% of
-  an even share (1 / dishes in the family);
-* it is **profitable** when what one portion leaves (price minus cost) reaches
-  the family's average, weighted by portions.
+  an even share (1 / dishes in the family) -- the Kasavana and Smith rule;
+* it is **profitable** when its **food cost %** -- cost over the price without
+  consumption tax -- is at or under the family's target (the restaurant's, 30%
+  by default, or the one set for the family).
 
-That gives stars (both), plowhorses (popular, thin), puzzles (profitable,
-little sold) and dogs (neither). Prices and costs are what was actually
-charged and costed in the period, read off the sale lines. A dish with no cost
-cannot be placed: it is listed apart rather than counted as pure margin.
+The second axis is how the owner prices (US55): he works to a cost
+percentage, not to the pesos a plate leaves. The classic method compares each
+dish's contribution with the family average, which makes every cheaper cut
+look thin next to a ribeye and suggested prices nobody in the kitchen would
+recognise.
 
-On top of the picture come the decisions (US53): how each dish moved against
-the previous period, and for every plowhorse the menu price that would make a
-portion leave the family average -- held to the restaurant's cap per change
-and rounded to its step, because a suggestion nobody would print is noise.
-Suggested prices are *menu* prices, consumption tax included; the POS stores
-them without it.
+That gives stars (both), plowhorses (popular, cost over target), puzzles
+(within target, little sold) and dogs (neither). Prices and costs are what was
+actually charged and costed in the period, read off the sale lines. A dish
+with no cost cannot be placed: it is listed apart rather than counted as pure
+margin.
+
+On top of the picture come the decisions: how each dish moved against the
+previous period, and for every dish above its target the menu price that
+brings it there -- cost / target, consumption tax added, rounded up to the
+restaurant's step and held to its cap per change. Suggested prices are *menu*
+prices, tax included; the POS stores them without it.
 """
 from __future__ import annotations
 
@@ -76,6 +82,7 @@ class Dish:
     cost: Decimal
     by_gram: bool
     list_price: Decimal = Decimal("0")  # the product's current POS price
+    target_cost_pct: Decimal = Decimal("30")
     mix_pct: Decimal = Decimal("0")
     kind: str = ""
     previous: Dish | None = None
@@ -93,6 +100,20 @@ class Dish:
     @property
     def unit_cost(self) -> Decimal:
         return self.cost / self.portions if self.portions else Decimal("0")
+
+    @property
+    def cost_pct(self) -> Decimal:
+        """Food cost: cost over what was charged without tax, in the period."""
+        return self.cost / self.revenue * 100 if self.revenue else Decimal("0")
+
+    @property
+    def over_target(self) -> bool:
+        return self.cost_pct > self.target_cost_pct
+
+    def cost_pct_at(self, menu_price: Decimal) -> Decimal | None:
+        """Food cost if the menu said ``menu_price`` (tax included)."""
+        pre_tax = menu_price * self.menu_factor
+        return self.unit_cost / pre_tax * 100 if pre_tax else None
 
     @property
     def kind_label(self):
@@ -151,7 +172,8 @@ class Group:
     dishes: list[Dish] = field(default_factory=list)
     uncosted: list[Dish] = field(default_factory=list)
     popularity_threshold: Decimal = Decimal("0")  # % of the family's portions
-    contribution_threshold: Decimal = Decimal("0")  # per portion
+    contribution_threshold: Decimal = Decimal("0")  # per portion, for reference
+    target_cost_pct: Decimal = Decimal("30")
 
     @property
     def revenue(self) -> Decimal:
@@ -208,10 +230,11 @@ def classify(group: Group) -> Group:
     )
     top = max(d.revenue for d in dishes)
     for dish in dishes:
+        dish.target_cost_pct = group.target_cost_pct
         dish.mix_pct = dish.portions / total_portions * 100 if total_portions else Decimal("0")
         dish.weight = max(1, round(dish.revenue / top * 12)) if top else 1
         popular = dish.mix_pct >= group.popularity_threshold
-        profitable = dish.contribution >= group.contribution_threshold
+        profitable = not dish.over_target
         if popular and profitable:
             dish.kind = STAR
         elif popular:
@@ -229,8 +252,10 @@ def menu_engineering(
     end: datetime.date | None = None,
 ) -> list[Group]:
     """Every menu family that sold in the period, biggest takings first."""
+    # An unsaved default can still be the int the field was declared with.
+    default_target = Decimal(str(restaurant.target_cost_pct))
     families = {
-        c.pk: (family_of(c), is_hidden(c))
+        c.pk: (family_of(c), is_hidden(c), c.target_cost_pct)
         for c in Category.objects.filter(restaurant=restaurant)
     }
     items = SaleItem.objects.filter(sale__restaurant=restaurant)
@@ -251,11 +276,14 @@ def menu_engineering(
         revenue = row["revenue"] or Decimal("0")
         if revenue <= 0 or not row["units"]:
             continue  # a giveaway has nothing to engineer
-        family, hidden = families.get(row["product__category_id"], ("", False))
+        family, hidden, target = families.get(row["product__category_id"], ("", False, None))
         if hidden:
             continue
         name = row["product__name"]
-        group = groups.setdefault(family, Group(name=family))
+        group = groups.setdefault(family, Group(name=family, target_cost_pct=default_target))
+        if target is not None:
+            # A family takes the target set on any of its POS groups.
+            group.target_cost_pct = Decimal(str(target))
         dish = Dish(
             product_id=row["product_id"],
             name=name,
@@ -287,12 +315,12 @@ def with_movement(current: Group, previous: Group | None) -> Group:
 
 @dataclass(frozen=True)
 class PriceMove:
-    """A suggested menu price for a plowhorse."""
+    """A suggested menu price for a dish whose food cost is over its target."""
 
     dish: Dish
-    current: Decimal  # menu price today
+    current: Decimal  # menu price today, tax included
     proposed: Decimal  # what to print, within the cap
-    needed: Decimal  # what it would take to leave the family average
+    needed: Decimal  # what the target asks for
     extra_per_month: Decimal
 
     @property
@@ -300,32 +328,55 @@ class PriceMove:
         return (self.proposed - self.current) / self.current * 100
 
     @property
-    def reaches_average(self) -> bool:
+    def reaches_target(self) -> bool:
         return self.proposed >= self.needed
+
+    @property
+    def cost_pct_now(self) -> Decimal | None:
+        return self.dish.cost_pct_at(self.current)
+
+    @property
+    def cost_pct_after(self) -> Decimal | None:
+        return self.dish.cost_pct_at(self.proposed)
+
+
+def _cents(value: Decimal) -> Decimal:
+    """Round to the cent first: dividing by 1.08 leaves 72000.0000001, which
+    must not round up to the next thousand."""
+    return Decimal(value).quantize(Decimal("0.01"))
 
 
 def _ceil_to(value: Decimal, step: int) -> Decimal:
-    return Decimal(math.ceil(value / step) * step)
+    return Decimal(math.ceil(_cents(value) / step) * step)
 
 
 def _floor_to(value: Decimal, step: int) -> Decimal:
-    return Decimal(math.floor(value / step) * step)
+    return Decimal(math.floor(_cents(value) / step) * step)
+
+
+def needed_menu_price(dish: Dish, step: int) -> Decimal:
+    """Cost / target, tax added, in menu units, rounded up to ``step``."""
+    pre_tax_portion = dish.unit_cost / (dish.target_cost_pct / 100)
+    return _ceil_to(pre_tax_portion / dish.menu_factor, step)
 
 
 def price_moves(group: Group, *, days: int, cap_pct, step: int) -> list[PriceMove]:
-    """For each plowhorse, the price rise worth making, biggest gain first.
+    """For each dish whose cost at today's price is over its target, the price
+    that brings it there, capped per change; biggest gain first.
 
     The estimate assumes the dish keeps selling the same: that is why the rise
     is capped, and why the page says so.
     """
     moves = []
     months = Decimal(days) / Decimal(30)
-    for dish in group.plowhorses:
+    for dish in group.dishes:
         current = dish.menu_price
         if current <= 0 or not months:
             continue
-        gap = group.contribution_threshold - dish.contribution
-        needed = _ceil_to(current + gap / dish.menu_factor, step)
+        now = dish.cost_pct_at(current)
+        if now is None or now <= dish.target_cost_pct:
+            continue
+        needed = needed_menu_price(dish, step)
         capped = _floor_to(current * (1 + Decimal(cap_pct) / 100), step)
         proposed = min(needed, capped)
         if proposed <= current:

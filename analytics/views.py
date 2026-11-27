@@ -366,13 +366,14 @@ def menu_engineering_view(request: HttpRequest) -> HttpResponse:
             "step": step,
             "cap": float(cap),
             "popularity": float(group.popularity_threshold),
-            "average": float(group.contribution_threshold),
+            "target": float(group.target_cost_pct),
             "totalPortions": float(group.total_portions),
             "dishes": [
                 {
                     "name": d.name,
                     "portions": float(d.portions),
-                    "contribution": float(d.contribution),
+                    "unitCost": float(d.unit_cost),
+                    "costPct": float(d.cost_pct),
                     "mix": float(d.mix_pct),
                     "kind": d.kind,
                     "price": float(d.menu_price),
@@ -402,6 +403,16 @@ def menu_engineering_view(request: HttpRequest) -> HttpResponse:
     )
 
 
+def _target(raw) -> Decimal | None:
+    """A typed target cost %, or ``None`` (use the restaurant's) when blank or
+    out of range."""
+    try:
+        value = Decimal(str(raw).replace(",", "."))
+    except (InvalidOperation, TypeError, ValueError):
+        return None
+    return value if 0 < value <= 100 else None
+
+
 @login_required
 def menu_families(request: HttpRequest) -> HttpResponse:
     """Which POS groups make up each menu family, and which are left out (US53)."""
@@ -413,7 +424,8 @@ def menu_families(request: HttpRequest) -> HttpResponse:
             family = (request.POST.get(f"family-{category.pk}") or "").strip()[:60]
             category.menu_family = family or family_of(category)
             category.menu_hidden = request.POST.get(f"hidden-{category.pk}") == "on"
-            category.save(update_fields=["menu_family", "menu_hidden"])
+            category.target_cost_pct = _target(request.POST.get(f"target-{category.pk}"))
+            category.save(update_fields=["menu_family", "menu_hidden", "target_cost_pct"])
         messages.success(request, gettext("Menu families saved."))
         return redirect("analytics:menu_engineering")
     rows = [
@@ -422,7 +434,11 @@ def menu_families(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "analytics/menu_families.html",
-        {"rows": rows, "families": sorted({row["family"] for row in rows})},
+        {
+            "rows": rows,
+            "families": sorted({row["family"] for row in rows}),
+            "default_target": request.restaurant.target_cost_pct,
+        },
     )
 
 

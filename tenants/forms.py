@@ -47,7 +47,7 @@ class RestaurantSettingsForm(forms.ModelForm):
         model = Restaurant
         fields = [
             "name", "autofacturas_token", "minimum_quote_margin",
-            "price_rise_cap", "menu_price_step",
+            "target_cost_pct", "price_rise_cap", "menu_price_step",
         ]
         labels = {"name": _("Restaurant name")}
 
@@ -58,6 +58,11 @@ class RestaurantSettingsForm(forms.ModelForm):
         help_text=_("Quotes under this margin are flagged."),
     )
 
+    target_cost_pct = forms.DecimalField(
+        required=False, min_value=1, max_value=100,
+        label=_("Target food cost (%)"),
+        help_text=_("Cost over the price without consumption tax. Prices are suggested to reach it."),
+    )
     price_rise_cap = forms.DecimalField(
         required=False, min_value=0, max_value=50,
         label=_("Largest price rise per change (%)"),
@@ -68,6 +73,10 @@ class RestaurantSettingsForm(forms.ModelForm):
         label=_("Round menu prices to"),
         help_text=_("Suggested prices are rounded to this amount, e.g. 1000."),
     )
+
+    def clean_target_cost_pct(self):
+        typed = self.cleaned_data.get("target_cost_pct")
+        return self.instance.target_cost_pct if typed is None else typed
 
     def clean_price_rise_cap(self):
         typed = self.cleaned_data.get("price_rise_cap")

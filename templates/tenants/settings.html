@@ -59,6 +59,14 @@
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
           </div>
+          <div class="mb-3">
+            <label for="{{ form.target_cost_pct.id_for_label }}" class="form-label">{{ form.target_cost_pct.label }}</label>
+            <input type="number" step="0.5" min="1" max="100" name="{{ form.target_cost_pct.html_name }}"
+                   id="{{ form.target_cost_pct.id_for_label }}"
+                   class="form-control {% if form.target_cost_pct.errors %}is-invalid{% endif %}"
+                   value="{{ form.target_cost_pct.value|stringformat:'s' }}">
+            <div class="form-text">{{ form.target_cost_pct.help_text }}</div>
+          </div>
           <div class="row g-3 mb-3">
             <div class="col-sm-6">
               <label for="{{ form.price_rise_cap.id_for_label }}" class="form-label">{{ form.price_rise_cap.label }}</label>

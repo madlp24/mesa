@@ -65,7 +65,8 @@ US31 multi-file upload (#63/PR69), US47 current product costs (#169/PR170),
 US48 correct re-imported days (#171/PR172), US49 redesign (#174/PR175),
 US50 menu engineering (#176/PR177), US51 days and holidays (#178/PR179),
 US52 remaining pages redesigned (#180/PR181),
-US53 menu engineering decisions (#183/PR184), US54 profitability alerts (#185).
+US53 menu engineering decisions (#183/PR184), US54 profitability alerts (#185/PR186),
+US55 menu engineering by target food cost % (#187).
 IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
@@ -121,6 +122,18 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   `sales/importers/pdf_daily.py::parse_daily_totals` (BEBIDAS/ALIMENTOS block). Matches by
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
+
+US55 menu engineering by TARGET FOOD COST % (#187) -- supersedes the US53
+pricing rule. The owner prices by food cost % (cost over price WITHOUT tax:
+27.300 at 30% -> 91.000), not by the pesos a plate leaves. "Profitable" now
+means `Dish.cost_pct <= target` (popularity still Kasavana-Smith 70%).
+`Restaurant.target_cost_pct` (default 30, settings) with an optional
+`Category.target_cost_pct` override per POS group on the families page (a
+family takes any override among its groups -- wines run 40-50%, set theirs).
+`price_moves` covers EVERY dish over target at today's menu price: needed =
+ceil(cost / target * 1.08, step), capped per change; figures rounded to the
+cent before the step (1.08 division noise). `contribution_threshold` is only
+kept for reference. Simulator and scatter speak cost %.
 
 US54 profitability alerts (#185): new `alerts` app. `AlertSettings` (one per
 restaurant, created on first read): cadence week (7 days) / month (30 days) up
