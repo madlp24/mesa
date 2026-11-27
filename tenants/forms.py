@@ -45,7 +45,10 @@ class RestaurantSettingsForm(forms.ModelForm):
 
     class Meta:
         model = Restaurant
-        fields = ["name", "autofacturas_token", "minimum_quote_margin"]
+        fields = [
+            "name", "autofacturas_token", "minimum_quote_margin",
+            "price_rise_cap", "menu_price_step",
+        ]
         labels = {"name": _("Restaurant name")}
 
 
@@ -54,6 +57,25 @@ class RestaurantSettingsForm(forms.ModelForm):
         label=_("Minimum quote margin (%)"),
         help_text=_("Quotes under this margin are flagged."),
     )
+
+    price_rise_cap = forms.DecimalField(
+        required=False, min_value=0, max_value=50,
+        label=_("Largest price rise per change (%)"),
+        help_text=_("Menu engineering never suggests raising a price by more than this at once."),
+    )
+    menu_price_step = forms.IntegerField(
+        required=False, min_value=1,
+        label=_("Round menu prices to"),
+        help_text=_("Suggested prices are rounded to this amount, e.g. 1000."),
+    )
+
+    def clean_price_rise_cap(self):
+        typed = self.cleaned_data.get("price_rise_cap")
+        return self.instance.price_rise_cap if typed is None else typed
+
+    def clean_menu_price_step(self):
+        typed = self.cleaned_data.get("menu_price_step")
+        return self.instance.menu_price_step if typed is None else typed
 
     def clean_minimum_quote_margin(self):
         typed = self.cleaned_data.get("minimum_quote_margin")

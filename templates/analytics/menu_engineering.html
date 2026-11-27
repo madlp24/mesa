@@ -8,7 +8,7 @@
 <div class="page-head">
     <div>
         <h1>{% trans "Margins" %}</h1>
-        <p>{% trans "Each dish of a group by how much it sells and how much each portion leaves, so you know what to keep, reprice, promote or drop." %}</p>
+        <p>{% trans "Each dish of a family by how much it sells and how much each portion leaves, so you know what to keep, reprice, promote or drop." %}</p>
     </div>
     {% include "includes/period.html" with extra_query="group="|add:q extra_name="group" extra_value=group.name %}
 </div>
@@ -20,37 +20,117 @@
     <p class="text-muted mb-0">{% trans "Pick a longer period, or upload the reports for these dates." %}</p>
 </div>
 {% else %}
-<nav class="chips mb-4" aria-label="{% trans 'Menu group' %}">
-    {% for g in groups %}
-    <a href="?group={{ g.name|urlencode }}&amp;{{ window.query }}"{% if g.name == group.name %} aria-current="true"{% endif %}>{{ g.name|default:_("No group") }}</a>
-    {% endfor %}
-</nav>
+<div class="family-bar mb-4">
+    <nav class="chips" aria-label="{% trans 'Menu family' %}">
+        {% for g in groups %}
+        <a href="?group={{ g.name|urlencode }}&amp;{{ window.query }}"{% if g.name == group.name %} aria-current="true"{% endif %}>{{ g.name|default:_("No family") }}</a>
+        {% endfor %}
+    </nav>
+    <a class="small" href="{% url 'analytics:menu_families' %}">{% trans "Change the families" %}</a>
+</div>
 
-{% if group.dishes %}
-<section class="panel mb-4" aria-labelledby="map-title">
-    <div class="panel-title">
-        <h2 id="map-title">{{ group.name }}</h2>
-        <span class="text-muted small">{% blocktrans trimmed count n=group.dishes|length %}{{ n }} dish with a cost{% plural %}{{ n }} dishes with a cost{% endblocktrans %}</span>
-    </div>
-    <div class="quadrant-chart"><canvas id="menu-chart" role="img"
-        aria-label="{% trans 'Each dish by portions sold and what one portion leaves' %}"></canvas></div>
-    <p class="days-legend">
-        {% blocktrans trimmed with avg=group.contribution_threshold|cop share=group.popularity_threshold|pct %}
-        Above the line a portion leaves more than the group's average ({{ avg }}). To the right a dish sells at least {{ share }} of the group's portions, 70% of an even share.
+{% if cost_drift_month and cost_drift_month > 0 %}
+<div class="notice" role="status">
+    <p>
+        {% blocktrans trimmed with amount=cost_drift_month|cop_short days=window.days %}
+        Costs in this family rose against the {{ days }} days before. At what you sell today, that is {{ amount }} less a month.
         {% endblocktrans %}
     </p>
-</section>
-
-<div class="kinds">
-    {% include "analytics/_menu_kind.html" with kind="star" mark="herb" title=_("Stars") advice=_("They sell a lot and leave a lot. Look after them: same portion, a good place on the menu, never out of stock.") dishes=group.stars %}
-    {% include "analytics/_menu_kind.html" with kind="plowhorse" mark="amber" title=_("Plowhorses") advice=_("People order them, but each one leaves little. Raise the price a little or trim the cost of the portion: the demand is already there.") dishes=group.plowhorses %}
-    {% include "analytics/_menu_kind.html" with kind="puzzle" mark="ink" title=_("Puzzles") advice=_("A good margin that few people order. Give them a better spot on the menu, have the waiters suggest them, or rename them.") dishes=group.puzzles %}
-    {% include "analytics/_menu_kind.html" with kind="dog" mark="loss" title=_("Dogs") advice=_("They sell little and leave little. Candidates to leave the menu, unless they complete another dish.") dishes=group.dogs %}
 </div>
 {% endif %}
 
+{% if group.dishes %}
+<section class="mb-4" aria-labelledby="board-title">
+    <div class="panel-title">
+        <h2 id="board-title">{{ group.name }}</h2>
+        <span class="text-muted small">{% blocktrans trimmed count n=group.dishes|length %}{{ n }} dish with a cost{% plural %}{{ n }} dishes with a cost{% endblocktrans %}</span>
+    </div>
+    <div class="board">
+        {% include "analytics/_menu_quad.html" with kind="puzzle" title=_("Puzzles") advice=_("They leave a lot, few people order them. Give them a better spot on the menu and have the waiters suggest them.") dishes=group.puzzles %}
+        {% include "analytics/_menu_quad.html" with kind="star" title=_("Stars") advice=_("They sell a lot and leave a lot. Look after them: same portion, a good place on the menu, never out of stock.") dishes=group.stars %}
+        {% include "analytics/_menu_quad.html" with kind="dog" title=_("Dogs") advice=_("They sell little and leave little. Check whether they still belong on the menu.") dishes=group.dogs %}
+        {% include "analytics/_menu_quad.html" with kind="plowhorse" title=_("Plowhorses") advice=_("People order them, but each one leaves less. Raise the price a little or trim the cost of the portion.") dishes=group.plowhorses %}
+    </div>
+    <p class="days-legend">
+        <span>{% blocktrans trimmed with avg=group.contribution_threshold|cop %}Top row: a portion leaves more than the family average ({{ avg }}).{% endblocktrans %}</span>
+        <span>{% blocktrans trimmed with share=group.popularity_threshold|pct %}Right column: the dish sells at least {{ share }} of the family's portions.{% endblocktrans %}</span>
+        <span>{% trans "A wider tile sold more. The notes compare with the period before." %}</span>
+    </p>
+    <details class="more-view">
+        <summary>{% trans "See it as a scatter chart" %}</summary>
+        <div class="panel mt-3">
+            <div class="quadrant-chart"><canvas id="menu-chart" role="img"
+                aria-label="{% trans 'Each dish by portions sold and what one portion leaves' %}"></canvas></div>
+        </div>
+    </details>
+</section>
+
+{% if moves or weak_dogs %}
+<section class="panel mb-4" aria-labelledby="decisions-title">
+    <div class="panel-title">
+        <h2 id="decisions-title">{% trans "Decisions" %}</h2>
+        {% if moves %}<span class="text-muted small">{% blocktrans trimmed with total=moves_total|cop_short %}{{ total }} more a month if they sell the same{% endblocktrans %}</span>{% endif %}
+    </div>
+    <p class="text-muted small">
+        {% trans "Prices are the ones on the menu, consumption tax (8%) included. The POS stores them without the tax, so they read lower on the other pages." %}
+    </p>
+    <ul class="decisions">
+        {% for move in moves %}
+        <li>
+            <span class="decision-money">{{ move.extra_per_month|cop_short }}</span>
+            <span>
+                <strong>{{ move.dish.name }}</strong>:
+                {% blocktrans trimmed with a=move.current|cop b=move.proposed|cop rise=move.rise_pct|change %}from {{ a }} to {{ b }} on the menu ({{ rise }}){% endblocktrans %}{% if move.dish.by_gram %} {% trans "per 100 g" %}{% endif %}.
+            </span>
+            <span class="decision-why">
+                {% if move.reaches_average %}
+                {% trans "At that price a portion leaves the family average and the dish becomes a star." %}
+                {% else %}
+                {% blocktrans trimmed with needed=move.needed|cop cap=cap|pct:0 %}To leave the family average it would need {{ needed }}; the {{ cap }} cap per change does not let it get there at once.{% endblocktrans %}
+                {% endif %}
+            </span>
+        </li>
+        {% endfor %}
+        {% for dish, monthly in weak_dogs %}
+        <li>
+            <span class="decision-money is-muted">{{ monthly|cop_short }}</span>
+            <span>
+                <strong>{{ dish.name }}</strong>:
+                {% blocktrans trimmed with n=dish.portions|num %}that is all it leaves a month, from {{ n }} portions in the period.{% endblocktrans %}
+            </span>
+            <span class="decision-why">{% trans "A candidate to leave the menu, or to become a seasonal special." %}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+{% if sim.dishes %}
+<section class="panel mb-4" aria-labelledby="sim-title">
+    <div class="panel-title"><h2 id="sim-title">{% trans "Price simulator" %}</h2></div>
+    <div class="sim-controls">
+        <div>
+            <label for="sim-dish" class="form-label">{% trans "Dish" %}</label>
+            <select id="sim-dish" class="form-select"></select>
+        </div>
+        <div>
+            <label for="sim-price" class="form-label">{% trans "Menu price" %}: <span id="sim-price-label"></span></label>
+            <input type="range" id="sim-price" class="form-range">
+        </div>
+    </div>
+    <dl class="stats stats-grid sim-out">
+        <div><dt>{% trans "Rise" %}</dt><dd class="figure" id="sim-rise"></dd><span class="delta flat" id="sim-cap"></span></div>
+        <div><dt>{% trans "A portion leaves" %}</dt><dd class="figure" id="sim-contribution"></dd><span class="delta flat" id="sim-average"></span></div>
+        <div><dt>{% trans "It becomes" %}</dt><dd class="figure"><span class="kind-pill" id="sim-kind"></span></dd></div>
+        <div><dt>{% trans "Extra a month" %}</dt><dd class="figure" id="sim-extra"></dd><span class="delta flat" id="sim-portions"></span></div>
+    </dl>
+    <p class="text-muted small mb-0">{% trans "It assumes the dish keeps selling the same. A big rise can cost orders, which is what the cap is for." %}</p>
+</section>
+{% endif %}
+{% endif %}
+
 {% if group.uncosted %}
-<section class="panel mt-4" aria-labelledby="uncosted-title">
+<section class="panel mb-4" aria-labelledby="uncosted-title">
     <div class="panel-title"><h2 id="uncosted-title"><span class="mark amber" aria-hidden="true"></span>{% trans "Without a cost" %}</h2></div>
     <p class="text-muted small">{% trans "These cannot be placed until they have a cost: from the POS report, or a recipe on the product's page." %}</p>
     <ul class="plain-list">
@@ -61,95 +141,128 @@
 </section>
 {% endif %}
 
-<p class="text-muted small mt-4">{% trans "Cuts sold by the gram are counted in 280 g portions, the portion per guest the event quotes use." %}</p>
-{{ points|json_script:"menu-points" }}
-{{ thresholds|json_script:"menu-thresholds" }}
+<p class="text-muted small">{% trans "Cuts sold by the gram are counted in 280 g portions, the portion per guest the event quotes use." %}</p>
+{{ sim|json_script:"menu-sim" }}
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
-{% if group.dishes %}
+{% if sim.dishes %}
 {% get_current_language as LANGUAGE_CODE %}
 <script>
 (function () {
-    const points = JSON.parse(document.getElementById("menu-points").textContent);
-    const limits = JSON.parse(document.getElementById("menu-thresholds").textContent);
+    const sim = JSON.parse(document.getElementById("menu-sim").textContent);
     const css = getComputedStyle(document.documentElement);
-    const color = {
-        star: css.getPropertyValue("--herb").trim(),
-        plowhorse: css.getPropertyValue("--amber").trim(),
-        puzzle: css.getPropertyValue("--ink-2").trim(),
-        dog: css.getPropertyValue("--loss").trim(),
-    };
-    const muted = css.getPropertyValue("--muted").trim();
-    const line = css.getPropertyValue("--line").trim();
     const locale = "{{ LANGUAGE_CODE }}" === "es" ? "es-CO" : "en-US";
-    const money = new Intl.NumberFormat(locale, {style: "currency", currency: "COP", maximumFractionDigits: 0});
-    const count = new Intl.NumberFormat(locale, {maximumFractionDigits: 0});
-    const portionsLabel = "{{ _('Portions sold')|escapejs }}";
-    const leavesLabel = "{{ _('Each portion leaves')|escapejs }}";
-
-    const quadrants = {
-        id: "quadrants",
-        afterDraw: function (chart) {
-            const ctx = chart.ctx, x = chart.scales.x, y = chart.scales.y;
-            ctx.save();
-            ctx.strokeStyle = muted;
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            const px = x.getPixelForValue(limits.portions);
-            const py = y.getPixelForValue(limits.contribution);
-            ctx.moveTo(px, y.top); ctx.lineTo(px, y.bottom);
-            ctx.moveTo(x.left, py); ctx.lineTo(x.right, py);
-            ctx.stroke();
-            ctx.restore();
+    const whole = new Intl.NumberFormat(locale, {maximumFractionDigits: 0});
+    const one = new Intl.NumberFormat(locale, {minimumFractionDigits: 1, maximumFractionDigits: 1});
+    const cop = function (v) { return (v < 0 ? "−" : "") + "$" + whole.format(Math.abs(Math.round(v))); };
+    const mill = function (v) { return Math.abs(v) >= 1e6 ? "$" + one.format(v / 1e6) + " M" : cop(v); };
+    const pct = function (v) { return (v > 0 ? "+" : "") + one.format(v) + (locale === "es-CO" ? " %" : "%"); };
+    const t = {
+        kinds: {
+            star: "{% filter escapejs %}{% trans 'Star' %}{% endfilter %}",
+            plowhorse: "{% filter escapejs %}{% trans 'Plowhorse' %}{% endfilter %}",
+            puzzle: "{% filter escapejs %}{% trans 'Puzzle' %}{% endfilter %}",
+            dog: "{% filter escapejs %}{% trans 'Dog' %}{% endfilter %}",
         },
+        today: "{% filter escapejs %}{% trans 'today {price}' %}{% endfilter %}",
+        per100: "{% filter escapejs %}{% trans 'per 100 g' %}{% endfilter %}",
+        cap: "{% filter escapejs %}{% trans 'Cap of {cap}: {price}' %}{% endfilter %}",
+        overCap: "{% filter escapejs %}{% trans 'Over the cap of {cap} ({price})' %}{% endfilter %}",
+        average: "{% filter escapejs %}{% trans 'Family average: {price}' %}{% endfilter %}",
+        portions: "{% filter escapejs %}{% trans '{n} portions a month' %}{% endfilter %}",
+        portionsAxis: "{% filter escapejs %}{% trans 'Portions sold' %}{% endfilter %}",
+        leavesAxis: "{% filter escapejs %}{% trans 'Each portion leaves' %}{% endfilter %}",
     };
+    const months = sim.days / 30;
+    const capText = one.format(sim.cap).replace(/[.,]0$/, "") + (locale === "es-CO" ? " %" : "%");
 
-    new Chart(document.getElementById("menu-chart"), {
-        type: "scatter",
-        data: {
-            datasets: [{
-                data: points,
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                backgroundColor: points.map(function (p) { return color[p.kind]; }),
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            animation: false,
-            plugins: {
-                legend: {display: false},
-                tooltip: {
-                    displayColors: false,
-                    callbacks: {
+    // Simulator
+    const select = document.getElementById("sim-dish"), range = document.getElementById("sim-price");
+    sim.dishes.forEach(function (d, i) {
+        const option = document.createElement("option");
+        option.value = i; option.textContent = d.name;
+        select.appendChild(option);
+    });
+    const firstPlowhorse = sim.dishes.findIndex(function (d) { return d.kind === "plowhorse"; });
+    select.value = firstPlowhorse >= 0 ? firstPlowhorse : 0;
+    const capOf = function (d) { return Math.floor(d.price * (1 + sim.cap / 100) / sim.step) * sim.step; };
+    const unit = function (d) { return d.byGram ? " " + t.per100 : ""; };
+
+    function setUp() {
+        const d = sim.dishes[select.value];
+        range.min = d.price; range.max = Math.ceil(d.price * 1.2 / sim.step) * sim.step;
+        range.step = sim.step; range.value = d.price;
+        update();
+    }
+    function update() {
+        const d = sim.dishes[select.value], price = Number(range.value);
+        const delta = (price - d.price) * d.factor;
+        const contribution = d.contribution + delta;
+        const average = sim.average + delta * d.portions / sim.totalPortions;
+        const popular = d.mix >= sim.popularity, profitable = contribution >= average;
+        const kind = popular && profitable ? "star" : popular ? "plowhorse" : profitable ? "puzzle" : "dog";
+        const cap = capOf(d), pill = document.getElementById("sim-kind"), capNote = document.getElementById("sim-cap");
+        document.getElementById("sim-price-label").textContent = cop(price) + unit(d) + " (" + t.today.replace("{price}", cop(d.price)) + ")";
+        document.getElementById("sim-rise").textContent = pct((price / d.price - 1) * 100);
+        capNote.textContent = (price > cap ? t.overCap : t.cap).replace("{cap}", capText).replace("{price}", cop(cap));
+        capNote.className = "delta " + (price > cap ? "down" : "flat");
+        document.getElementById("sim-contribution").textContent = cop(contribution);
+        document.getElementById("sim-average").textContent = t.average.replace("{price}", cop(average));
+        pill.textContent = t.kinds[kind]; pill.dataset.kind = kind;
+        document.getElementById("sim-extra").textContent = mill(delta * d.portions / months);
+        document.getElementById("sim-portions").textContent = t.portions.replace("{n}", one.format(d.portions / months));
+    }
+    select.addEventListener("change", setUp);
+    range.addEventListener("input", update);
+    setUp();
+
+    // Scatter, drawn the first time it is opened.
+    const details = document.querySelector(".more-view");
+    let drawn = false;
+    details.addEventListener("toggle", function () {
+        if (!details.open || drawn) { return; }
+        drawn = true;
+        const color = {
+            star: css.getPropertyValue("--herb").trim(), plowhorse: css.getPropertyValue("--amber").trim(),
+            puzzle: css.getPropertyValue("--ink-2").trim(), dog: css.getPropertyValue("--loss").trim(),
+        };
+        const muted = css.getPropertyValue("--muted").trim(), line = css.getPropertyValue("--line").trim();
+        const limitX = sim.totalPortions * sim.popularity / 100;
+        const points = sim.dishes.map(function (d) { return {x: d.portions, y: d.contribution, name: d.name, kind: d.kind}; });
+        new Chart(document.getElementById("menu-chart"), {
+            type: "scatter",
+            data: {datasets: [{data: points, pointRadius: 6, pointHoverRadius: 8,
+                               backgroundColor: points.map(function (p) { return color[p.kind]; })}]},
+            options: {
+                maintainAspectRatio: false, animation: false,
+                plugins: {
+                    legend: {display: false},
+                    tooltip: {displayColors: false, callbacks: {
                         title: function (items) { return items[0].raw.name; },
                         label: function (item) {
-                            return [
-                                portionsLabel + ": " + count.format(item.raw.x),
-                                leavesLabel + ": " + money.format(item.raw.y),
-                            ];
+                            return [t.portionsAxis + ": " + whole.format(item.raw.x), t.leavesAxis + ": " + cop(item.raw.y)];
                         },
-                    },
+                    }},
+                },
+                scales: {
+                    x: {beginAtZero: true, title: {display: true, text: t.portionsAxis, color: muted}, grid: {color: line}, ticks: {color: muted, maxTicksLimit: 6}},
+                    y: {beginAtZero: true, title: {display: true, text: t.leavesAxis, color: muted}, grid: {color: line},
+                        ticks: {color: muted, maxTicksLimit: 5, callback: function (v) { return cop(v); }}},
                 },
             },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    title: {display: true, text: portionsLabel, color: muted},
-                    grid: {color: line},
-                    ticks: {color: muted, maxTicksLimit: 6},
+            plugins: [{
+                id: "quadrants",
+                afterDraw: function (chart) {
+                    const ctx = chart.ctx, x = chart.scales.x, y = chart.scales.y;
+                    const px = x.getPixelForValue(limitX), py = y.getPixelForValue(sim.average);
+                    ctx.save(); ctx.strokeStyle = muted; ctx.setLineDash([4, 4]); ctx.beginPath();
+                    ctx.moveTo(px, y.top); ctx.lineTo(px, y.bottom); ctx.moveTo(x.left, py); ctx.lineTo(x.right, py);
+                    ctx.stroke(); ctx.restore();
                 },
-                y: {
-                    beginAtZero: true,
-                    title: {display: true, text: leavesLabel, color: muted},
-                    grid: {color: line},
-                    ticks: {color: muted, maxTicksLimit: 5, callback: function (v) { return money.format(v); }},
-                },
-            },
-        },
-        plugins: [quadrants],
+            }],
+        });
     });
 })();
 </script>

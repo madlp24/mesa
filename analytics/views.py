@@ -6,12 +6,14 @@ from pathlib import Path
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
+from catalog.families import family_of, is_hidden
+from catalog.models import Category
 from sales.models import Sale
 
 from .exports import build_analysis_workbook, build_productos_vendidos_workbook
@@ -19,7 +21,12 @@ from .alerts import DEFAULT_THRESHOLD, margin_alerts
 from .comparisons import GRAINS, compare
 from .forms import WorkbookUpdateForm
 from .days import between_weekdays, holiday_report, open_days, upcoming_holidays, weekday_profile
-from .menu_engineering import menu_engineering
+from .menu_engineering import (
+    menu_engineering,
+    price_moves,
+    weakest_dogs,
+    with_movement,
+)
 from .overview import overview
 from .periods import PRESETS, latest_sale_day, window_for
 from .unified_excel import UnifiedUpdateError, update_productos_vendidos
@@ -329,24 +336,54 @@ def comparisons(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def menu_engineering_view(request: HttpRequest) -> HttpResponse:
-    """Each dish of a menu group as a star, plowhorse, puzzle or dog (US50).
+    """Each dish of a menu family as a star, plowhorse, puzzle or dog (US50),
+    how it moved against the period before, and the prices worth changing
+    (US53).
 
     Defaults to 90 days: a month is a thin sample for a dish ordered twice a
     week.
     """
-    window = window_for(request.restaurant, request.GET, default="90d")
-    groups = menu_engineering(request.restaurant, window.start, window.end)
+    restaurant = request.restaurant
+    window = window_for(restaurant, request.GET, default="90d")
+    groups = menu_engineering(restaurant, window.start, window.end)
     wanted = request.GET.get("group", "")
     group = next((g for g in groups if g.name == wanted), groups[0] if groups else None)
-    points = [
-        {
-            "name": dish.name,
-            "x": float(dish.portions),
-            "y": float(dish.contribution),
-            "kind": dish.kind,
+
+    moves, dogs, sim = [], [], {}
+    if group:
+        before_start, before_end = window.previous
+        previous = next(
+            (g for g in menu_engineering(restaurant, before_start, before_end)
+             if g.name == group.name),
+            None,
+        )
+        with_movement(group, previous)
+        cap, step = restaurant.price_rise_cap, restaurant.menu_price_step
+        moves = price_moves(group, days=window.days, cap_pct=cap, step=step)
+        dogs = weakest_dogs(group, days=window.days)
+        sim = {
+            "days": window.days,
+            "step": step,
+            "cap": float(cap),
+            "popularity": float(group.popularity_threshold),
+            "average": float(group.contribution_threshold),
+            "totalPortions": float(group.total_portions),
+            "dishes": [
+                {
+                    "name": d.name,
+                    "portions": float(d.portions),
+                    "contribution": float(d.contribution),
+                    "mix": float(d.mix_pct),
+                    "kind": d.kind,
+                    "price": float(d.menu_price),
+                    "factor": float(d.menu_factor),
+                    "byGram": d.by_gram,
+                }
+                for d in sorted(group.dishes, key=lambda d: d.revenue, reverse=True)
+                if d.menu_price > 0
+            ],
         }
-        for dish in (group.dishes if group else [])
-    ]
+    months = window.days / 30
     return render(
         request,
         "analytics/menu_engineering.html",
@@ -355,14 +392,37 @@ def menu_engineering_view(request: HttpRequest) -> HttpResponse:
             "presets": PRESETS,
             "groups": groups,
             "group": group,
-            "points": points,
-            "thresholds": {
-                "portions": float(
-                    sum(d.portions for d in group.dishes) * group.popularity_threshold / 100
-                ) if group and group.dishes else 0,
-                "contribution": float(group.contribution_threshold) if group else 0,
-            },
+            "moves": moves,
+            "moves_total": sum((m.extra_per_month for m in moves), Decimal("0")),
+            "weak_dogs": dogs,
+            "cost_drift_month": (group.cost_drift / Decimal(months)) if group and months else None,
+            "cap": restaurant.price_rise_cap,
+            "sim": sim,
         },
+    )
+
+
+@login_required
+def menu_families(request: HttpRequest) -> HttpResponse:
+    """Which POS groups make up each menu family, and which are left out (US53)."""
+    categories = list(
+        Category.objects.filter(restaurant=request.restaurant).order_by("name")
+    )
+    if request.method == "POST":
+        for category in categories:
+            family = (request.POST.get(f"family-{category.pk}") or "").strip()[:60]
+            category.menu_family = family or family_of(category)
+            category.menu_hidden = request.POST.get(f"hidden-{category.pk}") == "on"
+            category.save(update_fields=["menu_family", "menu_hidden"])
+        messages.success(request, gettext("Menu families saved."))
+        return redirect("analytics:menu_engineering")
+    rows = [
+        {"category": c, "family": family_of(c), "hidden": is_hidden(c)} for c in categories
+    ]
+    return render(
+        request,
+        "analytics/menu_families.html",
+        {"rows": rows, "families": sorted({row["family"] for row in rows})},
     )
 
 

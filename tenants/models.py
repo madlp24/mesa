@@ -41,6 +41,10 @@ class Restaurant(models.Model):
     minimum_quote_margin = models.DecimalField(
         max_digits=5, decimal_places=2, default=Decimal("60.00")
     )
+    # Menu engineering price suggestions (US53): never propose more than this
+    # rise in one change, and round menu prices to this step.
+    price_rise_cap = models.DecimalField(max_digits=4, decimal_places=1, default=8)
+    menu_price_step = models.PositiveIntegerField(default=1000)
 
     class Meta:
         ordering = ["name"]

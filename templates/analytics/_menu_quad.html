@@ -1,0 +1,30 @@
+{% load i18n mesa %}
+<section class="quad" data-kind="{{ kind }}" aria-labelledby="quad-{{ kind }}">
+    <div class="quad-head">
+        <h3 id="quad-{{ kind }}">{{ title }}</h3>
+        <span class="count">{{ dishes|length }}</span>
+    </div>
+    <p class="quad-advice">{{ advice }}</p>
+    {% if dishes %}
+    <div class="tiles">
+        {% for dish in dishes %}
+        <div class="tile" style="flex-grow: {{ dish.weight }}">
+            <a href="{% url 'catalog:product_detail' dish.product_id %}">{{ dish.name }}</a>
+            <span class="tile-figure">{{ dish.revenue|cop_short }}</span>
+            <span class="tile-sub">{% blocktrans trimmed with amount=dish.contribution|cop %}leaves {{ amount }} a portion{% endblocktrans %}</span>
+            {% if dish.previous %}
+            <span class="chips-row">
+                {% if dish.moved_from %}<span class="chip-note">{% blocktrans trimmed with kind=dish.moved_from %}was: {{ kind }}{% endblocktrans %}</span>{% endif %}
+                <span class="chip-note{% if dish.cost_alarm %} is-bad{% endif %}">{% blocktrans trimmed with change=dish.cost_change|change %}cost {{ change }}{% endblocktrans %}</span>
+                {% if dish.portions_shift is not None %}<span class="chip-note {% if dish.portions_shift > 0 %}is-good{% else %}is-bad{% endif %}">{% blocktrans trimmed with change=dish.portions_shift|change %}portions {{ change }}{% endblocktrans %}</span>{% endif %}
+            </span>
+            {% else %}
+            <span class="chips-row"><span class="chip-note">{% trans "new this period" %}</span></span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="quad-advice mb-0">{% trans "None in this family." %}</p>
+    {% endif %}
+</section>

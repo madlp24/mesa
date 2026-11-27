@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Menu families" %} - Mesa{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{% trans "Menu families" %}</h1>
+        <p>{% trans "Dishes are compared within a family: put together the POS groups a guest chooses between, and leave out the ones that are not dishes." %}</p>
+    </div>
+</div>
+
+<form method="post" class="narrow">
+    {% csrf_token %}
+    <div class="panel p-0 mb-3">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans "POS group" %}</th>
+                        <th scope="col">{% trans "Family" %}</th>
+                        <th scope="col">{% trans "Leave out" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td><label for="family-{{ row.category.pk }}" class="mb-0">{{ row.category.name }}</label></td>
+                        <td><input type="text" class="form-control form-control-sm" list="family-names" maxlength="60"
+                                   id="family-{{ row.category.pk }}" name="family-{{ row.category.pk }}" value="{{ row.family }}"></td>
+                        <td><input type="checkbox" class="form-check-input" name="hidden-{{ row.category.pk }}"
+                                   aria-label="{% blocktrans with name=row.category.name %}Leave out {{ name }}{% endblocktrans %}"{% if row.hidden %} checked{% endif %}></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <datalist id="family-names">{% for name in families %}<option value="{{ name }}">{% endfor %}</datalist>
+    <button type="submit" class="btn btn-primary">{% trans "Save families" %}</button>
+    <a class="btn btn-link" href="{% url 'analytics:menu_engineering' %}">{% trans "Cancel" %}</a>
+</form>
+{% endblock %}
