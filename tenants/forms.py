@@ -61,7 +61,7 @@ class RestaurantSettingsForm(forms.ModelForm):
     target_cost_pct = forms.DecimalField(
         required=False, min_value=1, max_value=100,
         label=_("Target food cost (%)"),
-        help_text=_("Cost over the price without consumption tax. Prices are suggested to reach it."),
+        help_text=_("Cost over the price without consumption tax, for menu families Mesa has no suggestion for. Each family's target is on the menu families page."),
     )
     price_rise_cap = forms.DecimalField(
         required=False, min_value=0, max_value=50,

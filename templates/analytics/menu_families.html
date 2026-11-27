@@ -8,7 +8,7 @@
     <div>
         <h1>{% trans "Menu families" %}</h1>
         <p>{% trans "Dishes are compared within a family: put together the POS groups a guest chooses between, and leave out the ones that are not dishes." %}</p>
-        <p>{% blocktrans trimmed with target=default_target %}A blank target cost uses the restaurant's, {{ target }}%, set in restaurant settings.{% endblocktrans %}</p>
+        <p>{% trans "The grey figure in each target is what Mesa suggests for that kind of group: beef runs dear, wine by the bottle at 45% is normal. Type your own to replace it." %}</p>
     </div>
 </div>
 
@@ -33,7 +33,7 @@
                                    id="family-{{ row.category.pk }}" name="family-{{ row.category.pk }}" value="{{ row.family }}"></td>
                         <td><input type="number" class="form-control form-control-sm" step="0.5" min="1" max="100" style="width: 6rem"
                                    name="target-{{ row.category.pk }}" value="{{ row.category.target_cost_pct|default_if_none:''|stringformat:'s' }}"
-                                   placeholder="{{ default_target|stringformat:'s' }}"
+                                   placeholder="{{ row.suggested|stringformat:'s' }}"
                                    aria-label="{% blocktrans with name=row.category.name %}Target cost for {{ name }}{% endblocktrans %}"></td>
                         <td><input type="checkbox" class="form-check-input" name="hidden-{{ row.category.pk }}"
                                    aria-label="{% blocktrans with name=row.category.name %}Leave out {{ name }}{% endblocktrans %}"{% if row.hidden %} checked{% endif %}></td>

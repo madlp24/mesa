@@ -12,7 +12,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
-from catalog.families import family_of, is_hidden
+from catalog.families import family_of, is_hidden, suggest_target
 from catalog.models import Category
 from sales.models import Sale
 
@@ -429,7 +429,13 @@ def menu_families(request: HttpRequest) -> HttpResponse:
         messages.success(request, gettext("Menu families saved."))
         return redirect("analytics:menu_engineering")
     rows = [
-        {"category": c, "family": family_of(c), "hidden": is_hidden(c)} for c in categories
+        {
+            "category": c,
+            "family": family_of(c),
+            "hidden": is_hidden(c),
+            "suggested": suggest_target(c.name) or request.restaurant.target_cost_pct,
+        }
+        for c in categories
     ]
     return render(
         request,

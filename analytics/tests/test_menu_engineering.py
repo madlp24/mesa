@@ -17,7 +17,7 @@ from analytics.menu_engineering import (
     weakest_dogs,
     with_movement,
 )
-from catalog.families import suggest_family, suggest_hidden
+from catalog.families import suggest_family, suggest_hidden, suggest_target
 from catalog.models import Category, Product
 from catalog.portions import portions, sold_by_gram
 from sales.models import Sale, SaleItem
@@ -220,6 +220,7 @@ def _four_cuts(restaurant):
     _dish(restaurant, "CORTES", "PICANHA", qty=40, price="50000", cost="20000")
     _dish(restaurant, "CORTES", "WAGYU", qty=5, price="300000", cost="75000")
     _dish(restaurant, "CORTES", "BIFE", qty=2, price="40000", cost="16000")
+    Category.objects.filter(name="CORTES").update(target_cost_pct=Decimal("30"))
     [group] = menu_engineering(restaurant)
     return group
 
@@ -257,6 +258,7 @@ def test_the_owners_arithmetic(restaurant):
     # 27.300 of raw material at 30% is 91.000 without tax: 98.280 on the menu,
     # 99.000 rounded to the thousand.
     _dish(restaurant, "CORTES", "PICANHA", qty=10, price="90000", cost="27300")
+    Category.objects.filter(name="CORTES").update(target_cost_pct=Decimal("30"))
     [group] = menu_engineering(restaurant)
     [dish] = group.dishes
 
@@ -358,6 +360,7 @@ def test_the_page_ends_in_decisions(logged_client, restaurant):
     _dish(restaurant, "CORTES", "RIBEYE", qty=40, price="100000", cost="28000", day=today)
     _dish(restaurant, "CORTES", "PICANHA", qty=40, price="50000", cost="20000", day=today)
     _dish(restaurant, "CORTES", "WAGYU", qty=5, price="300000", cost="75000", day=today)
+    Category.objects.filter(name="CORTES").update(target_cost_pct=Decimal("30"))
 
     response = logged_client.get(reverse("analytics:menu_engineering"))
     body = response.content.decode()
@@ -379,3 +382,39 @@ def test_the_cap_and_the_step_come_from_the_restaurant(logged_client, restaurant
     restaurant.refresh_from_db()
     assert (restaurant.price_rise_cap, restaurant.menu_price_step) == (Decimal("5.0"), 500)
     assert restaurant.target_cost_pct == Decimal("32.0")
+
+
+# -- suggested targets per family (US56) ----------------------------------------
+
+
+def test_each_kind_of_group_has_a_suggested_target():
+    assert suggest_target("CORTES") == Decimal("35")  # beef runs dear
+    assert suggest_target("CARNE PRIME") == Decimal("40")
+    assert suggest_target("VINOS Y ESPUMOSOS X BOTELLA") == Decimal("45")
+    assert suggest_target("COCTELES") == Decimal("22")
+    assert suggest_target("KAREN") is None
+
+
+@pytest.mark.django_db
+def test_a_family_uses_mesas_suggestion_until_the_owner_sets_one(restaurant):
+    _dish(restaurant, "VINOS X BOTELLA", "MALBEC", qty=10, price="200000", cost="88000")  # 44%
+
+    [group] = menu_engineering(restaurant)
+    assert (group.target_cost_pct, group.target_source) == (Decimal("45"), "suggested")
+    assert not group.dishes[0].over_target
+
+    Category.objects.filter(name="VINOS X BOTELLA").update(target_cost_pct=Decimal("40"))
+    [group] = menu_engineering(restaurant)
+    assert (group.target_cost_pct, group.target_source) == (Decimal("40"), "set")
+    assert group.dishes[0].over_target
+
+
+@pytest.mark.django_db
+def test_an_unknown_group_takes_the_restaurants_target(restaurant):
+    restaurant.target_cost_pct = Decimal("33")
+    restaurant.save()
+    _dish(restaurant, "KAREN", "CARNE DR", qty=10, price="100000", cost="34000")
+
+    [group] = menu_engineering(restaurant)
+
+    assert (group.target_cost_pct, group.target_source) == (Decimal("33"), "default")
