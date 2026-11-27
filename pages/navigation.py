@@ -31,7 +31,7 @@ SECTIONS = (
             ("analytics:margin_analysis", _("All products")),
             ("analytics:menu_engineering", _("Menu engineering")),
         ],
-        (),
+        ("analytics:menu_families",),
     ),
     (
         "products",

@@ -64,7 +64,8 @@ US32 fill 'Datos totales' N/O/S/T from PDF footer (#66/PR68),
 US31 multi-file upload (#63/PR69), US47 current product costs (#169/PR170),
 US48 correct re-imported days (#171/PR172), US49 redesign (#174/PR175),
 US50 menu engineering (#176/PR177), US51 days and holidays (#178/PR179),
-US52 remaining pages redesigned (#180/PR181).
+US52 remaining pages redesigned (#180/PR181),
+US53 menu engineering decisions (#183).
 IN REVIEW: US33 event quotes with cost and margin (#78).
 Epics catalog, ingestion, dashboard and analysis are COMPLETE.
 
@@ -120,6 +121,24 @@ via LOCAL commands (not on the web; the master file lives on the owner's Mac). C
   `sales/importers/pdf_daily.py::parse_daily_totals` (BEBIDAS/ALIMENTOS block). Matches by
   date and fills in place; missing dates are appended with per-row formulas replicated.
   See [[productos-vendidos-update-process]] for the full monthly workflow.
+
+US53 menu engineering: families, board, movement, decisions (#183). Dishes are
+compared within a MENU FAMILY, not a raw POS group: `catalog/families.py`
+suggests one per category from its name (and hides voids/corkage);
+`Category.menu_family` / `menu_hidden` (blank/null = use the suggestion) hold
+what the owner set on `/margin/menu/families/`. The page is a 2x2 board (tiles
+sized by takings), the scatter is a secondary view. `with_movement` attaches
+the previous window's dish (cost change, portions change, quadrant it came
+from; `Group.cost_drift` = what cost rises take at today's sales).
+`price_moves`: for each plowhorse the MENU price (consumption tax 8% included,
+per 100 g for gram cuts; the POS stores it without tax) that makes a portion
+leave the family average, capped at `Restaurant.price_rise_cap` (default 8%)
+and rounded to `Restaurant.menu_price_step` (default 1000), both in settings.
+`weakest_dogs` only lists dogs under 1.5% of the family's margin. Client-side
+price simulator. Agreed roadmap after this: weekly profitability alert
+(configurable comparison + recipients, daily AutoFacturas sync with supplier
+price history), then protein shortfalls (monthly count lives in Soft;
+butchering "producciones"). Mesa is NOT becoming a POS.
 
 US50 menu engineering (#176): `analytics/menu_engineering.py`, tab in Margins
 (`/margin/menu/`, default 90 days -- new `90d` preset). Kasavana-Smith WITHIN

@@ -845,3 +845,79 @@ p { max-width: 72ch; }
 
 /* A form or a short read: one column, left-aligned with the rest of the app. */
 .narrow { max-width: 40rem; }
+
+/* ---- Menu engineering board (US53) ---------------------------------------- */
+
+.family-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; }
+.family-bar > a { color: var(--muted); white-space: nowrap; }
+
+.board {
+    display: grid;
+    gap: .75rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "star" "plowhorse" "puzzle" "dog";
+}
+@media (min-width: 900px) {
+    .board { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "puzzle star" "dog plowhorse"; }
+}
+.quad {
+    display: grid;
+    gap: .7rem;
+    align-content: start;
+    min-width: 0;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--ink-2);
+    border-radius: 10px;
+}
+.quad[data-kind="star"] { grid-area: star; border-top-color: var(--herb); }
+.quad[data-kind="plowhorse"] { grid-area: plowhorse; border-top-color: var(--amber); }
+.quad[data-kind="puzzle"] { grid-area: puzzle; border-top-color: var(--ink-2); }
+.quad[data-kind="dog"] { grid-area: dog; border-top-color: var(--loss); }
+.quad-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.quad-head h3 { margin: 0; font-size: var(--step-1); }
+.quad-head .count { font-stretch: var(--narrow); font-weight: 780; font-size: var(--step-2); line-height: 1; }
+.quad-advice { margin: 0; color: var(--muted); font-size: var(--step--1); }
+
+.tiles { display: flex; flex-wrap: wrap; gap: .5rem; }
+.tile {
+    flex: 1 1 9.5rem;
+    min-width: 0;
+    display: grid;
+    gap: .2rem;
+    align-content: start;
+    padding: .7rem .8rem;
+    border-radius: 8px;
+    background: #e6e9e5;
+}
+.quad[data-kind="star"] .tile { background: var(--herb-wash); }
+.quad[data-kind="plowhorse"] .tile { background: var(--amber-wash); }
+.quad[data-kind="dog"] .tile { background: var(--loss-wash); }
+.tile a { font-weight: 700; line-height: 1.2; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+.tile a:hover { text-decoration: underline; }
+.tile-figure { font-stretch: var(--narrow); font-weight: 780; font-size: var(--step-2); line-height: 1.05; }
+.tile-sub { font-size: var(--step--1); color: var(--ink-2); }
+.chips-row { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .2rem; }
+.chip-note { padding: .05rem .4rem; border-radius: 4px; background: var(--surface); color: var(--ink-2); font-size: .75rem; font-weight: 650; }
+.chip-note.is-bad { color: var(--loss); }
+.chip-note.is-good { color: var(--herb); }
+
+.more-view { margin-top: 1rem; }
+.more-view summary { cursor: pointer; color: var(--muted); font-size: var(--step--1); font-weight: 600; }
+.more-view summary:hover { color: var(--ink); }
+
+.decisions { list-style: none; margin: 0; padding: 0; display: grid; gap: .9rem; }
+.decisions li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: .2rem .9rem; align-items: start; }
+.decision-money { font-stretch: var(--narrow); font-weight: 780; font-size: var(--step-2); line-height: 1.1; color: var(--herb); }
+.decision-money.is-muted { color: var(--muted); }
+.decision-why { grid-column: 2; color: var(--muted); font-size: var(--step--1); }
+
+.sim-controls { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); margin-bottom: 1.25rem; }
+@media (min-width: 720px) { .sim-controls { grid-template-columns: minmax(0, 18rem) minmax(0, 1fr); align-items: end; } }
+.form-range { accent-color: var(--ember); }
+.sim-out { margin-bottom: 1rem; }
+.kind-pill { display: inline-block; padding: .1rem .55rem; border-radius: 6px; font-size: var(--step-1); background: #e6e9e5; color: var(--ink-2); }
+.kind-pill[data-kind="star"] { background: var(--herb-wash); color: var(--herb); }
+.kind-pill[data-kind="plowhorse"] { background: var(--amber-wash); color: var(--amber); }
+.kind-pill[data-kind="dog"] { background: var(--loss-wash); color: var(--loss); }

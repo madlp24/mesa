@@ -8,6 +8,7 @@ urlpatterns = [
     path("margin/", views.margin_analysis, name="margin_analysis"),
     path("days/", views.days_view, name="days"),
     path("margin/menu/", views.menu_engineering_view, name="menu_engineering"),
+    path("margin/menu/families/", views.menu_families, name="menu_families"),
     path("margin/alerts/", views.margin_alerts_view, name="margin_alerts"),
     path("workbook/", views.workbook_update, name="workbook_update"),
     path("pnl/", views.pnl_summary, name="pnl_summary"),

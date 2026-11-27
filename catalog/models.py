@@ -9,6 +9,10 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField()
     display_order = models.PositiveIntegerField(default=0)
+    # Menu engineering compares dishes within a family, not a raw POS group
+    # (US53). Blank / null mean "not decided": catalog.families suggests one.
+    menu_family = models.CharField(max_length=60, blank=True)
+    menu_hidden = models.BooleanField(null=True, blank=True)
 
     class Meta:
         ordering = ["display_order", "name"]

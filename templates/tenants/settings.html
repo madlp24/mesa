@@ -59,6 +59,24 @@
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
           </div>
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <label for="{{ form.price_rise_cap.id_for_label }}" class="form-label">{{ form.price_rise_cap.label }}</label>
+              <input type="number" step="0.5" min="0" max="50" name="{{ form.price_rise_cap.html_name }}"
+                     id="{{ form.price_rise_cap.id_for_label }}"
+                     class="form-control {% if form.price_rise_cap.errors %}is-invalid{% endif %}"
+                     value="{{ form.price_rise_cap.value|stringformat:'s' }}">
+              <div class="form-text">{{ form.price_rise_cap.help_text }}</div>
+            </div>
+            <div class="col-sm-6">
+              <label for="{{ form.menu_price_step.id_for_label }}" class="form-label">{{ form.menu_price_step.label }}</label>
+              <input type="number" step="1" min="1" name="{{ form.menu_price_step.html_name }}"
+                     id="{{ form.menu_price_step.id_for_label }}"
+                     class="form-control {% if form.menu_price_step.errors %}is-invalid{% endif %}"
+                     value="{{ form.menu_price_step.value|stringformat:'s' }}">
+              <div class="form-text">{{ form.menu_price_step.help_text }}</div>
+            </div>
+          </div>
           <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
         </form>
       </div>
